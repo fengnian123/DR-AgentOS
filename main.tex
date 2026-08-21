@@ -33,7 +33,6 @@
 \newcommand{\xmark}{\ding{55}}
 \newcommand{\starmark}{\textsuperscript{\smash{*}}}
 \newcommand{\drop}[1]{\textcolor{gray}{$\downarrow$#1}}
-
 \newcommand{\openvla}{\textsc{OpenVLA}}
 \newcommand{\basevla}{\textsc{BaseVLA}}
 \newcommand{\fullsoft}{\textsc{FullSoft}}
@@ -53,6 +52,7 @@
 \definecolor{tblgrouprl}{RGB}{235,242,249}
 \definecolor{tblgroupvisual}{RGB}{243,239,248}
 \definecolor{tblgroupmatched}{RGB}{242,244,248}
+
 \newcommand{\hdr}[1]{\colorbox{tblheader}{\strut #1}}
 \newcommand{\na}{\textcolor{tblna}{--}}
 
@@ -62,18 +62,21 @@
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
+
 \theoremstyle{definition}
 \newtheorem{definition}[theorem]{Definition}
 \newtheorem{assumption}[theorem]{Assumption}
+
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
-% Title, authors, affiliations in fairmeta format.
+% ============================================================
+% Title, authors, affiliations
+% ============================================================
+
 \title{%
-\raisebox{-0.3ex}{\includegraphics[height=0.34in]{figures/logo2.png}}%
-\hspace{0.2em}%
-\raisebox{-0.3ex}{\includegraphics[height=0.28in,width=2.0in]{figures/logo_1.png}}:
-Persistent Embodied Intelligence with 4D World Memory and Evidence-Grounded Reflection}
+\textbf{DR-AgentOS: A Persistent Embodied Agent Operating System with 4D World Memory}
+}
 
 \author[1]{Mingjian Gao}
 \author[1,\ddagger]{Wenqiao Zhang}
@@ -97,9 +100,12 @@ Persistent Embodied Intelligence with 4D World Memory and Evidence-Grounded Refl
 % \contribution[\dagger]{Project lead}
 \contribution[\ddagger]{Corresponding author}
 
+% ============================================================
+% Abstract
+% ============================================================
 
-
-\abstract{Recent work has begun to equip vision-language-action (VLA) policies with explicit intermediate reasoning. In embodied control, however, textual chain-of-thought is a poor fit: irrelevant or weakly textual information can interfere with action prediction, while autoregressive text decoding adds too much latency for real-time closed-loop execution.
+\abstract{
+Recent work has begun to equip vision-language-action (VLA) policies with explicit intermediate reasoning. In embodied control, however, textual chain-of-thought is a poor fit: irrelevant or weakly textual information can interfere with action prediction, while autoregressive text decoding adds too much latency for real-time closed-loop execution.
 We present \textbf{\method{}}, a visual intermediate-reasoning framework for accurate, low-latency VLA policies.
 Our bootstrapping philosophy is to \emph{guide action with effective visual thinking}: \method{} bootstraps action prediction through a compact visual-evidence interface that preserves spatial precision while avoiding decoding overhead.
 Besides, to further improve performance and efficiency, \method{} adopts a tailored selective routing mechanism to learn the visual evidence tokens, enabling low-latency inference while preserving high-capacity specialization. We also introduce \textbf{\texttt{VisualEvidence-Kit}}, a supervision-and-audit resource centered on a \textbf{\texttt{VisualEvidence-Agent}} that constructs a 754.7k VLA instructions \textbf{\texttt{VisualEvidence-Set}} for route supervision and counterfactual faithfulness tests.
@@ -108,21 +114,33 @@ Across multiple benchmarks and real-robot evaluation, \method{} achieves the hig
 \par\smallskip\noindent
 \renewcommand{\arraystretch}{1.1}
 \begin{tabular}{rl}
-    \raisebox{-0.2em}{\includegraphics[height=1.1em]{assets/github-logo.pdf}} &
-    \textbf{GitHub:} \url{https://github.com/fengnian123/VisualThink-VLA}
+\raisebox{-0.2em}{\includegraphics[height=1.1em]{assets/github-logo.pdf}} &
+\textbf{GitHub:} \url{https://github.com/fengnian123/VisualThink-VLA}
 \end{tabular}
 }
+
+% ============================================================
+% Document
+% ============================================================
+
 \begin{document}
 
 \maketitle
 
 \input{sections/introduction}
-\input{sections/related_work}
+
 \input{sections/method}
+
 \input{sections/experiments}
+
 \input{sections/results}
+
 \input{sections/ablations}
+
+\input{sections/related_work}
+
 \input{sections/conclusion}
+
 \input{sections/limitations}
 
 \beginappendix
