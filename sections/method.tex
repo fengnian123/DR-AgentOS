@@ -124,47 +124,211 @@ A global memory is useful only when it exposes the evidence relevant to the curr
 \paragraph{Query content.}
 The resulting $\mathbf{q}_t$ may specify target semantics, a spatial scope, a time interval, a desired entity state, and---when available---visual evidence of the target. Query construction therefore determines not only \emph{what} should be retrieved, but also \emph{where}, \emph{when}, and under which task constraints the retrieved evidence remains useful.
 
-\subsection{Multi-Channel Retrieval}
-\label{subsec:multi_channel_retrieval}
+\subsection{Task-Conditioned Multimodal Retrieval}
+\label{subsec:retrieval_impl}
 
-\paragraph{Complementary retrieval channels.}
-The memory record in Eq.~\eqref{eq:state_version} supports three complementary content channels: structured text and semantic relations, latent embeddings, and stored keyframe images. The semantic channel supports category and relation queries, the embedding channel supports open-ended semantic matching, and the visual channel supports appearance-based evidence retrieval.
-
-\paragraph{Unified ranking.}
-For a candidate entity-version pair $(v_i,h_i^k)$, we compute
+\paragraph{Retrieval records.}
+Given the task-conditioned query $\mathbf{q}_t$ defined in
+Eq.~\eqref{eq:query_construction}, \dragentos{} retrieves executable targets
+from persistent entity memory rather than directly predicting a spatial goal
+from language. For each stable entity $v_i$, the retrieval index stores
 \begin{equation}
-\begin{split}
-    S(v_i,h_i^k\mid\mathbf{q}_t) ={}&
-    \lambda_{\mathrm{txt}}S_{\mathrm{txt}}
-    +\lambda_{\mathrm{emb}}S_{\mathrm{emb}}
-    +\lambda_{\mathrm{img}}S_{\mathrm{img}} \\
-    &+\lambda_{\mathrm{spa}}S_{\mathrm{spa}}
-    +\lambda_{\mathrm{tmp}}S_{\mathrm{tmp}}
-    +\lambda_{\mathrm{rel}}S_{\mathrm{rel}}
-    +\lambda_{\mathrm{task}}S_{\mathrm{task}},
-    \label{eq:retrieval_score}
-\end{split}
+    e_i =
+    \left(
+    i,\,
+    d_i^{\mathrm{cur}},\,
+    I_i^{\mathrm{crop}},\,
+    I_i^{\mathrm{ctx}},\,
+    \mathbf{p}_i,\,
+    \boldsymbol{\xi}_i^{\mathrm{src}},\,
+    \mathcal{P}_i
+    \right),
+    \label{eq:retrieval_record}
 \end{equation}
-where all score terms are evaluated for $(v_i,h_i^k)$ against $\mathbf{q}_t$. The first three terms measure textual, embedding-based, and visual correspondence. The remaining terms encode spatial feasibility, temporal relevance, source reliability, and relevance to the active subtask.
+where $i$ is the persistent entity identifier, $d_i^{\mathrm{cur}}$ is its
+current structured description, $I_i^{\mathrm{crop}}$ is the object-centric
+crop, $I_i^{\mathrm{ctx}}$ is the corresponding full-frame context,
+$\mathbf{p}_i$ is the mapper-owned world coordinate,
+$\boldsymbol{\xi}_i^{\mathrm{src}}$ is the source observation pose, and
+$\mathcal{P}_i$ records the associated visual provenance.
 
-\paragraph{Task-adaptive weighting.}
-The nonnegative weights $\lambda_{(\cdot)}=\lambda_{(\cdot)}(\mathbf{q}_t)$ are task dependent. Route planning emphasizes reachability and current access state, historical inspection emphasizes temporal matching, and visual re-identification activates the image channel. A channel unavailable to a query receives zero weight. This task conditioning prevents a single fixed similarity metric from governing every embodied decision.
+The object crop used for retrieval does not contain a rendered bounding-box
+overlay. Bounding-box overlays are retained only as human- or VLM-readable
+verification evidence. Similarly, source poses and world coordinates are
+stored as structured metadata instead of being encoded as visual features.
+This separation keeps semantic retrieval independent from geometric
+authority.
 
-\subsection{Evidence-Aware Aggregation}
-\label{subsec:evidence_aggregation}
+\paragraph{Three complementary semantic channels.}
+The current implementation encodes each memory entity in a shared
+3,584-dimensional QQMM-v2 embedding space using three complementary channels:
+\emph{caption}, \emph{crop}, and \emph{context}. The caption channel captures
+object category and language-level attributes; the crop channel emphasizes
+target appearance while suppressing background; and the context channel
+preserves surrounding objects and scene semantics that may disambiguate
+visually similar instances.
 
-\paragraph{Context expansion.}
-Memory Retrieval does not return only the highest-scoring fragment. Let $\mathcal{C}_t$ be the candidate entity versions selected using Eq.~\eqref{eq:retrieval_score}. The system expands these candidates with relevant ancestors, incident spatial edges, and temporally adjacent versions before aggregation:
+Let $\mathbf{z}_q$ denote the normalized embedding of the language query and
+$\mathbf{z}_i^{(m)}$ the normalized representation of entity $i$ in channel
+$m$. The channel-wise similarity is
 \begin{equation}
-    \mathcal{R}(\mathcal{M}_t,\mathbf{q}_t)
-    = \operatorname{Agg}_{\mathbf{q}_t}
-    \left(\left\{v_i,h_i^k,\mathcal{N}_i,\mathcal{P}_i^k
-    \mid (i,k)\in\mathcal{C}_t\right\}\right).
-    \label{eq:evidence_aggregation}
+    s_i^{(m)}
+    =
+    \left\langle
+    \mathbf{z}_q,
+    \mathbf{z}_i^{(m)}
+    \right\rangle,
+    \qquad
+    m\in
+    \left\{
+    \mathrm{cap},
+    \mathrm{crop},
+    \mathrm{ctx}
+    \right\}.
+    \label{eq:qqmm_similarity}
 \end{equation}
+Each channel is ranked independently. Near-identical scores are treated as
+ties using a small numerical tolerance, preventing arbitrary file or instance
+ordering from introducing artificial rank differences.
 
-\paragraph{Structured evidence bundle.}
-The output is a structured bundle containing entity identity, world position, current and historical states, timestamps, confidence, supporting keyframes, and graph context. Compatible observations reinforce one another, while conflicting versions remain distinguishable rather than being averaged into a false consensus. The controller can consequently reason about both the likely answer and the evidence lineage behind it.
+\paragraph{Weighted Reciprocal Rank Fusion.}
+Rather than directly combining heterogeneous similarity values, \dragentos{}
+fuses channel-specific rankings through Weighted Reciprocal Rank Fusion
+(RRF). Let $r_i^{(m)}$ denote the rank of entity $i$ in channel $m$. Its fused
+score is
+\begin{equation}
+    S_i^{\mathrm{RRF}}
+    =
+    \sum_{m\in\mathcal{M}_q}
+    \frac{w_m}{K_{\mathrm{RRF}} + r_i^{(m)}},
+    \label{eq:weighted_rrf}
+\end{equation}
+where $K_{\mathrm{RRF}}=60$ in the current implementation and
+$\mathcal{M}_q$ denotes the set of active retrieval channels. For the three
+default semantic channels,
+\begin{equation}
+    \left(
+    w_{\mathrm{cap}},
+    w_{\mathrm{crop}},
+    w_{\mathrm{ctx}}
+    \right)
+    =
+    (1.0,\,1.0,\,0.5).
+    \label{eq:rrf_weights}
+\end{equation}
+This rank-based fusion avoids requiring the raw similarity scales of different
+evidence channels to be calibrated against one another, while allowing
+evidence that is consistently ranked highly across channels to receive
+stronger support.
+
+\subsubsection{Relation-Aware QueryGraph}
+\label{subsec:querygraph}
+
+\paragraph{Explicit spatial relations.}
+Some embodied queries cannot be resolved from object semantics alone. For
+example, ``the chair next to the tall plant'' requires identifying both a
+target category and a spatial anchor. For supported relation expressions,
+\dragentos{} converts the query into a small deterministic QueryGraph
+containing a target, an anchor, and an explicit spatial relation.
+
+For a \texttt{near} relation, the system first retrieves the most likely
+anchor entities using semantic retrieval. For target entity $i$ and anchor
+$a$, we define
+\begin{equation}
+    S_{i,a}^{\mathrm{spatial}}
+    =
+    \alpha
+    \frac{1}{r_a^{\mathrm{sem}}}
+    +
+    (1-\alpha)
+    \frac{1}{
+    1+
+    \left\|
+    \mathbf{p}_i^{xy}
+    -
+    \mathbf{p}_a^{xy}
+    \right\|_2
+    },
+    \label{eq:spatial_relation_score}
+\end{equation}
+where $r_a^{\mathrm{sem}}$ is the semantic rank of the anchor,
+$\mathbf{p}^{xy}$ denotes its horizontal world position, and $\alpha=0.45$
+in the current implementation. Each target retains the strongest compatible
+anchor,
+\begin{equation}
+    S_i^{\mathrm{spatial}}
+    =
+    \max_{a\in\mathcal{A}_q}
+    S_{i,a}^{\mathrm{spatial}},
+    \label{eq:best_spatial_anchor}
+\end{equation}
+where $\mathcal{A}_q$ is the retrieved anchor set. Entities are then ranked by
+$S_i^{\mathrm{spatial}}$ to obtain the spatial-route rank
+$r_i^{(\mathrm{spatial})}$. When a supported relation is successfully parsed,
+the spatial route is added to Eq.~\eqref{eq:weighted_rrf} with weight
+$w_{\mathrm{spatial}}=1.0$.
+
+The current QueryGraph parser is deliberately fail-closed. Unsupported
+relation structures do not trigger uncertain symbolic constraints; the system
+instead falls back to the standard three-channel retrieval pipeline. This
+design favors auditable relation reasoning over broad but unreliable language
+parsing.
+
+\subsection{Constrained VLM Verification and Executable Goal Binding}
+\label{subsec:constrained_vlm}
+
+\paragraph{Candidate-bounded visual verification.}
+The retrieval stage deliberately separates high-recall candidate generation
+from final visual confirmation. After ranking, \dragentos{} packages the
+highest-ranked candidates together with their captions, object crops,
+bounding-box overlays, source observations, and provenance. The current
+verifier inspects at most the top five candidates.
+
+Let
+\begin{equation}
+    \mathcal{C}_q^{\mathrm{vlm}}
+    =
+    \left\{
+    i_1,\ldots,i_{K_v}
+    \right\}
+    \label{eq:legal_candidate_set}
+\end{equation}
+denote the legal candidate identifiers presented to the VLM. The verifier is
+constrained to return one of three outcomes: \texttt{confirmed},
+\texttt{ambiguous}, or \texttt{not\_found}. For a confirmed result, the
+selected identifier must satisfy
+\begin{equation}
+    \widehat{i}
+    \in
+    \mathcal{C}_q^{\mathrm{vlm}},
+    \qquad
+    \text{or otherwise}\qquad
+    \widehat{i}=\varnothing.
+    \label{eq:constrained_vlm_output}
+\end{equation}
+Any identifier outside $\mathcal{C}_q^{\mathrm{vlm}}$ is rejected by the tool
+interface instead of being interpreted as a newly discovered object. Thus,
+the VLM serves as a bounded visual verifier rather than an authority that can
+create entities.
+
+\paragraph{Memory-owned spatial authority.}
+A second constraint applies to coordinates. Even after visual confirmation,
+the VLM never predicts or edits a navigation coordinate. If entity
+$\widehat{i}$ is confirmed, the executable semantic goal is bound directly to
+the world position stored by the memory system:
+\begin{equation}
+    \mathbf{g}_{\mathrm{sem}}
+    =
+    \mathbf{p}_{\widehat{i}},
+    \label{eq:semantic_goal_binding}
+\end{equation}
+where $\mathbf{p}_{\widehat{i}}$ is copied from the persistent memory record
+without numerical mutation. This establishes a strict separation between
+semantic reasoning and geometric authority: the language model determines
+\emph{which} retrieved entity best matches the task, whereas the mapper and
+memory determine \emph{where} that entity is. Consequently, downstream
+navigation operates on a source-grounded coordinate whose provenance can be
+traced back to the original observations.
 
 \section{Tool-Augmented Embodied Task Orchestration}
 \label{sec:tool_orchestration}
@@ -186,11 +350,109 @@ where $u_j$ is an executable or observable subtask, $\prec$ encodes prerequisite
 
 Explicit completion predicates align execution with the user's actual objective rather than a literal sequence of motions. They also expose infeasible steps, for which the controller can retrieve alternatives, explore, or request user input.
 
+\subsection{Typed Tool Registry and World-Authority Separation}
+\label{subsec:tool_registry}
+
+\paragraph{Typed tool interface.}
+\dragentos{} exposes memory, perception, planning, and inspection capabilities
+through a common typed interface rather than embedding their implementations
+inside the Agent Controller. Each registered tool is described by
+\begin{equation}
+    \mathrm{ToolSpec}
+    =
+    \left(
+    n,\,
+    \sigma_{\mathrm{in}},\,
+    \mathcal{C},\,
+    \nu
+    \right),
+    \label{eq:tool_spec}
+\end{equation}
+where $n$ is the tool name, $\sigma_{\mathrm{in}}$ is its structured input
+schema, $\mathcal{C}$ specifies the controller modes in which the tool is
+available, and $\nu$ denotes the schema version. A controller request is
+represented as
+\begin{equation}
+    \mathrm{ToolCall}
+    =
+    \left(
+    \mathrm{call\_id},\,
+    n,\,
+    \mathbf{a},\,
+    \nu
+    \right),
+    \label{eq:tool_call}
+\end{equation}
+where $\mathbf{a}$ contains the typed arguments. Execution returns
+\begin{equation}
+    \mathrm{ToolResult}
+    =
+    \left(
+    s,\,
+    \mathbf{y},\,
+    \mathcal{E},\,
+    \ell,\,
+    \varepsilon
+    \right),
+    \label{eq:tool_result}
+\end{equation}
+where $s$ is execution status, $\mathbf{y}$ is the structured payload,
+$\mathcal{E}$ contains evidence references, $\ell$ records execution latency,
+and $\varepsilon$ is a normalized error object when execution fails.
+
+\paragraph{Registry execution semantics.}
+Before a tool is invoked, the registry (i) resolves the registered tool name,
+(ii) checks whether the current controller mode is permitted, (iii) validates
+the arguments against the typed input schema, and (iv) accounts for the
+available tool-call budget. Only after these checks does execution enter the
+underlying worker. Failures are returned through the same
+\texttt{ToolResult} contract rather than being exposed as unstructured
+exceptions.
+
+{\setlength{\emergencystretch}{1em}%
+Representative tools include
+\nolinkurl{query_spatiotemporal_memory},
+\nolinkurl{query_exploration_state},
+\nolinkurl{decompose_scene_task},
+\nolinkurl{find_semantic_object}, and cross-round inspection or change-query
+tools. Navigation is exposed through the same interface, allowing a retrieved
+memory coordinate to be passed to the planner without requiring the
+controller to manipulate the map representation directly.\par}
+
+\paragraph{World-authority separation.}
+A central design principle of \dragentos{} is that high-level reasoning does
+not imply authority over the physical world model. The Agent Controller is
+responsible for interpreting goals, selecting tools, and deciding how to
+proceed from structured results, but source-grounded facts remain owned by the
+modules that produce them. Specifically,
+\begin{itemize}
+    \item the \textbf{memory and mapping layers} own persistent entity
+    identifiers, world coordinates, historical observations, and spatial
+    relations;
+    \item the \textbf{tool workers} own deterministic algorithmic outputs
+    such as retrieval rankings, change evidence, and navigation fields;
+    \item the \textbf{execution runtime} owns authoritative robot motion,
+    pose, observations, and collision feedback; and
+    \item the \textbf{verification and memory-update path} determines when
+    newly observed evidence is eligible to alter persistent state.
+\end{itemize}
+
+The controller therefore copies opaque identifiers and source-grounded
+coordinates from tool outputs instead of synthesizing replacements. For
+example, the VLM verification stage may select a legal entity identifier but
+cannot create a new identifier or modify its coordinate, while the navigation
+planner may snap that coordinate to a reachable grid cell without changing
+the underlying memory record. This separation turns the Tool Registry into
+more than a software dispatch mechanism: it defines the boundary between
+probabilistic high-level reasoning and auditable world-state computation,
+enabling heterogeneous perception, memory, navigation, and inspection modules
+to participate in a common AgentOS loop.
+
 \subsection{Memory-Grounded Tool Selection}
 \label{subsec:tool_selection}
 
 \paragraph{Standardized embodied tools.}
-The Tool Manager exposes Memory Retrieval, semantic detection, exploration-state query, map query, route planning, local exploration, navigation, inspection, and interaction through standardized call and return schemas. Each tool consumes task and world-state arguments and returns a structured result with execution status and supporting evidence. Tools are thus selected using the context supplied by Eq.~\eqref{eq:evidence_aggregation}, rather than being invoked in a predetermined order.
+The Tool Manager exposes Memory Retrieval, semantic detection, exploration-state query, map query, route planning, local exploration, navigation, inspection, and interaction through standardized call and return schemas. Each tool consumes task and world-state arguments and returns a structured result with execution status and supporting evidence. Tools are thus selected using the ranked and verified context produced by Eqs.~\eqref{eq:weighted_rrf} and~\eqref{eq:constrained_vlm_output}, rather than being invoked in a predetermined order.
 
 \paragraph{Decision criterion.}
 At each round, the controller balances task progress, execution cost, safety risk, and the value of resolving uncertainty. For a candidate tool--action pair, we define the conceptual utility
@@ -214,6 +476,122 @@ and select
 where $\mathcal{A}(z)$ is the argument or action space of tool $z$, $U_{\mathrm{task}}$ is expected progress toward $\chi$, $I_{\mathrm{gain}}$ is diagnostic information gain, $C_{\mathrm{exec}}$ is execution cost, and $R_{\mathrm{risk}}$ is task-dependent risk. The coefficients encode operational priorities.
 
 Equation~\eqref{eq:tool_criterion} is a unifying decision rule implemented through controller reasoning and tool feedback. It is not intended to imply that the system explicitly solves an end-to-end differentiable optimization problem.
+
+\subsection{Memory-Grounded FMM-Style Navigation}
+\label{subsec:fmm_navigation}
+
+\paragraph{From semantic coordinates to traversable goals.}
+The entity coordinate in Eq.~\eqref{eq:semantic_goal_binding} represents the
+spatial location of the object itself and may lie on an occupied cell or
+inside the object's geometric support. The navigation layer therefore
+converts the semantic target into a reachable navigation goal instead of
+requiring the retrieval or language model to predict a stand-off location.
+
+Let the top-down navigation map have metric resolution $\rho$ and world origin
+$(x_0,y_0)$. A world coordinate $(x,y)$ is mapped to image-style grid
+coordinates by
+\begin{equation}
+    r
+    =
+    \operatorname{round}
+    \left(
+    \frac{y-y_0}{\rho}
+    \right),
+    \qquad
+    c
+    =
+    \operatorname{round}
+    \left(
+    \frac{x-x_0}{\rho}
+    \right).
+    \label{eq:world_grid_transform}
+\end{equation}
+
+The traversability map is combined with the currently known collision mask,
+and the connected reachable component from the robot is denoted by
+$\mathcal{R}_t$. If the requested semantic goal $g$ is occupied or
+disconnected, it is snapped to the nearest reachable free cell:
+\begin{equation}
+    g'
+    =
+    \arg\min_{v\in\mathcal{R}_t}
+    \left\|
+    v-g
+    \right\|_2^2.
+    \label{eq:fmm_goal_snap}
+\end{equation}
+Goal snapping allows the upstream memory system to preserve the true entity
+coordinate while the navigation layer independently handles traversability.
+
+\paragraph{Geodesic distance field.}
+The current planner implements an FMM-style discrete geodesic field over an
+8-connected grid. Horizontal and vertical transitions have cost $1$, while
+diagonal transitions have cost $\sqrt{2}$. Let $D(v)$ denote the accumulated
+cost from grid cell $v$ to the snapped goal. The distance field satisfies the
+discrete recurrence
+\begin{equation}
+    D(v)
+    =
+    \min_{u\in\mathcal{N}_8(v)}
+    \left[
+    D(u)+c(u,v)
+    \right],
+    \qquad
+    D(g')=0.
+    \label{eq:fmm_distance_field}
+\end{equation}
+The field is propagated with a priority queue. We refer to this module as an
+\emph{FMM-style} planner because it exposes the same goal-to-source
+distance-field interface used by Fast Marching navigation, while the current
+implementation performs weighted shortest-path propagation on the discrete
+grid rather than solving the continuous Eikonal equation.
+
+\paragraph{Short-term goal and closed-loop action.}
+Within a local neighborhood $\mathcal{B}(v_t,R_{\mathrm{stg}})$ around the
+current robot cell $v_t$, the planner selects the reachable location with the
+smallest remaining geodesic distance:
+\begin{equation}
+    v_t^{*}
+    =
+    \arg\min_{
+        v\in
+        \mathcal{B}(v_t,R_{\mathrm{stg}})
+        \cap\mathcal{R}_t
+    }
+    D(v).
+    \label{eq:short_term_goal}
+\end{equation}
+The short-term goal is transformed back into metric coordinates and compared
+with the current heading to generate a discrete motion command such as
+\texttt{MOVE\_FORWARD}, \texttt{TURN\_LEFT},
+\texttt{TURN\_RIGHT}, or \texttt{STOP}.
+
+Importantly, the planner produces one action at a time. After execution, the
+updated pose and collision observation condition the next planning step:
+\begin{align}
+    \mathbf{a}_t
+    &=
+    \pi_{\mathrm{nav}}
+    \left(
+    \mathcal{G}_t^{\mathrm{nav}},
+    \boldsymbol{\xi}_t,
+    \mathbf{g}_{\mathrm{sem}}
+    \right),
+    \label{eq:navigation_action}\\
+    \left(
+    \boldsymbol{\xi}_{t+1},
+    \mathbf{o}_{t+1}
+    \right)
+    &=
+    \mathrm{Runtime}
+    \left(
+    \mathbf{a}_t
+    \right).
+    \label{eq:navigation_runtime}
+\end{align}
+This interface separates path planning from the platform-specific execution
+backend and allows the same semantic memory goal to be consumed by different
+robot or simulator runtimes.
 
 \subsection{Closed-Loop Execution and Replanning}
 \label{subsec:closed_loop_execution}
