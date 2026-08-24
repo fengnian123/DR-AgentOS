@@ -193,74 +193,92 @@ state.
 \section{4D World Memory}
 \label{sec:4d_memory}
 
-The 4D World Memory is the persistent cognitive substrate of \dragentos{}. It does not merely accumulate observations; it preserves the identity, spatial support, temporal evolution, and provenance of task-relevant entities across repeated operation.
+The 4D World Memory is the persistent cognitive substrate of \dragentos{}. We define ``4D'' not as a collection of timestamped frames, but as an \emph{executable world model} in which 3D semantic structure and temporal evolution are represented under a common identity system. It unifies geometry, semantics, topology, history, and source evidence so that the Agent Controller can reason about not only \emph{what} and \emph{where}, but also \emph{when}, \emph{whether it is still true}, and \emph{which observation warrants that belief}. This turns memory from a passive context cache into a world-authoritative system state shared by perception, planning, navigation, inspection, and reflection.
 
-\subsection{Multimodal Grounding and Entity Construction}
+\subsection{Direct 3D Semantic Projection}
 \label{subsec:grounding}
 
-\paragraph{Spatial registration.}
-All available geometric observations are registered to a common world frame using their timestamps and robot poses. For an image coordinate $\widetilde{\mathbf{u}}=[u,v,1]^\top$ with valid depth $D_t(u,v)$, the corresponding world point is
+\paragraph{A geometry-authoritative world frame.}
+All observations are synchronized by timestamp and registered through the robot pose into a common world frame. For an image coordinate $\widetilde{\mathbf{u}}=[u,v,1]^\top$ with valid depth $D_t(u,v)$, the corresponding world point is
 \begin{equation}
     \mathbf{x}^{w}
     = \operatorname{proj}_3\!\left(
-    \mathbf{T}_{w\leftarrow c,t}
-    \begin{bmatrix}
+        \mathbf{T}_{w\leftarrow c,t}
+        \begin{bmatrix}
         D_t(u,v)\mathbf{K}^{-1}\widetilde{\mathbf{u}}\\[1mm]1
-    \end{bmatrix}
+        \end{bmatrix}
     \right),
     \label{eq:backprojection}
 \end{equation}
-where $\mathbf{K}$ is the camera intrinsic matrix, $\mathbf{T}_{w\leftarrow c,t}$ transforms camera coordinates at time $t$ to the world frame, and $\operatorname{proj}_3$ retains the Euclidean spatial coordinates. The same frame indexes point clouds, meshes or 3DGS evidence, the navigation graph, and robot poses, making observations acquired from different viewpoints and times directly comparable.
+where $\mathbf{K}$ is the camera intrinsic matrix and $\mathbf{T}_{w\leftarrow c,t}$ is the time-indexed camera-to-world transform. The same coordinate authority is shared by RGB-D observations, point clouds, meshes or 3DGS evidence, navigation nodes, and robot poses; semantic reasoning therefore remains anchored to coordinates that downstream tools can execute.
 
-\paragraph{Open-vocabulary entity extraction.}
-Open-vocabulary detection supplies semantic regions without restricting memory to a closed object list \cite{minderer2022owlvit,liu2023groundingdino}. Depth-supported pixels within each region are back-projected using Eq.~\eqref{eq:backprojection} and summarized by a 3D bounding box and spatial support. This operation turns frame-local semantic detections into geometrically grounded entity hypotheses.
-
-\paragraph{Cross-view entity association.}
-A new detection $d$ is associated with a memory entity $v_i$ using the compatibility score
+\paragraph{Semantics are lifted into the graph, not stored beside it.}
+Open-vocabulary perception produces a semantic region, confidence, and visual descriptor \cite{liu2023groundingdino}. We lift this frame-local evidence into a 3D semantic observation and immediately project it into the world graph:
 \begin{equation}
-\begin{split}
-    A(v_i,d) ={}& \alpha_{\mathrm{iou}}
-    \operatorname{IoU}_{3\mathrm{D}}(v_i,d)
-    + \alpha_{\mathrm{sem}}\operatorname{cos}(\mathbf{f}_i^{\mathrm{cur}},\mathbf{f}_d) \\
-    &- \alpha_{\mathrm{dist}}\,\overline{d}(v_i,d)
-    + \alpha_{\mathrm{time}}\kappa_{\mathrm{time}}(v_i,d),
-    \label{eq:entity_association}
-\end{split}
+    \Pi_{\mathrm{sem}}:
+    (\ell,\Omega,\mathbf{x}^{w},\tau,\mathcal{P})
+    \longmapsto
+    \Delta\mathcal{G}_{\tau},
+    \label{eq:semantic_graph_projection}
 \end{equation}
-where $\operatorname{IoU}_{3\mathrm{D}}$ measures spatial overlap, $\mathbf{f}_i^{\mathrm{cur}}$ and $\mathbf{f}_d$ are the entity and detection features, $\overline{d}$ is normalized spatial distance, and $\kappa_{\mathrm{time}}$ evaluates temporal compatibility with the entity history. The nonnegative coefficients $\alpha_{(\cdot)}$ are configurable weights rather than quantities assumed to be learned.
+where $\ell$ is the canonical semantic class, $\Omega$ is the visual support, $\mathbf{x}^{w}$ is its 3D support, and $\mathcal{P}$ is the source provenance. The mapping either consolidates the observation into a persistent entity or instantiates a new graph node; its containment, proximity, and topological relations are then induced in the same coordinate frame. Thus, 3D semantics are not an auxiliary label layer attached after mapping: they are the primitive from which the semantic graph itself is incrementally constructed. This direct projection avoids the geometric information loss of first translating observations into free-form text and later attempting to recover executable structure.
 
-If $A(v_i,d)$ exceeds the association threshold, the detection contributes new evidence to $v_i$; otherwise, it initializes a new entity hypothesis. Repeating this process across viewpoints yields persistent 3D semantic entities while reducing duplicate records caused by viewpoint changes.
+\paragraph{Persistent identity through cross-view consolidation.}
+Observations are consolidated according to semantic compatibility, 3D proximity, temporal consistency, and source confidence. Canonical class normalization absorbs vocabulary aliases, while metric support separates repeated instances of the same class. Persistent categories accumulate evidence across viewpoints; transient observations remain queryable evidence without being prematurely promoted to long-term facts. The result is an identity-preserving entity layer in which repeated observations strengthen a world hypothesis instead of multiplying disconnected detections.
 
-\subsection{Hierarchical Spatio-Temporal Organization}
-\label{subsec:memory_hierarchy}
+\subsection{Time as a First-Class Memory Axis}
 
-\paragraph{A unified hierarchical graph.}
-We represent memory at time $t$ as a dynamic attributed graph
+\paragraph{Causal materialization rather than frame accumulation.}
+At decision time $t$, the agent materializes memory only from evidence observed no later than $t$:
 \begin{equation}
-    \mathcal{M}_t=(\mathcal{V}_t,\mathcal{E}_t,\mathcal{H}_t),
+    \mathcal{M}_{\leq t}
+    = \operatorname{Materialize}
+    \left(\Delta\mathcal{M}_{0},\ldots,\Delta\mathcal{M}_{t}\right).
+    \label{eq:causal_materialization}
+\end{equation}
+This prefix-bounded construction makes time operational. It prevents future leakage during replay, scopes retrieval to the agent's actual experience, and allows any past decision point to be reconstructed with the evidence available at that moment. Time therefore governs memory visibility and causality rather than serving as display metadata.
+
+\paragraph{Versioned identity and temporal validity.}
+We represent the materialized memory as
+\begin{equation}
+    \mathcal{M}_{\leq t}
+    =\left(\mathcal{G}_{\leq t},\mathbb{T}_{\leq t},\mathcal{B}_{\leq t}\right),
+    \qquad
+    \mathcal{G}_{\leq t}
+    =\left(\mathcal{V}_{\leq t},\mathcal{E}_{\leq t}\right),
     \label{eq:memory_graph}
 \end{equation}
-where $\mathcal{V}_t$ contains semantic entities, $\mathcal{E}_t$ contains spatial, topological, and hierarchical relations, and $\mathcal{H}_t$ stores versioned state histories together with their evidence. Relations such as \texttt{inside}, \texttt{contains}, \texttt{adjacent-to}, \texttt{connected-by}, and \texttt{has-entrance} organize entities at multiple spatial resolutions.
-
-Campus--Zone--Place--Entrance and Time--Floor--Room--Object are therefore not separate map types; they are instantiations of the same graph schema at different spatial scales. Geometric layers support reachability and precise navigation, whereas semantic and hierarchical edges support queries expressed through names, categories, containment, or relative locations.
-
-\paragraph{Entity identity and state versions.}
-For an entity $v_i\in\mathcal{V}_t$, its stable record and $k$-th state version are represented as
+where $\mathcal{G}_{\leq t}$ is the current semantic-spatial graph, $\mathbb{T}_{\leq t}$ is a set of temporally ordered world-state segments, and $\mathcal{B}_{\leq t}$ is an evidence and provenance bank. For entity $v_i$, a stable identity and its $k$-th state version are
 \begin{align}
-    v_i &= \left(i,\ell_i,\mathbf{p}_i,\mathbf{b}_i,\mathcal{N}_i\right),
+    v_i &= \left(i,\ell_i,\mathbf{p}_i,\mathbf{b}_i,\mathcal{N}_i,\pi_i^{\mathrm{cur}}\right),
     \label{eq:entity_record}\\
     h_i^{k} &= \left(
-    \tau_i^{k},y_i^{k},c_i^{k},d_i^{k},\mathbf{f}_i^{k},
+    [\tau_{i,\mathrm{start}}^{k},\tau_{i,\mathrm{end}}^{k}),
+    y_i^{k},c_i^{k},d_i^{k},\mathbf{f}_i^{k},
     \mathcal{K}_i^{k},\mathcal{P}_i^{k}
-    \right).
+    \right),
     \label{eq:state_version}
 \end{align}
-Here $i$ is a persistent identifier, $\ell_i$ is the semantic label, $\mathbf{p}_i$ and $\mathbf{b}_i$ are the position and 3D extent, and $\mathcal{N}_i$ indexes incident graph relations. A history entry records its observation time $\tau_i^k$, state $y_i^k$, confidence $c_i^k$, structured description $d_i^k$, latent embedding $\mathbf{f}_i^k$, keyframes $\mathcal{K}_i^k$, and provenance $\mathcal{P}_i^k$, including sensor, pose, viewpoint, and source tool.
+where $\pi_i^{\mathrm{cur}}$ points to the currently supported version. The validity interval expresses when a state is believed to hold; $y_i^k$, $c_i^k$, and $d_i^k$ encode state, confidence, and structured semantics; and $\mathcal{K}_i^k$ and $\mathcal{P}_i^k$ retain the visual and sensor provenance. Stable identity is consequently separated from mutable state: a doorway can remain the same entity while its accessibility changes, and a relocated object can preserve its history without forcing the system to choose between overwriting the past and duplicating the object.
 
-Separating persistent identity from state versions is essential for dynamic environments. An entrance remains the same entity when its accessibility changes, while a moved object retains its earlier locations and observation history.
+\paragraph{World timelines as semantic change boundaries.}
+When multi-view evidence confirms a persistent scene change, \dragentos{} seals the previous world-state segment and opens a new timeline in $\mathbb{T}_{\leq t}$. Timeline edges record the semantic transition, while stable entity identities link corresponding versions across segments. This provides a principled temporal abstraction between two extremes: treating every frame as a new world, or collapsing an evolving environment into a timeless map. Queries can address the active world state, a selected historical segment, or the change connecting them.
+
+\subsection{Hierarchical Semantic Graph and Evidence Substrate}
+\label{subsec:memory_hierarchy}
+
+\paragraph{A multi-resolution world model.}
+The semantic graph is organized as \textbf{Timeline--Floor--Room--Object}. Trajectory-supported places are consolidated into rooms; room transitions induce topological connectivity; and every 3D semantic entity is inserted into its containing room with metric and semantic relations to nearby entities. Relations such as \texttt{contains}, \texttt{near}, \texttt{connected-by}, and \texttt{has-entrance} allow the same memory to answer symbolic questions, ground spatial references, and produce executable navigation targets. Coarse-to-fine traversal lets the controller operate at the resolution demanded by the task without maintaining separate, mutually inconsistent maps.
+
+\paragraph{Evidence-backed abstraction.}
+Every graph assertion remains connected to an evidence ledger containing its observation time, source pose, sensor or rendered view, visual support, confidence, and content identity. Event-triggered keyframes preserve informative motion, semantic novelty, entrances, and region transitions, while redundant frames remain represented through compact temporal deltas. Structured captions and visual embeddings enrich retrieval, but never replace geometry or provenance. The graph is therefore both compact and auditable: high-level concepts remain traceable to the exact world-grounded observations from which they were formed.
 
 \paragraph{Retention across memory timescales.}
-The graph is logically partitioned into long-term spatial facts, dynamic environment states, and current-task memory. This partition acts as a retention policy over the unified representation in Eq.~\eqref{eq:memory_graph}, rather than defining three disconnected stores. Persistent geometry and semantic relations can therefore coexist with short-lived road conditions and task-specific hypotheses without treating every observation as equally durable.
+Long-lived geometry and persistent entities form semantic memory; ordered observations and world-state segments form episodic memory; and unresolved, task-local hypotheses remain in working memory until verified. These are retention regimes over one shared graph, not isolated stores. Temporal validity, recurrence, semantic persistence, and task relevance jointly determine what is consolidated, what remains provisional, and what can be safely forgotten. In this way, the memory grows in knowledge rather than merely in volume.
+
+\subsection{Tool-Native Memory as a System Service}
+
+The 4D World Memory is exposed through the typed \nolinkurl{query_spatiotemporal_memory} interface rather than injected as an unstructured prompt. A query selects a replay time or world timeline and returns a causally bounded hierarchy, mapper-owned coordinates, current entity versions, capability declarations, and evidence handles. The same contract can be enriched with persistent objects, keyframes, captions, or embeddings without changing the controller-facing abstraction. As a result, heterogeneous tools consume one source of world authority: the language model decides \emph{what} to query and \emph{why}, while memory determines \emph{what has been observed}, \emph{where it exists}, and \emph{when that knowledge is valid}. This separation elevates 4D memory from a representation module to an operating-system primitive for persistent embodied cognition.
 
 \section{Task-Conditioned Memory Retrieval}
 \label{sec:memory_retrieval}
