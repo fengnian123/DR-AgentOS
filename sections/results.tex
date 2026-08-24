@@ -1,6 +1,47 @@
 \section{Results and Analysis}
 \label{sec:results}
 
+\noindent\textbf{Embodied Memory and EQA Comparison.}
+\Cref{tab:embodied_memory_benchmarks} compares \dragentos{} with direct multi-frame VQA references and representative memory-based embodied systems on the two locally integrated benchmarks. The table is included here as the reporting template; entries marked with ``--'' are intentionally reserved for the final benchmark runs.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.2pt}
+\renewcommand{\arraystretch}{1.18}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{0.23\textwidth}p{0.18\textwidth}ccccccc}
+\toprule
+\textbf{Method} & \textbf{Memory / Input} &
+\multicolumn{3}{c}{\hdr{\textbf{LMEE-Bench}}} &
+\multicolumn{4}{c}{\hdr{\textbf{OpenEQA (EM-EQA)}}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-9}
+& &
+\textbf{Frames} & \textbf{Choice Acc. $\uparrow$} & \textbf{Open Score $\uparrow$} &
+\textbf{Frames} & \textbf{ScanNet $\uparrow$} & \textbf{HM3D $\uparrow$} & \textbf{Overall $\uparrow$} \\
+\midrule
+\rowcolor{tblreported}
+\multicolumn{9}{c}{\textit{Direct multi-frame VQA references}} \\
+Qwen3.6-Plus & Direct VQA & \na & \na & \na & \na & \na & \na & \na \\
+GPT-5.4 & Direct VQA & \na & \na & \na & \na & \na & \na & \na \\
+\midrule
+\rowcolor{tblgroupmatched}
+\multicolumn{9}{c}{\textit{Memory-based embodied methods}} \\
+GPT-4 + ConceptGraphs \citep{gu2024conceptgraphs} & Scene graph & \na & \na & \na & \na & \na & \na & \na \\
+GPT-4 + LLaVA-1.5 & Caption memory & \na & \na & \na & \na & \na & \na & \na \\
+R-EQA & Retrieved captions & \na & \na & \na & \na & \na & \na & \na \\
+GraphPad & Dynamic scene memory & \na & \na & \na & \na & \na & \na & \na \\
+3D-Mem / SnapMem & 3D snapshot memory & \na & \na & \na & \na & \na & \na & \na \\
+GaussExplorer & 3DGS memory & \na & \na & \na & \na & \na & \na & \na \\
+\rowcolor{tblours}
+\textbf{\dragentos{} (Ours)} & \textbf{Persistent 4D world memory} & \na & \na & \na & \na & \na & \na & \na \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Comparison on the locally integrated LMEE-Bench and OpenEQA EM-EQA benchmarks. LMEE-Bench reports choice accuracy and normalized open-answer score; OpenEQA reports LLM-Match on ScanNet, HM3D, and the combined set. All ``--'' entries, including the per-benchmark frame budgets, are placeholders for pending full-benchmark results.}
+\label{tab:embodied_memory_benchmarks}
+\end{table}
+
 % \subsection{Primary Control Comparison}
 
 \begin{table}[H]
