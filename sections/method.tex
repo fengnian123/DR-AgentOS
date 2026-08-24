@@ -42,6 +42,154 @@ where $\mathcal{Q}$ constructs the query, $\mathcal{R}$ retrieves task-relevant 
 \paragraph{Action, verification, and memory evolution.}
 Execution results are evaluated against both task completion conditions and prior memory. When new evidence disagrees with stored knowledge, the system invokes Reflection before committing a memory update. The resulting perception--memory--reasoning--action--reflection--update cycle makes experience persistent: action changes the world model, and the revised world model conditions subsequent action.
 
+
+\section{Alternative Draft B:DR-AgentOS Framework}
+\label{sec:framework}
+
+\subsection{Persistent Embodied Task Setting}
+\label{subsec:problem_setting}
+
+Real-world embodied tasks require an agent to operate under partial
+observability over horizons much longer than a single perception cycle.
+The robot observes only a local portion of the environment, while objects,
+access conditions, traversability, and other task-relevant states may change
+between observations or repeated visits. Execution is also inherently
+stateful and uncertain: a planner may successfully return a route without the
+robot reaching the destination, and reaching a candidate location does not
+necessarily imply that the intended object or state has been verified.
+
+These properties make a one-shot
+``instruction--tool call--response'' pipeline insufficient for persistent
+robot operation. Long-horizon embodied execution requires the agent to
+maintain both task state and world state, use previous experience to ground
+new decisions, and revise its plan when physical outcomes differ from what was
+expected.
+
+We therefore formulate \dragentos{} as a persistent embodied system operating
+over an evolving world model. At time $t$, the system maintains the user task
+$\mathcal{T}$, the current robot and execution state $\mathbf{s}_t$, an active
+task plan $\mathcal{P}_t$, a set of available embodied capabilities
+$\mathcal{Z}$, and a persistent 4D World Memory $\mathcal{M}_t$. Rather than
+predicting a complete action sequence in advance, the system repeatedly
+retrieves relevant world state, selects and executes a grounded operation,
+evaluates its physical outcome, and updates the task or world state when
+supported by new evidence.
+
+
+\subsection{System Overview}
+\label{subsec:system_overview}
+
+\dragentos{} is organized around two tightly coupled components: a
+\emph{Closed-Loop Agent Harness} that manages task execution and a
+\emph{4D World Memory} that maintains persistent knowledge of the evolving
+environment. The former connects high-level reasoning to embodied tools and
+execution backends, while the latter provides spatial, semantic, temporal,
+and historical grounding for planning and verification.
+
+Given a user instruction, the Agent Harness maintains a lightweight task plan
+and repeatedly determines the next operation to perform. Before each decision,
+task-relevant information is retrieved from the 4D World Memory and combined
+with the current robot state, recent observations, and execution history.
+Selected capabilities are then dispatched through a standardized execution
+interface to deterministic modules, simulation environments, or physical
+robot controllers.
+
+The resulting observations and execution status are not treated as successful
+task progress by default. Instead, they are checked against the expected
+effect of the action and the completion conditions of the current subgoal.
+Verified outcomes update the task state and may be committed to persistent
+memory, whereas failures or ambiguous observations can trigger retries,
+additional sensing, or replanning.
+
+This organization gives rise to two coupled feedback loops. The
+\emph{execution loop} connects planning, execution, verification, and recovery.
+The \emph{memory loop} converts grounded observations and verified outcomes
+into persistent world knowledge that can influence later decisions and future
+tasks. Together, these loops allow \dragentos{} to reason and act over a world
+model that evolves with continued robot operation.
+
+
+\subsection{Closed-Loop Agent Harness}
+\label{subsec:agent_harness}
+
+The Agent Harness provides the runtime abstraction between high-level
+reasoning and embodiment-specific execution. It consists of six cooperating
+components: the \emph{Orchestrator}, \emph{Context Manager},
+\emph{Skill/Tool Registry}, \emph{Execution Runtime}, \emph{Verifier}, and
+\emph{State Commit}. Their interaction forms a repeated
+plan--execute--verify--commit cycle rather than allowing a language model to
+invoke robot actions directly.
+
+The \emph{Orchestrator} interprets the user goal, maintains the current task
+plan, and selects the next operation according to unresolved subgoals and
+execution feedback. The plan remains lightweight and revisable: new
+observations, tool failures, or changes in the environment can alter subsequent
+steps without requiring the entire task to be planned again from scratch.
+
+The \emph{Context Manager} provides the information needed for each reasoning
+step. Instead of exposing the full accumulated history to the controller, it
+constructs a task-conditioned context from three sources: relatively stable
+resident information such as system policy and available capabilities,
+refreshed information such as robot state and recent observations, and
+accumulated task information such as plan progress, tool results,
+verification results, and recovery traces. Relevant evidence retrieved from
+the 4D World Memory is injected into this context when required by the current
+decision.
+
+Executable capabilities are exposed through the \emph{Skill/Tool Registry}.
+We distinguish an atomic \emph{tool}, which performs a typed computation or
+embodied operation, from a higher-level \emph{skill}, which may compose
+multiple tools together with explicit completion conditions and recovery
+logic. Representative tools include spatio-temporal memory retrieval,
+semantic object search, route planning, exploration-state query, and
+inspection. This abstraction allows the Orchestrator to reason over a stable
+capability interface without depending on the internal implementation of each
+backend.
+
+Selected calls are dispatched through the \emph{Execution Runtime}. Before
+execution, the runtime validates the call schema, checks capability
+availability and task-dependent preconditions, applies runtime and safety
+constraints, and routes the request to the corresponding backend. A backend
+may be a deterministic built-in module, a navigation planner, a simulator
+adapter, or a learned robot controller. Execution returns a structured
+\texttt{ExecutionReceipt} containing the resulting observation, status,
+latency, and failure information.
+
+The \emph{Verifier} determines whether the returned evidence actually supports
+task progress. Verification can be applied at action, subgoal, and task level.
+This distinction is important because successful execution of a software
+module is not equivalent to successful completion of its embodied objective.
+For example, successfully computing a navigation path does not establish that
+the robot has reached the target, and arriving at a target region does not
+establish that the requested entity has been visually confirmed. Failed or
+ambiguous verification may therefore trigger retry, re-observation, or
+replanning before execution continues.
+
+Verified transitions are passed to \emph{State Commit}, which provides the
+boundary between transient execution evidence and persistent system state.
+State Commit advances the active task plan, records verified execution events,
+updates the current task context, and issues persistent-memory updates.
+Contradictory or weak evidence can remain provisional instead of immediately
+overwriting existing world knowledge.
+
+This separation also defines the authority of different system components.
+High-level models are responsible for semantic interpretation, task
+decomposition, and capability selection, but they do not directly define the
+physical world state. Entity identities and coordinates originate from the
+mapping and memory modules, robot poses and execution outcomes originate from
+the corresponding runtime backend, and persistent world-state changes are
+committed only after verification. As a result, language-model reasoning is
+grounded in source-derived state rather than being allowed to synthesize
+unsupported physical facts.
+
+The committed evidence is finally incorporated into the 4D World Memory and
+becomes available to later context construction and task planning. The same
+runtime can therefore continue execution, retry a failed action, acquire a new
+viewpoint, replan around an environmental change, or reuse knowledge acquired
+during previous tasks while preserving the provenance of the underlying world
+state.
+
+
 \section{4D World Memory}
 \label{sec:4d_memory}
 
@@ -117,23 +265,33 @@ The graph is logically partitioned into long-term spatial facts, dynamic environ
 \section{Task-Conditioned Memory Retrieval}
 \label{sec:memory_retrieval}
 
+
 \subsection{Task-Conditioned Query Construction}
 \label{subsec:retrieval_query}
 
-\paragraph{Why a task-conditioned query is necessary.}
-A global memory is useful only when it exposes the evidence relevant to the current decision. Semantic similarity alone may retrieve an unreachable object, an outdated road condition, or a visually similar but task-irrelevant place. Through Eq.~\eqref{eq:query_construction}, the Agent Controller derives its query from the user instruction, the active subtask, the robot pose and capabilities, and the remaining completion conditions.
+A persistent world memory may contain thousands of entities and observations
+collected across different locations and times. Retrieving globally by semantic
+similarity is therefore insufficient for embodied tasks: a semantically relevant
+object may be unreachable, an observation may no longer describe the current
+world state, or a visually similar instance may be irrelevant to the active
+subtask. Following Eq.~\eqref{eq:query_construction}, the Agent Controller
+constructs the retrieval query from the user instruction, the active task stage,
+the current robot state, and the remaining completion conditions.
 
-\paragraph{Query content.}
-The resulting $\mathbf{q}_t$ may specify target semantics, a spatial scope, a time interval, a desired entity state, and---when available---visual evidence of the target. Query construction therefore determines not only \emph{what} should be retrieved, but also \emph{where}, \emph{when}, and under which task constraints the retrieved evidence remains useful.
+The resulting query $\mathbf{q}_t$ can constrain several aspects of retrieval,
+including target semantics, spatial scope, temporal range, desired entity state,
+and, when available, visual evidence of the target. Memory retrieval is thus
+conditioned not only on \emph{what} the agent is searching for, but also on
+\emph{where} and \emph{when} the retrieved information should be valid for the
+current task.
+
 
 \subsection{Task-Conditioned Multimodal Retrieval}
 \label{subsec:retrieval_impl}
 
-\paragraph{Retrieval records.}
-Given the task-conditioned query $\mathbf{q}_t$ defined in
-Eq.~\eqref{eq:query_construction}, \dragentos{} retrieves executable targets
-from persistent entity memory rather than directly predicting a spatial goal
-from language. For each stable entity $v_i$, the retrieval index stores
+Given $\mathbf{q}_t$, \dragentos{} retrieves candidate entities from persistent
+memory before producing an executable spatial goal. For each stable entity
+$v_i$, the retrieval index stores
 \begin{equation}
     e_i =
     \left(
@@ -147,32 +305,32 @@ from language. For each stable entity $v_i$, the retrieval index stores
     \right),
     \label{eq:retrieval_record}
 \end{equation}
-where $i$ is the persistent entity identifier, $d_i^{\mathrm{cur}}$ is its
-current structured description, $I_i^{\mathrm{crop}}$ is the object-centric
-crop, $I_i^{\mathrm{ctx}}$ is the corresponding full-frame context,
-$\mathbf{p}_i$ is the mapper-owned world coordinate,
+where $i$ is the persistent entity identifier,
+$d_i^{\mathrm{cur}}$ is its current structured description,
+$I_i^{\mathrm{crop}}$ is the object-centric crop,
+$I_i^{\mathrm{ctx}}$ is the corresponding full-frame observation,
+$\mathbf{p}_i$ is the world coordinate maintained by the mapping system,
 $\boldsymbol{\xi}_i^{\mathrm{src}}$ is the source observation pose, and
-$\mathcal{P}_i$ records the associated visual provenance.
+$\mathcal{P}_i$ stores the associated provenance.
 
-The object crop used for retrieval does not contain a rendered bounding-box
-overlay. Bounding-box overlays are retained only as human- or VLM-readable
-verification evidence. Similarly, source poses and world coordinates are
-stored as structured metadata instead of being encoded as visual features.
-This separation keeps semantic retrieval independent from geometric
-authority.
+The retrieval representation intentionally separates semantic evidence from
+geometric metadata. Object crops used for embedding do not contain rendered
+bounding-box overlays; overlays are retained only for later visual verification.
+Likewise, source poses and world coordinates remain structured fields rather
+than being encoded into the visual representation. This allows semantic
+retrieval to rank entities without changing the geometry established by the
+mapping and memory modules.
 
-\paragraph{Three complementary semantic channels.}
-The current implementation encodes each memory entity in a shared
-3,584-dimensional QQMM-v2 embedding space using three complementary channels:
-\emph{caption}, \emph{crop}, and \emph{context}. The caption channel captures
-object category and language-level attributes; the crop channel emphasizes
-target appearance while suppressing background; and the context channel
-preserves surrounding objects and scene semantics that may disambiguate
-visually similar instances.
+Each entity is encoded in the shared 3,584-dimensional QQMM-v2 embedding space
+through three complementary channels: caption, crop, and context. The caption
+channel represents category-level semantics and descriptive attributes; the
+crop channel focuses on the appearance of the entity itself; and the context
+channel retains surrounding scene information that can help distinguish
+otherwise similar instances.
 
-Let $\mathbf{z}_q$ denote the normalized embedding of the language query and
+Let $\mathbf{z}_q$ be the normalized query embedding and
 $\mathbf{z}_i^{(m)}$ the normalized representation of entity $i$ in channel
-$m$. The channel-wise similarity is
+$m$. Channel-wise similarity is computed as
 \begin{equation}
     s_i^{(m)}
     =
@@ -189,15 +347,12 @@ $m$. The channel-wise similarity is
     \right\}.
     \label{eq:qqmm_similarity}
 \end{equation}
-Each channel is ranked independently. Near-identical scores are treated as
-ties using a small numerical tolerance, preventing arbitrary file or instance
-ordering from introducing artificial rank differences.
+The three channels are ranked independently. Scores that differ only within a
+small numerical tolerance are treated as ties, avoiding artificial ranking
+differences caused by instance ordering.
 
-\paragraph{Weighted Reciprocal Rank Fusion.}
-Rather than directly combining heterogeneous similarity values, \dragentos{}
-fuses channel-specific rankings through Weighted Reciprocal Rank Fusion
-(RRF). Let $r_i^{(m)}$ denote the rank of entity $i$ in channel $m$. Its fused
-score is
+We combine the channel rankings using Weighted Reciprocal Rank Fusion (RRF).
+Let $r_i^{(m)}$ denote the rank of entity $i$ in channel $m$. The fused score is
 \begin{equation}
     S_i^{\mathrm{RRF}}
     =
@@ -205,9 +360,8 @@ score is
     \frac{w_m}{K_{\mathrm{RRF}} + r_i^{(m)}},
     \label{eq:weighted_rrf}
 \end{equation}
-where $K_{\mathrm{RRF}}=60$ in the current implementation and
-$\mathcal{M}_q$ denotes the set of active retrieval channels. For the three
-default semantic channels,
+where $K_{\mathrm{RRF}}=60$ and $\mathcal{M}_q$ denotes the active retrieval
+channels. The default weights are
 \begin{equation}
     \left(
     w_{\mathrm{cap}},
@@ -218,24 +372,24 @@ default semantic channels,
     (1.0,\,1.0,\,0.5).
     \label{eq:rrf_weights}
 \end{equation}
-This rank-based fusion avoids requiring the raw similarity scales of different
-evidence channels to be calibrated against one another, while allowing
-evidence that is consistently ranked highly across channels to receive
-stronger support.
+Using ranks rather than raw similarity values avoids requiring direct score
+calibration across heterogeneous evidence channels. An entity that is
+consistently ranked highly by multiple channels naturally receives a stronger
+fused score.
+
 
 \subsubsection{Relation-Aware QueryGraph}
 \label{subsec:querygraph}
 
-\paragraph{Explicit spatial relations.}
-Some embodied queries cannot be resolved from object semantics alone. For
-example, ``the chair next to the tall plant'' requires identifying both a
-target category and a spatial anchor. For supported relation expressions,
-\dragentos{} converts the query into a small deterministic QueryGraph
-containing a target, an anchor, and an explicit spatial relation.
+Semantic similarity alone is insufficient for queries that refer to an object
+through another object, such as ``the chair next to the tall plant.'' For
+supported relation expressions, \dragentos{} parses the query into a compact
+QueryGraph containing a target category, an anchor category, and their spatial
+relation.
 
-For a \texttt{near} relation, the system first retrieves the most likely
-anchor entities using semantic retrieval. For target entity $i$ and anchor
-$a$, we define
+For the \texttt{near} relation, candidate anchors are first retrieved
+semantically. Given target entity $i$ and anchor $a$, their compatibility is
+scored by
 \begin{equation}
     S_{i,a}^{\mathrm{spatial}}
     =
@@ -253,10 +407,10 @@ $a$, we define
     },
     \label{eq:spatial_relation_score}
 \end{equation}
-where $r_a^{\mathrm{sem}}$ is the semantic rank of the anchor,
-$\mathbf{p}^{xy}$ denotes its horizontal world position, and $\alpha=0.45$
-in the current implementation. Each target retains the strongest compatible
-anchor,
+where $r_a^{\mathrm{sem}}$ is the semantic rank of anchor $a$,
+$\mathbf{p}^{xy}$ denotes the horizontal world position, and
+$\alpha=0.45$ in the current implementation. Each target is associated with
+its highest-scoring compatible anchor,
 \begin{equation}
     S_i^{\mathrm{spatial}}
     =
@@ -264,73 +418,67 @@ anchor,
     S_{i,a}^{\mathrm{spatial}},
     \label{eq:best_spatial_anchor}
 \end{equation}
-where $\mathcal{A}_q$ is the retrieved anchor set. Entities are then ranked by
-$S_i^{\mathrm{spatial}}$ to obtain the spatial-route rank
-$r_i^{(\mathrm{spatial})}$. When a supported relation is successfully parsed,
-the spatial route is added to Eq.~\eqref{eq:weighted_rrf} with weight
+where $\mathcal{A}_q$ is the retrieved anchor set.
+
+The resulting $S_i^{\mathrm{spatial}}$ values are converted into a spatial
+ranking $r_i^{(\mathrm{spatial})}$, which is then included as an additional
+route in Eq.~\eqref{eq:weighted_rrf} with
 $w_{\mathrm{spatial}}=1.0$.
 
-The current QueryGraph parser is deliberately fail-closed. Unsupported
-relation structures do not trigger uncertain symbolic constraints; the system
-instead falls back to the standard three-channel retrieval pipeline. This
-design favors auditable relation reasoning over broad but unreliable language
-parsing.
+The current QueryGraph supports only a bounded set of relation patterns.
+If a relation cannot be parsed reliably, the system falls back to the
+three-channel semantic retrieval procedure instead of imposing an uncertain
+spatial constraint.
 
-\subsection{Constrained VLM Verification and Executable Goal Binding}
+
+\subsection{Visual Candidate Verification and Goal Grounding}
 \label{subsec:constrained_vlm}
 
-\paragraph{Candidate-bounded visual verification.}
-The retrieval stage deliberately separates high-recall candidate generation
-from final visual confirmation. After ranking, \dragentos{} packages the
-highest-ranked candidates together with their captions, object crops,
-bounding-box overlays, source observations, and provenance. The current
-verifier inspects at most the top five candidates.
+The fused retrieval ranking provides a small set of candidate entities, but
+semantic similarity alone may still confuse instances with similar appearance
+or descriptions. We therefore use a VLM as a final visual verifier over the
+top-ranked candidates. For each candidate, the verifier receives its
+object crop, bounding-box visualization, contextual observation, and semantic
+description. In the current implementation, at most the top five candidates
+are examined.
 
 Let
 \begin{equation}
-    \mathcal{C}_q^{\mathrm{vlm}}
-    =
+    \mathcal{C}_q =
     \left\{
     i_1,\ldots,i_{K_v}
     \right\}
-    \label{eq:legal_candidate_set}
+    \label{eq:vlm_candidate_set}
 \end{equation}
-denote the legal candidate identifiers presented to the VLM. The verifier is
-constrained to return one of three outcomes: \texttt{confirmed},
-\texttt{ambiguous}, or \texttt{not\_found}. For a confirmed result, the
-selected identifier must satisfy
+denote the candidate set produced by retrieval. The verifier either selects
+one candidate or abstains:
 \begin{equation}
     \widehat{i}
     \in
-    \mathcal{C}_q^{\mathrm{vlm}},
-    \qquad
-    \text{or otherwise}\qquad
-    \widehat{i}=\varnothing.
-    \label{eq:constrained_vlm_output}
+    \mathcal{C}_q \cup \{\varnothing\}.
+    \label{eq:vlm_candidate_selection}
 \end{equation}
-Any identifier outside $\mathcal{C}_q^{\mathrm{vlm}}$ is rejected by the tool
-interface instead of being interpreted as a newly discovered object. Thus,
-the VLM serves as a bounded visual verifier rather than an authority that can
-create entities.
+An output that refers to an entity outside $\mathcal{C}_q$ is discarded.
+This keeps the VLM verification stage grounded in entities already retrieved
+from persistent memory.
 
-\paragraph{Memory-owned spatial authority.}
-A second constraint applies to coordinates. Even after visual confirmation,
-the VLM never predicts or edits a navigation coordinate. If entity
-$\widehat{i}$ is confirmed, the executable semantic goal is bound directly to
-the world position stored by the memory system:
+Once an entity is confirmed, its navigation target is obtained directly from
+the corresponding memory record:
 \begin{equation}
     \mathbf{g}_{\mathrm{sem}}
     =
     \mathbf{p}_{\widehat{i}},
+    \qquad
+    \widehat{i}\neq\varnothing,
     \label{eq:semantic_goal_binding}
 \end{equation}
-where $\mathbf{p}_{\widehat{i}}$ is copied from the persistent memory record
-without numerical mutation. This establishes a strict separation between
-semantic reasoning and geometric authority: the language model determines
-\emph{which} retrieved entity best matches the task, whereas the mapper and
-memory determine \emph{where} that entity is. Consequently, downstream
-navigation operates on a source-grounded coordinate whose provenance can be
-traced back to the original observations.
+where $\mathbf{p}_{\widehat{i}}$ is the world position associated with the
+confirmed entity. The VLM therefore resolves instance-level ambiguity but
+does not estimate the target position itself. Semantic verification and
+geometric grounding remain separate: retrieval and visual reasoning identify
+the target entity, while the spatial memory supplies the coordinate used by
+the navigation module.
+
 
 \section{Tool-Augmented Embodied Task Orchestration}
 \label{sec:tool_orchestration}
@@ -432,7 +580,7 @@ modules that produce them. Specifically,
     identifiers, world coordinates, historical observations, and spatial
     relations;
     \item the \textbf{tool workers} own deterministic algorithmic outputs
-    such as retrieval rankings, change evidence, and navigation fields;
+    such as retrieval rankings and change evidence;
     \item the \textbf{execution runtime} owns authoritative robot motion,
     pose, observations, and collision feedback; and
     \item the \textbf{verification and memory-update path} determines when
@@ -442,9 +590,8 @@ modules that produce them. Specifically,
 The controller therefore copies opaque identifiers and source-grounded
 coordinates from tool outputs instead of synthesizing replacements. For
 example, the VLM verification stage may select a legal entity identifier but
-cannot create a new identifier or modify its coordinate, while the navigation
-planner may snap that coordinate to a reachable grid cell without changing
-the underlying memory record. This separation turns the Tool Registry into
+cannot create a new identifier or modify its coordinate. This separation
+turns the Tool Registry into
 more than a software dispatch mechanism: it defines the boundary between
 probabilistic high-level reasoning and auditable world-state computation,
 enabling heterogeneous perception, memory, navigation, and inspection modules
@@ -478,122 +625,6 @@ and select
 where $\mathcal{A}(z)$ is the argument or action space of tool $z$, $U_{\mathrm{task}}$ is expected progress toward $\chi$, $I_{\mathrm{gain}}$ is diagnostic information gain, $C_{\mathrm{exec}}$ is execution cost, and $R_{\mathrm{risk}}$ is task-dependent risk. The coefficients encode operational priorities.
 
 Equation~\eqref{eq:tool_criterion} is a unifying decision rule implemented through controller reasoning and tool feedback. It is not intended to imply that the system explicitly solves an end-to-end differentiable optimization problem.
-
-\subsection{Memory-Grounded FMM-Style Navigation}
-\label{subsec:fmm_navigation}
-
-\paragraph{From semantic coordinates to traversable goals.}
-The entity coordinate in Eq.~\eqref{eq:semantic_goal_binding} represents the
-spatial location of the object itself and may lie on an occupied cell or
-inside the object's geometric support. The navigation layer therefore
-converts the semantic target into a reachable navigation goal instead of
-requiring the retrieval or language model to predict a stand-off location.
-
-Let the top-down navigation map have metric resolution $\rho$ and world origin
-$(x_0,y_0)$. A world coordinate $(x,y)$ is mapped to image-style grid
-coordinates by
-\begin{equation}
-    r
-    =
-    \operatorname{round}
-    \left(
-    \frac{y-y_0}{\rho}
-    \right),
-    \qquad
-    c
-    =
-    \operatorname{round}
-    \left(
-    \frac{x-x_0}{\rho}
-    \right).
-    \label{eq:world_grid_transform}
-\end{equation}
-
-The traversability map is combined with the currently known collision mask,
-and the connected reachable component from the robot is denoted by
-$\mathcal{R}_t$. If the requested semantic goal $g$ is occupied or
-disconnected, it is snapped to the nearest reachable free cell:
-\begin{equation}
-    g'
-    =
-    \arg\min_{v\in\mathcal{R}_t}
-    \left\|
-    v-g
-    \right\|_2^2.
-    \label{eq:fmm_goal_snap}
-\end{equation}
-Goal snapping allows the upstream memory system to preserve the true entity
-coordinate while the navigation layer independently handles traversability.
-
-\paragraph{Geodesic distance field.}
-The current planner implements an FMM-style discrete geodesic field over an
-8-connected grid. Horizontal and vertical transitions have cost $1$, while
-diagonal transitions have cost $\sqrt{2}$. Let $D(v)$ denote the accumulated
-cost from grid cell $v$ to the snapped goal. The distance field satisfies the
-discrete recurrence
-\begin{equation}
-    D(v)
-    =
-    \min_{u\in\mathcal{N}_8(v)}
-    \left[
-    D(u)+c(u,v)
-    \right],
-    \qquad
-    D(g')=0.
-    \label{eq:fmm_distance_field}
-\end{equation}
-The field is propagated with a priority queue. We refer to this module as an
-\emph{FMM-style} planner because it exposes the same goal-to-source
-distance-field interface used by Fast Marching navigation, while the current
-implementation performs weighted shortest-path propagation on the discrete
-grid rather than solving the continuous Eikonal equation.
-
-\paragraph{Short-term goal and closed-loop action.}
-Within a local neighborhood $\mathcal{B}(v_t,R_{\mathrm{stg}})$ around the
-current robot cell $v_t$, the planner selects the reachable location with the
-smallest remaining geodesic distance:
-\begin{equation}
-    v_t^{*}
-    =
-    \arg\min_{
-        v\in
-        \mathcal{B}(v_t,R_{\mathrm{stg}})
-        \cap\mathcal{R}_t
-    }
-    D(v).
-    \label{eq:short_term_goal}
-\end{equation}
-The short-term goal is transformed back into metric coordinates and compared
-with the current heading to generate a discrete motion command such as
-\texttt{MOVE\_FORWARD}, \texttt{TURN\_LEFT},
-\texttt{TURN\_RIGHT}, or \texttt{STOP}.
-
-Importantly, the planner produces one action at a time. After execution, the
-updated pose and collision observation condition the next planning step:
-\begin{align}
-    \mathbf{a}_t
-    &=
-    \pi_{\mathrm{nav}}
-    \left(
-    \mathcal{G}_t^{\mathrm{nav}},
-    \boldsymbol{\xi}_t,
-    \mathbf{g}_{\mathrm{sem}}
-    \right),
-    \label{eq:navigation_action}\\
-    \left(
-    \boldsymbol{\xi}_{t+1},
-    \mathbf{o}_{t+1}
-    \right)
-    &=
-    \mathrm{Runtime}
-    \left(
-    \mathbf{a}_t
-    \right).
-    \label{eq:navigation_runtime}
-\end{align}
-This interface separates path planning from the platform-specific execution
-backend and allows the same semantic memory goal to be consumed by different
-robot or simulator runtimes.
 
 \subsection{Closed-Loop Execution and Replanning}
 \label{subsec:closed_loop_execution}
