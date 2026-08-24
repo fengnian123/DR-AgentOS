@@ -1,20 +1,11 @@
 \section{Experimental Setup}
 \label{sec:experiments}
 
-\noindent\textbf{Benchmark Roles.}
-The multi-dataset control benchmark evaluates \method{} on \texttt{BridgeData V2}, \texttt{Fractal}, \texttt{RoboTurk}, \texttt{LIBERO}, and \texttt{UT Austin MUTEX} \citep{walke2023bridgedatav2,openx2023,mandlekar2018roboturk,liu2023libero,shah2023mutex}. We additionally evaluate the persistent-memory and question-answering capabilities of \dragentos{} on two locally integrated embodied benchmarks: \textbf{LMEE-Bench} \citep{wang2026explore}, which tests long-term memory over exploration histories, and the \textbf{OpenEQA EM-EQA} split \citep{majumdar2024openeqa}, which asks questions about a fixed, fully observed episode history. VisualEvidence-Kit provides the route-grounded audit layer, and the real-robot study evaluates closed-loop deployment on a separate tabletop platform.
+\noindent\textbf{Benchmarks.}
+We evaluate \dragentos{} on two embodied memory and question-answering benchmarks. \textbf{LMEE-Bench} \citep{wang2026explore} evaluates long-term memory over exploration histories using both multiple-choice and open-ended questions. \textbf{OpenEQA} \citep{majumdar2024openeqa} evaluates embodied question answering over ScanNet and HM3D environments. We use its episodic-memory setting (EM-EQA), in which the agent answers questions from a fixed, fully observed episode history without active exploration.
 
-\noindent\textbf{Embodied Memory Protocol.}
-For LMEE-Bench, we follow the official choice and open-answer evaluation protocols and report choice accuracy and the normalized open-answer score. For OpenEQA, we evaluate only the episodic-memory setting (EM-EQA), without active exploration, and report LLM-Match separately on ScanNet and HM3D episodes as well as over the combined set. In both benchmarks, ground-truth answers are withheld from the agent and used only for post-hoc scoring. The comparison includes direct multi-frame VQA references and systems that explicitly construct or retrieve scene memory.
+\noindent\textbf{Evaluation Protocol.}
+For LMEE-Bench, we follow the official choice and open-answer protocols and report choice accuracy and the normalized open-answer score. For OpenEQA EM-EQA, we report LLM-Match separately on ScanNet and HM3D episodes and over the combined set. Ground-truth answers are withheld from the agent and used only for post-hoc scoring. The number of input frames is reported independently for each benchmark because the two evaluation pipelines use different episode sampling budgets.
 
-\noindent\textbf{Baselines.}
-The external comparisons cover textual traces (ECoT), image-grounded reasoning (TraceVLA, SpatialVLA), and stronger reasoning-policy variants. Within our method family, we report a frozen \basevla{} baseline, a dense \fullsoft{} reference, and the sparse \method{} variant.
-
-\noindent\textbf{Compared Systems.}
-\textbf{\basevla{}-only} runs the frozen pretrained \openvla{} backbone, a 7B-parameter VLA model, with the original image and instruction inputs and no external evidence. \textbf{\fullsoft{}} enables all channels in the four-channel operational bank for every sample. \textbf{\method{}} uses a task-adaptive router to activate only a sparse subset of channels.
-
-\noindent\textbf{Real-Robot Protocol.}
-The real-robot study uses a desk-mounted \textbf{PIPER NERO (7F)} 7-DoF arm with a fixed external RGB camera \citep{kim24openvla,zawalski2024ecot,black2024pi0,black2025pi05,shukor2025smolvla}. The policy predicts end-effector-style actions, and a robot-side controller converts them into executable commands. The task suite covers \textbf{language-specified multi-object pick-place}, \textbf{relation-sensitive placement}, \textbf{contact-sensitive object reorientation}, and \textbf{two-stage compositional manipulation}.
-
-\noindent\textbf{Metrics.}
-The primary control metric is \texttt{success\_rate}. For efficiency, the main benchmark reports \texttt{avg\_step\_latency\_s}, measured as batch-1 wall-clock time from observation and instruction to action output after warm-up. For the embodied memory benchmarks, we report LMEE-Bench choice accuracy and normalized open-answer score, together with OpenEQA EM-EQA LLM-Match on ScanNet, HM3D, and the combined set. We also report \texttt{avg\_completion\_time\_s} for real-robot evaluation and a route-grounded audit score for VisualEvidence-Kit.
+\noindent\textbf{Compared Methods.}
+Following the organization of prior embodied EQA comparisons, we group baselines into direct multi-frame VQA references and memory-based embodied methods. Direct VQA systems answer from sampled episode frames without an explicit persistent scene representation. Memory-based systems construct or retrieve captions, scene graphs, 3D snapshots, 3D Gaussian representations, or other structured memory. \dragentos{} uses its persistent 4D world memory and task-conditioned evidence retrieval.
