@@ -1,43 +1,78 @@
 \section{Results and Analysis}
 \label{sec:results}
 
-\noindent\textbf{Embodied Memory and EQA Comparison.}
-\Cref{tab:embodied_memory_benchmarks} compares \dragentos{} with direct multi-frame VQA references and representative memory-based embodied systems on LMEE-Bench and OpenEQA EM-EQA. Entries marked with ``--'' are intentionally reserved for the final full-benchmark runs.
+\noindent\textbf{LMEE-Bench Comparison.}
+\Cref{tab:lmee_benchmark} evaluates long-term exploration memory under the benchmark's three difficulty levels. Choice accuracy measures exact multiple-choice decisions, while the open-answer score measures semantic agreement with the reference answer on a normalized 0--100 scale. Entries marked with ``--'' are reserved for the final full-benchmark runs.
 
 \begin{table}[H]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{4.2pt}
+\setlength{\tabcolsep}{3.4pt}
 \renewcommand{\arraystretch}{1.18}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{p{0.23\textwidth}p{0.18\textwidth}ccccccc}
+\begin{tabular}{p{0.20\textwidth}p{0.18\textwidth}c*{8}{c}}
 \toprule
-\textbf{Method} & \textbf{Memory / Input} &
-\multicolumn{3}{c}{\hdr{\textbf{LMEE-Bench}}} &
-\multicolumn{4}{c}{\hdr{\textbf{OpenEQA (EM-EQA)}}} \\
-\cmidrule(lr){3-5}\cmidrule(lr){6-9}
-& &
-\textbf{Frames} & \textbf{Choice Acc. $\uparrow$} & \textbf{Open Score $\uparrow$} &
-\textbf{Frames} & \textbf{ScanNet $\uparrow$} & \textbf{HM3D $\uparrow$} & \textbf{Overall $\uparrow$} \\
+\textbf{Method} & \textbf{Memory / Input} & \textbf{Frames} &
+\multicolumn{4}{c}{\hdr{\textbf{Choice Accuracy (\%) $\uparrow$}}} &
+\multicolumn{4}{c}{\hdr{\textbf{Open-answer Score $\uparrow$}}} \\
+\cmidrule(lr){4-7}\cmidrule(lr){8-11}
+& & &
+\textbf{Easy} & \textbf{Medium} & \textbf{Hard} & \textbf{Overall} &
+\textbf{Easy} & \textbf{Medium} & \textbf{Hard} & \textbf{Overall} \\
 \midrule
 \rowcolor{tblreported}
-\multicolumn{9}{c}{\textit{Direct multi-frame VQA references}} \\
-Qwen3.6-Plus & Direct VQA & \na & \na & \na & \na & \na & \na & \na \\
-GPT-5.4 & Direct VQA & \na & \na & \na & \na & \na & \na & \na \\
+\multicolumn{11}{c}{\textit{Direct multi-frame VQA references}} \\
+Qwen3.6-Plus & Direct VQA & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
+GPT-5.4 & Direct VQA & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
 \midrule
 \rowcolor{tblgroupmatched}
-\multicolumn{9}{c}{\textit{Memory-based embodied methods}} \\
-GPT-4 + ConceptGraphs \citep{gu2024conceptgraphs} & Scene graph & \na & \na & \na & \na & \na & \na & \na \\
-GPT-4 + LLaVA-1.5 & Caption memory & \na & \na & \na & \na & \na & \na & \na \\
-R-EQA & Retrieved captions & \na & \na & \na & \na & \na & \na & \na \\
-GraphPad & Dynamic scene memory & \na & \na & \na & \na & \na & \na & \na \\
-3D-Mem / SnapMem & 3D snapshot memory & \na & \na & \na & \na & \na & \na & \na \\
-GaussExplorer & 3DGS memory & \na & \na & \na & \na & \na & \na & \na \\
+\multicolumn{11}{c}{\textit{Long-term and structured memory methods}} \\
+MemoryExplorer \citep{wang2026explore} & Learned long-term memory & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
+GPT-4 + ConceptGraphs \citep{gu2024conceptgraphs} & Scene graph & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
+3D-Mem / SnapMem & 3D snapshot memory & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
 \rowcolor{tblours}
-\textbf{\dragentos{} (Ours)} & \textbf{Persistent 4D world memory} & \na & \na & \na & \na & \na & \na & \na \\
+\textbf{\dragentos{} (Ours)} & \textbf{Persistent 4D world memory} & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Comparison on LMEE-Bench and OpenEQA EM-EQA. LMEE-Bench reports choice accuracy and normalized open-answer score; OpenEQA reports LLM-Match on ScanNet, HM3D, and the combined set. All ``--'' entries, including the per-benchmark frame budgets, are placeholders for pending full-benchmark results.}
-\label{tab:embodied_memory_benchmarks}
+\caption{Comparison on LMEE-Bench. Results are reported separately for multiple-choice and open-ended questions across the Easy, Medium, and Hard task splits. All ``--'' entries, including frame budgets, are placeholders for pending full-benchmark results.}
+\label{tab:lmee_benchmark}
+\end{table}
+
+\noindent\textbf{OpenEQA EM-EQA Comparison.}
+\Cref{tab:openeqa_benchmark} compares direct VQA and memory-based methods in the episodic-memory setting. Following OpenEQA, LLM-Match is reported separately for ScanNet and HM3D and over their combined question set.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{5.0pt}
+\renewcommand{\arraystretch}{1.18}
+\resizebox{0.86\textwidth}{!}{%
+\begin{tabular}{p{0.25\textwidth}p{0.22\textwidth}cccc}
+\toprule
+\textbf{Method} & \textbf{Memory / Input} & \textbf{Frames} &
+\multicolumn{3}{c}{\hdr{\textbf{LLM-Match (\%) $\uparrow$}}} \\
+\cmidrule(lr){4-6}
+& & & \textbf{ScanNet} & \textbf{HM3D} & \textbf{Overall} \\
+\midrule
+\rowcolor{tblreported}
+\multicolumn{6}{c}{\textit{Direct multi-frame VQA references}} \\
+Qwen3.6-Plus & Direct VQA & \na & \na & \na & \na \\
+GPT-5.4 & Direct VQA & \na & \na & \na & \na \\
+\midrule
+\rowcolor{tblgroupmatched}
+\multicolumn{6}{c}{\textit{Memory-based embodied methods}} \\
+GPT-4 + ConceptGraphs \citep{gu2024conceptgraphs} & Scene graph & \na & \na & \na & \na \\
+GPT-4 + LLaVA-1.5 & Caption memory & \na & \na & \na & \na \\
+R-EQA & Retrieved captions & \na & \na & \na & \na \\
+GraphPad & Dynamic scene memory & \na & \na & \na & \na \\
+3D-Mem / SnapMem & 3D snapshot memory & \na & \na & \na & \na \\
+GaussExplorer & 3DGS memory & \na & \na & \na & \na \\
+\rowcolor{tblours}
+\textbf{\dragentos{} (Ours)} & \textbf{Persistent 4D world memory} & \na & \na & \na & \na \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Comparison on OpenEQA EM-EQA. LLM-Match is reported on ScanNet, HM3D, and the combined set. All ``--'' entries, including frame budgets, are placeholders for pending full-benchmark results.}
+\label{tab:openeqa_benchmark}
 \end{table}
