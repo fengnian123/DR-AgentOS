@@ -1,48 +1,115 @@
+\providecommand{\dragentos}{\textsc{DR-AgentOS}}
+
 \section{Introduction}
+\label{sec:introduction}
 
+Embodied agents are increasingly expected to translate open-ended language
+instructions into decisions that are grounded in perception and executable in
+the physical world. Foundation-model-based systems have expanded the range of
+goals that robots can interpret, while open-vocabulary mapping and scene
+representations provide semantic grounding beyond a fixed set of object
+classes \citep{ahn2022saycan,driess2023palm,huang2023vlmaps,gu2024conceptgraphs}.
+However, many real deployments are not short episodes in a static scene. A
+robot may revisit the same building over days or months, receive tasks whose
+completion depends on earlier observations, and encounter objects, access
+conditions, and traversable routes that have changed since the last visit.
+Long-horizon operation therefore requires more than recognizing the current
+view or producing a plausible next action: the agent must preserve and revise
+a grounded account of the world over time.
 
+Existing approaches address parts of this problem from different directions.
+Semantic maps and hierarchical scene graphs organize spatial entities and
+relations for language-grounded navigation
+\citep{huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg}, while dynamic and
+lifelong mapping methods model changes in scene geometry or object state
+\citep{bescos2018dynaslam,narayana2020lifelong,liu2024dynamem}. In parallel,
+recent embodied-agent frameworks connect high-level reasoning to callable
+skills, navigation modules, and multimodal memory
+\citep{zhou2026holoagent,tian2026abot,wang2026thea,li2026agenticnav}. These
+developments make persistent embodied agents increasingly feasible, but they
+also expose a system-level gap. Task context, spatial memory, tool execution,
+and state update are often maintained by different components without a
+shared contract for identity, temporal validity, provenance, and execution
+authority.
 
-Vision-language-action (VLA) policies map visual observations and language instructions directly to robot actions, enabling general-purpose language-conditioned control across diverse embodiments and tasks \citep{brohan2023rt2,kim24openvla,octo2024,black2024pi0}. Yet direct action prediction can be brittle in manipulation scenarios that require resolving distractors, grounding spatial relations, tracking motion, or maintaining progress over long horizons. To address these challenges, recent work augments VLA policies with intermediate thinking before action prediction, improving robustness under spatial ambiguity and task-level constraints \citep{zawalski2024ecot,duan2025fastecot,chen2025cotvla,zheng2024tracevla,qu2025spatialvla,chen2025internvlam1,yin2025deepthinkvla}.
+This gap matters because a fluent controller should not be allowed to define
+the physical state merely by describing it. A retrieved object coordinate
+must originate from mapping; a reported robot pose must come from the
+execution backend; and a successful path-planning call does not establish that
+the robot reached or verified its target. Likewise, a new observation that
+conflicts with memory may reflect a persistent change, but it may also result
+from occlusion, an association error, or a transient condition. Without an
+explicit boundary between reasoning and world-state authority, an agent can
+turn uncertain observations or successful software calls into unsupported
+persistent facts. Long-term operation therefore requires both an evolving
+world representation and a controlled procedure for deciding what evidence is
+allowed to change it.
 
-% These methods show the value of reasoning for embodied control, but also reveal
-Despite their promise, existing reasoning-augmented VLA policies expose an \textbf{accuracy-efficiency trade-off}. Textual chain-of-thought provides an explicit reasoning trace, but its weak visual grounding can distract action prediction and autoregressive decoding incurs substantial latency for closed-loop control \citep{wei2022chain,kojima2022large,jacovi2020towards}. Dense visual or spatial side information stays closer to the scene, but may also introduce interference: redundant channels can overwhelm the action decoder, irrelevant cues can compete with task-critical evidence, and noisy auxiliary perception can propagate conflicting signals. Thus, more reasoning context is not always better for real-time control.
+We present \dragentos{}, a persistent embodied agent operating system built
+around a closed-loop Agent Harness and a 4D World Memory. The Agent Harness
+maintains a revisable task plan, constructs bounded decision context, selects
+typed tools, dispatches calls through execution adapters, and verifies their
+physical or informational outcomes. The 4D World Memory provides a common
+source of spatial and temporal authority for these operations. Together they
+form two coupled loops: an execution loop that connects planning, tool use,
+verification, and recovery, and a memory loop that converts grounded and
+verified evidence into reusable world knowledge.
 
-This motivates our central goal: identifying a \emph{minimal yet effective visual reasoning interface} for VLA policies. Here, ``Minimal'' means avoiding long text traces and dense always-on side information, while ``effective'' means preserving the visual structure required for action. Our premise is that embodied reasoning should remain grounded in visual space while exposing only decision-relevant evidence. This is consistent with recent visual-planning results showing that image-based intermediate reasoning can be better suited than text-space planning for spatial decisions \citep{xu2025visual}.
+The memory represents 3D semantic structure and temporal evolution under
+persistent entity identities. Multimodal observations are projected into a
+shared world coordinate frame and organized as a
+\textbf{Timeline--Floor--Room--Object} hierarchy. An entity retains its
+identity while its position, accessibility, attributes, or relations may be
+represented by time-valid state versions. Each graph assertion remains linked
+to source observations, poses, timestamps, and confidence records. In this
+sense, ``4D'' does not denote a collection of timestamped frames; it denotes a
+world model in which current and historical states can be reconstructed,
+queried, compared, and traced back to their supporting evidence.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{figures/overview.pdf}
-\caption{Overview of \method{}, covering its task coverage, the success-latency trade-off against prior VLA reasoning baselines, and the route-grounded supervision asset built with VisualEvidence-Kit.}
-\label{fig:overview}
-\end{figure}
+Access to this memory is task conditioned. Rather than injecting the complete
+history into a language-model context, the controller constructs a structured
+query from the user goal, active subgoal, execution state, spatial scope,
+temporal constraints, and unresolved completion conditions. Retrieval first
+selects a causal, hierarchy-aware memory view and then combines semantic,
+visual, contextual, and relational evidence. A relation-aware QueryGraph
+supports references such as ``the chair next to the tall plant,'' while a
+closed-world VLM resolver may select only from retrieved entity candidates or
+abstain. When the candidate evidence is insufficient, the resolver identifies
+the missing support so that the system can retrieve historical keyframes,
+wider scene context, or a new observation and repeat the closed-world
+resolution. The resulting record contains a memory-owned identity, state,
+coordinate, relations, and evidence handles; it is a grounded readout that can
+support question answering, inspection, comparison, navigation, or subsequent
+tool selection, rather than an action predicted directly from language.
 
-To turn this motivation into a control interface, we propose \textbf{\method{}} (see \cref{fig:overview}), a sparse visual intermediate-reasoning framework that enables a frozen VLA backbone to \thinkimg{} through routed visual evidence. \method{} serves as a general plug-and-play visual reasoning module for VLA policies, conditioning action decoding with lightweight routed evidence states while leaving the underlying backbone unchanged.
-\method{} first constructs a compact six-channel evidence layer, then uses a task-adaptive orchestration layer to select useful channels at each decision step.  The selected evidence is injected as learned soft states before action decoding, allowing the policy to remain visually grounded while filtering unnecessary or distracting cues and avoiding the latency of autoregressive textual reasoning.
-% This design keeps reasoning visually grounded, filters unnecessary or distracting evidence, and avoids the latency of autoregressive textual reasoning.
+Execution is handled through the same source-grounded discipline. Tool calls
+are validated and routed to deterministic modules, replay systems,
+simulators, or robot controllers through a common runtime boundary. Returned
+receipts are checked at action, subgoal, and task levels before task progress
+is committed. When observations disagree with persistent memory, reflection
+can retain the established state, mark it uncertain, request additional
+evidence, or confirm a new version. This plan--execute--verify--commit cycle
+allows the system to recover from failures and revise its world model without
+equating every observation with a durable fact.
 
+We evaluate the memory-facing capabilities of \dragentos{} on LMEE-Bench
+\citep{wang2026explore}, which tests long-term memory over embodied exploration
+histories, and OpenEQA \citep{majumdar2024openeqa}, which evaluates episodic
+embodied question answering across scanned environments. These settings probe
+whether a persistent structured memory can expose task-relevant evidence over
+long histories and support grounded readout across different environments and
+question types.
 
-
-% The next challenge is to make this sparse interface trainable without losing the capacity of richer evidence. 
-To preserve the benefit of richer evidence under sparse inference, \method{} couples task-adaptive routing with dense-to-sparse optimization.
-A task-adaptive router selects which channels to consult, and a routed adapter conditions the frozen backbone on the selected cues, following the broader principle of conditional computation \citep{shazeer2017moe,fedus2022switch}. To stabilize sparse routing, we train the adapter with soft-hard collaborative masks and distillation from \textbf{\fullsoft{}}, a dense teacher that consults all four screened effective evidence channels \citep{hinton2015distilling}. The four-channel teacher is obtained after channel screening removes two low-utility channels, which were found to contribute little utility while increasing latency and interference risk. The sparse policy therefore inherits much of the dense teacher's benefit while reducing active evidence and exposure to irrelevant cues.
-
-
-Because routed evidence should be inspectable rather than merely latent, we further introduce \textbf{VisualEvidence-Kit} for supervision and audit. At its core, a \textbf{VisualEvidence-Agent} extracts channel-level evidence, constructs channel-grounded traces, and incorporates human review to build \textbf{VisualEvidence-Set}. 
-The resulting VisualEvidence-Set contains 754.7k visual-thinking VLA instructions, forming a route-grounded collection that covers task stages, action primitives, evidence dependence, difficulty, and channel-level targets.
-This resource supports route supervision, trace supervision, and counterfactual faithfulness checks without relying on free-form rationales \citep{deyoung2020eraser,jacovi2020towards}.
-
-
-Finally, we evaluate whether this interface improves control while keeping reasoning lightweight. Experiments across real-world manipulation, simulation, long-horizon tasks, and closed-loop robot execution demonstrate that \method{} improves the success-latency trade-off over reasoning-augmented VLA baselines. It brings textual-reasoning latency back to the sub-second control regime, preserves nearly the performance of dense visual evidence while selecting only a small number of channels, and yields routed evidence that is stage-sensitive and behaviorally aligned with policy decisions.
-
-% \noindent\textbf{Contributions.}
-% % \noindent 
-The main contributions are threefold:
-% \begin{enumerate}
-\begin{itemize}[itemsep=0mm,leftmargin=4mm]
-    \item \textbf{A visual intermediate-reasoning interface for frozen VLAs.} We formulate \thinkimg{} as action decoding conditioned on compact routed visual cues rather than long text traces or dense auxiliary perception.
-    \item \textbf{A task-adaptive evidence orchestration mechanism.} \method{} combines channel screening, sparse evidence routing, soft-hard collaborative optimization, and teacher-student distillation to improve the success-latency trade-off while filtering irrelevant channels.
-    \item \textbf{A route-grounded supervision and audit framework.} \textbf{VisualEvidence-Kit} centers on VisualEvidence-Agent, which performs evidence extraction, trace construction, and human review to build VisualEvidence-Set for faithfulness diagnostics.
+\noindent\textbf{Contributions.}
+The main contributions of this work are:
+\begin{itemize}[leftmargin=5mm,itemsep=1mm]
+    \item We present a closed-loop embodied AgentOS architecture that separates
+    high-level reasoning from authoritative tool execution, hierarchical
+    verification, and state commit.
+    \item We introduce an evidence-grounded 4D World Memory that unifies 3D
+    semantics, hierarchical spatial structure, persistent identity, temporal
+    state versions, and observation provenance.
+    \item We develop task-conditioned memory-view construction with
+    factorized multimodal retrieval, relation-aware QueryGraphs, constrained
+    candidate resolution, and evidence-gated state evolution.
 \end{itemize}
-% \end{enumerate}
-
-% Method details appear in \Cref{sec:method}, and the full empirical study appears in \Cref{sec:experiments,sec:results,sec:ablations}.
