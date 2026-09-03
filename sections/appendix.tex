@@ -1,29 +1,124 @@
 \section{Supplementary Material}
 
-\subsection{Memory and Retrieval Records}
-\label{app:records}
+\subsection{Formal Episode Interface}
+\label{app:episode}
 
-The persistent graph stores stable entity identifiers separately from time-varying versions. Each entity version includes its validity interval, structured attributes, confidence, feature handles, and provenance. Provenance identifies the observation time, source pose, sensor or rendered view, visual support, and content identity. The controller accesses these records through a typed memory query rather than receiving an unbounded transcript of observations.
+Each navigation episode references one causal prediction query. Public fields include schema version, episode and query identifiers, split, task type, scene and household identifiers, world variant, target description, query time, agent start pose, candidate-state identifiers, budgets, and success criteria. Evaluation-private fields include the current state, target pose, valid goal viewpoints, hidden transition class, oracle path, mobility label, and query-time activity. Train and validation releases may expose analysis labels in metadata; the formal test release replaces them with null values and computes grouped metrics in a private evaluator.
 
-The default retrieval service embeds descriptions, object-centric crops without rendered boxes, and full-frame context in one multimodal embedding space. Bounding-box overlays are retained only as VLM- or human-readable verification evidence; poses and world coordinates remain structured metadata and are never encoded as model-generated geometry. Near-identical similarities are tie-aware to prevent file order from producing arbitrary rank differences. The current resolver receives at most five candidates.
+The high-level track exposes
+\begin{center}
+\texttt{NAVIGATE\_TO(state)}, \texttt{INSPECT(state)}, \texttt{STOP}, \texttt{NOT\_FOUND},
+\end{center}
+with a fixed navigation backend. The low-level track exposes Habitat-style forward, turn, look, and stop actions. The main paper uses the high-level track to isolate predictive state selection; low-level results measure sensitivity to control and perception.
 
-\subsection{Typed Tool Contract}
+\subsection{Episode Validity and Leakage Audit}
+\label{app:audit}
 
-A tool specification contains $(n,\sigma_{\mathrm{in}},\mathcal C,\nu)$: name, structured input schema, allowed controller modes, and schema version. A call contains a unique identifier, tool name, typed arguments, and version. A result contains execution status, structured payload, evidence references, latency, and a normalized error when execution fails. Representative services cover spatiotemporal memory query, exploration-state query, semantic object retrieval, map access, route planning, navigation, inspection, and change query. The registry rejects unknown names, invalid modes, malformed arguments, and calls beyond the current budget before invoking a worker.
+An episode is retained only if: (i) the target has at least one positive pre-query observation; (ii) the target state is known to the private evaluator and physically instantiated without collision; (iii) at least one valid viewpoint lies on the NavMesh; (iv) the start is on the NavMesh, at least $3$ meters from the target, and does not reveal it; and (v) all public histories terminate at or before the query. A successful stop must be within $1$ meter geodesic distance of a valid viewpoint, observe the target above a frozen visible-fraction threshold, and identify the correct instance or category.
 
-\subsection{Evaluation Reporting Checklist}
+We audit serialized examples for future timestamps, hidden event fields, filenames or indices correlated with answers, duplicate event groups across splits, and inconsistent paired variants. Static, routine, and random members of a pair must have identical public query fields. Invalid simulator episodes are reported separately and are not counted as ordinary failures.
+
+\subsection{Mobility-Type Assignment}
+\label{app:mobility}
+
+The frozen rule is
+\begin{equation}
+\operatorname{type}(o)=
+\begin{cases}
+\mathrm{stable}, & r_{\mathrm{move}}(o)<\tau_{\mathrm{move}},\\
+\mathrm{activity}, & G_{\mathrm{act}}(o)\geq\tau_{\mathrm{act}},\\
+\mathrm{personal}, & C_{\mathrm{habit}}(o)\geq\tau_{\mathrm{habit}},\\
+\mathrm{irregular}, & \text{otherwise}.
+\end{cases}
+\end{equation}
+All thresholds are selected on training data before navigation evaluation. When the generator specifies a mobility profile, the same statistics are used to verify that realized trajectories exhibit the intended behavior. Every group must cover several categories, instances, and scenes, and no category may uniquely reveal one mobility type.
+
+\subsection{Metric Definitions}
+\label{app:metrics}
+
+Let $S_i$ be episode success, $L_i$ the executed path, and $L_i^*$ the oracle shortest path to the query-time goal under the same start. Standard SPL is
+\begin{equation}
+\mathrm{SPL}=\frac{1}{N}\sum_{i=1}^{N}S_i\frac{L_i^*}{\max(L_i,L_i^*)}.
+\end{equation}
+First-Go SR counts success when only the initial predicted candidate may be inspected. Recovery SR conditions on an incorrect first candidate and measures whether the target is subsequently found. Excess path is $L_i-L_i^*$ for static-after-query episodes. For online-dynamic episodes, the oracle is trajectory aware and may intercept the target; we therefore report both success within the common budget and $L_i-L_{i,\mathrm{dyn}}^*$.
+
+Calibration metrics operate on the full candidate belief before navigation and after each update. ECE bins maximum confidence, Brier score evaluates all candidates, and true-state rank avoids hiding useful changes below Top-1. Search-cost curves plot success against allowed inspections and travelled distance rather than reporting one arbitrary budget.
+
+\subsection{Full Baseline Specification}
+\label{app:baselines}
+
+Last Seen assigns all mass to the latest positive state. Frequency Prior estimates $P(s\mid o)$ from training data. Markov Transition estimates $P(s_{k+1}\mid s_k,o)$; Time-Conditioned Prior additionally conditions on public hour and weekday bins. Instance Hotspot uses only the target instance's training trajectory. GRU Direct and Transformer Direct receive the same event tokens and candidate encoder as \pfdnav{} but directly normalize candidate logits without the persistence factorization. P4D-Belief Prior uses \cref{eq:prior} once at episode start. Full \pfdnav{} applies \cref{eq:bayes} and \cref{eq:planner} after each inspection.
+
+The Oracle Activity diagnostic may use the hidden activity and source location but is excluded from fair rankings. Oracle Current State receives the private target state and measures remaining perception and navigation error. External predictive methods are adapted only through their public inputs; any use of privileged simulator state must be identified and excluded from the main comparison.
+
+\subsection{Disaggregated Result Templates}
+
+\begin{table}[h]
+\caption{Search SR by hidden mobility type. Types are determined from training history and withheld from the agent. Macro average weights the four groups equally.}
+\label{tab:mobility}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.0pt}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Method} & \textbf{Stable} & \makecell{\textbf{Activity}\\\textbf{routine}} & \makecell{\textbf{Personal}\\\textbf{habit}} & \textbf{Irregular} & \textbf{Macro}\\
+\midrule
+Last Seen & \na & \na & \na & \na & \na\\
+Time-Conditioned & \na & \na & \na & \na & \na\\
+Instance Hotspot & \na & \na & \na & \na & \na\\
+Transformer Direct & \na & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{\pfdnav{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{Paired-world navigation results. Variants share all observed setup variables and differ only in hidden transitions.}
+\label{tab:worlds}
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{Static SR} & \textbf{Routine SR} & \textbf{Random SR} & \makecell{\textbf{Routine gain}\\\textbf{over Last Seen}}\\
+\midrule
+Last Seen & \na & \na & \na & \na\\
+Markov Transition & \na & \na & \na & \na\\
+Transformer Direct & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{\pfdnav{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Implementation Details}
+\label{app:implementation}
+
+Unless otherwise noted, the history encoder has three Transformer layers, hidden width $128$, four attention heads, and at most 64 events. The predictive model contains approximately \na million trainable parameters and is optimized with AdamW using validation NLL for checkpoint selection. Candidate encoders are shared across scenes. The main high-level track fixes candidate viewpoints and low-level planning; a Habitat low-level action track evaluates the complete embodied stack. Final learning rate, batch size, epoch count, hardware, simulator version, detector, visibility thresholds, and repeated-run protocol will be frozen before test evaluation.
+
+\subsection{Reproducibility Checklist}
 \label{app:protocol}
 
-To make the completed study reproducible, the submission should report:
-\begin{itemize}[leftmargin=5mm,itemsep=0.5mm]
-    \item exact benchmark releases, split sizes, frame sampling, and preprocessing;
-    \item exact VLM and embedding-model versions, prompts, decoding parameters, and access dates;
-    \item all retrieval weights, thresholds, candidate budgets, and tie tolerances;
-    \item hardware, wall-clock latency protocol, repeated-run count, aggregation, and uncertainty;
-    \item baseline sources and whether values are reproduced or quoted from prior work; and
-    \item per-category failures and complete ablations aligned with each claimed component.
+The completed release will report:
+\begin{itemize}[leftmargin=5mm,itemsep=0.4mm]
+    \item source dataset versions, licenses, mappings, filters, and canonical-record statistics;
+    \item HSSD and Habitat versions, scene identifiers, object assets, placement checks, and NavMesh settings;
+    \item split manifests, paired-example identifiers, checksums, and leakage-audit output;
+    \item model width, layers, attention heads, time features, history length, optimizer, learning rate, epochs, seeds, and checkpoint rule;
+    \item detector and depth inputs, visibility computation, candidate and action budgets, evidence likelihoods, and planner hyperparameters;
+    \item hardware, wall-clock latency, memory growth, repeated-run aggregation, and confidence intervals; and
+    \item reproduced versus quoted baseline values, grouped results, failure labels, and all component-aligned ablations.
 \end{itemize}
 
 \subsection{Submission Compliance Notes}
 
-This source is configured for anonymous ICLR 2027 submission: \verb|\iclrfinalcopy| remains disabled, author identities and affiliations are absent, references precede the appendix, and the required AI-use statement appears before the references. The initial-submission main text must end within page 9; references and this appendix are excluded from that limit. Authors should scan figure metadata, linked repositories, acknowledgments, PDF properties, and supplementary files for identifying information before uploading. The public project URL should not be included in the anonymous manuscript unless replaced with an anonymous artifact.
+This source is configured for anonymous ICLR 2027 submission: \verb|\iclrfinalcopy| remains disabled, author identities and affiliations are absent, and references precede the appendix. Before submission, authors should remove all result placeholders, keep the main text within the conference page limit, and scan figure metadata, linked repositories, PDF properties, acknowledgements, and supplementary files for identifying information.
+
+\subsection{Ethics, Reproducibility, and AI Use}
+
+\paragraph{Ethics.}
+Persistent visual memory may capture people or private spaces, while an incorrect belief may induce unnecessary motion or unsafe behavior. Deployments should obtain consent, enforce retention and access controls, preserve provenance, and retain platform-specific collision avoidance and emergency stops outside the learned model. Our benchmark compiles existing records into simulated HSSD episodes and introduces no new human-subject study.
+
+\paragraph{Reproducibility.}
+\Cref{sec:method} specifies the task, memory, predictor, evidence update, and navigation policy. \Cref{sec:experiments} defines episode construction, leakage controls, baselines, and metrics. An anonymized code and data snapshot will accompany the review submission.
+
+\paragraph{AI use.}
+Generative AI tools assisted manuscript editing, LaTeX checks, and local engineering. They did not generate benchmark observations, ground-truth labels, or reported scores. The authors reviewed all assisted material and remain responsible for the content and artifacts.

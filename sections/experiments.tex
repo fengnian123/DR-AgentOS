@@ -1,11 +1,76 @@
 \section{Experimental Setup}
 \label{sec:experiments}
 
-\paragraph{Benchmarks.}
-We evaluate memory-facing behavior on \textbf{LMEE-Bench} \citep{wang2026explore}, which tests long-term memory over exploration histories, and \textbf{OpenEQA} \citep{majumdar2024openeqa}, which tests embodied question answering over ScanNet and HM3D environments. For OpenEQA we use episodic-memory EQA: the agent answers from a fixed, fully observed episode rather than actively exploring.
+\subsection{P4D-Bench}
+\label{sec:benchmark}
 
-\paragraph{Metrics and protocol.}
-For LMEE-Bench we follow the official multiple-choice and open-answer protocols, reporting choice accuracy and normalized open-answer score on Easy, Medium, Hard, and overall splits. The categories cover attributes, state, location, relations, and counting. For OpenEQA we follow environment-based reporting and use LLM-Match on ScanNet, HM3D, and their combined question set. Ground-truth answers are withheld from the agent and used only for scoring. Frame budgets are reported separately because the benchmarks sample episode history differently.
+\paragraph{Human-trace-grounded episode generation.}
+\pfdbench{} instantiates persistent dynamic object navigation in Habitat using HSSD scenes \citep{khanna2024hssd}. Rather than sampling arbitrary relocations, we first normalize complementary sources into canonical routine records. CASAS contributes longitudinal activity timing and room occupancy \citep{cook2013casas}; HD-EPIC and ParaHome contribute real object manipulation and action transitions \citep{perrett2025hdepic,kim2024parahome}; and our HOMER+ expansion contributes multi-day household object-state scripts and variations derived from HOMER \citep{patel2023homer}. A record contains actor, activity, object, action, pre- and post-state, source and destination, time, duration, recurrence, provenance, and confidence. The compiler grounds records to semantically compatible HSSD entities, enforces receptacle affordances, collision-free placement, causal state continuity, and navigable inspection viewpoints, and records whether a grounding is exact, fallback, or proxy.
 
-\paragraph{Comparisons.}
-We distinguish direct multi-frame VQA systems, which answer from sampled frames without persistent scene state, from memory-based systems using captions, scene graphs, snapshots, or learned long-term memory. \dragentos{} uses the same persistent 4D memory and task-conditioned retrieval interface in both evaluations. Exact model versions, prompts, inference settings, hardware, and run-level aggregation must be recorded with the final benchmark results; the required reporting checklist appears in \cref{app:protocol}.
+\paragraph{Paired worlds.}
+For each base query we construct static, routine, and random variants. They share scene, target, last positive observation, query time, legal candidate set, agent start, and navigation budget. In the static variant the target remains at its last state. In the routine variant, hidden transitions follow the compiled temporal and instance-level regularities. In the random variant, destinations are sampled from the same legal candidates while breaking the learned dependence. Pairing prevents scene layout, target identity, and route length from explaining a routine-specific gain.
+
+\paragraph{Mobility types.}
+Every target instance is assigned one analysis label using training history only: \emph{stable}, \emph{activity-routine mobile}, \emph{personal-habit mobile}, or \emph{irregular mobile}. Let
+\begin{equation}
+r_{\mathrm{move}}(o)=\frac{N_{\mathrm{move}}(o)}{N_{\mathrm{days}}},\quad
+G_{\mathrm{act}}(o)=\operatorname{Acc}(s'\mid s,a,o)-\operatorname{Acc}(s'\mid s,o),
+\end{equation}
+and $C_{\mathrm{habit}}(o)=\max_sP(s\mid o)$. Frozen training-set thresholds on these statistics determine the label. Labels support stratified reporting but are hidden from all test-time agents. Categories are distributed across multiple mobility types so the label cannot be inferred from the object name alone.
+
+\begin{table}[t]
+\caption{Navigation tasks in \pfdbench{}. N1--N3 form the main evaluation; N4 and N5 test online adaptation and transfer.}
+\label{tab:tasks}
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{clll}
+\toprule
+& \textbf{Task} & \textbf{Decision signal} & \textbf{Primary measure}\\
+\midrule
+N1 & Predictive navigation & Top-1 belief & First-Go SR\\
+N2 & Belief-guided search & Full belief + cost & Search SR / cost\\
+N3 & Evidence replanning & Posterior belief & Recovery SR\\
+N4 & Online-dynamic nav. & Arrival-time belief & Online Recovery SR\\
+N5 & Cross-scene transfer & Shared candidate roles & Generalization SR\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Task protocols.}
+N1 allows one predicted candidate and isolates whether state accuracy transfers to physical navigation. N2 permits multiple inspections under a fixed step, distance, and candidate budget. N3 additionally requires a visibility-aware posterior update after every inspection. N4 applies another hidden transition during execution only while the target is outside the current view. N5 holds out scenes, households, object instances, or receptacle instances. The test evaluator withholds current state, target pose, valid goal viewpoints, hidden events, mobility type, and future observations.
+
+\paragraph{Splits and quality control.}
+We split complete days and households rather than individual queries, and use disjoint HSSD scenes for cross-scene evaluation. Near-duplicate event groups cannot cross splits. Each episode requires a prior positive observation, a non-\texttt{unknown} target state, collision-free instantiation, at least one reachable goal viewpoint, an initial target distance of at least $3$ meters, and no target visibility from the start pose. Counts of scenes, households, days, events, targets, candidates, and episodes will be inserted after the final generation audit (\cref{tab:data}).
+
+\begin{table}[t]
+\caption{Final benchmark statistics. Entries are intentionally blank until the multi-scene generation and leakage audit are complete.}
+\label{tab:data}
+\centering
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Split} & \textbf{Scenes} & \textbf{Days} & \textbf{Targets} & \textbf{Episodes}\\
+\midrule
+Train & \na & \na & \na & \na\\
+Validation & \na & \na & \na & \na\\
+Test & \na & \na & \na & \na\\
+\midrule
+Total & \na & \na & \na & \na\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Baselines and Ablations}
+
+We compare against four families under identical candidates, viewpoints, perception, path planner, and action budget. \emph{Non-predictive} baselines include Last Seen and Nearest Candidate Search. \emph{Statistical} baselines include Frequency Prior, first-order Markov transitions, time-conditioned transitions, and an instance-hotspot prior. \emph{Learned} baselines include GRU Direct, Transformer Direct, Scene Graph Memory \citep{kurenkov2023dynamic}, a PredictiveGraphs-style filter \citep{saavedraruiz2026predictivegraphs}, and a FlowMaps-style future-location model \citep{argenziano2026flowmaps}. Where an external method assumes a different state space, we rank the same benchmark candidates by its predicted mass to isolate the belief model. N4 additionally compares against Transit-Aware Planning under its required online target path input \citep{dorbala2026portable}. Oracle Current State provides the navigation upper bound; Oracle Activity is reported only as a diagnostic and never as a fair baseline.
+
+The principal ablations remove: continuous-time features; the persistence--relocation factorization; instance history; calendar context; negative evidence; visibility calibration; Bayesian updating; or the full belief in favor of Top-1. \emph{P4D-Belief Prior} predicts once and searches without updating, while full \pfdnav{} closes the observe--update--replan loop.
+
+\subsection{Metrics}
+
+We report state Top-1/Top-$k$, negative log-likelihood, Brier score, expected calibration error, true-state rank, and persistence AUROC. Navigation metrics include Success Rate (SR), SPL, path length, completion time, First-Go SR, number of inspected candidates, Recovery SR after an incorrect first prediction, and posterior rank improvement. Because a moving target makes a fixed shortest path ambiguous, N4 additionally reports excess path length relative to a trajectory-aware oracle. All aggregate results include bootstrap confidence intervals over episodes and both micro and mobility-type macro averages.
+
+Results are stratified by world variant, mobility type, transition class (stay, same-region move, cross-region move, multi-move, and return), staleness interval, spatial difficulty, grounding quality, and generalization split. The key causal contrast is the paired routine gain over the same method in static and random variants.
+
+Implementation and reporting details are provided in \cref{app:implementation,app:protocol}.

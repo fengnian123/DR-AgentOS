@@ -1,109 +1,153 @@
-\section{DR-AgentOS}
+\section{Predictive 4D Belief Navigation}
 \label{sec:method}
 
-\subsection{Problem Setting and System Loop}
+\subsection{Persistent Dynamic Object Navigation}
+\label{sec:problem}
 
-At decision round $t$, the agent receives the available subset of RGB image $\mathbf I_t$, depth $\mathbf D_t$, geometric observation $\mathbf L_t$, robot pose $\boldsymbol\xi_t$, and timestamp $\tau_t$. Given natural-language task $\mathcal T$, execution state $\mathbf s_t$, active task stage $\rho_t$, callable tools $\mathcal Z$, and persistent memory $\mathcal M_t$, the controller constructs a task-conditioned query and selects a tool call:
-\begin{align}
-\mathbf q_t &= \mathcal Q(\mathcal T,\rho_t,\mathbf s_t), \\
-(z_t,\mathbf a_t) &= \Pi\!\left(\mathcal T,\rho_t,\mathbf s_t,
-\mathcal R(\mathcal M_t,\mathbf q_t),\mathcal Z\right).
-\label{eq:controller}
-\end{align}
-The controller then verifies execution against explicit completion conditions, detects conflicts with existing memory, gathers evidence when needed, and applies a gated update. This yields a closed perception--memory--reasoning--action--reflection loop rather than a one-shot perception-to-action pipeline.
+Let an environment contain a navigable space $\mathcal X$, a set of persistent entities $\mathcal O$, and candidate object states $\mathcal C_o$ for each target $o\in\mathcal O$. A state identifies a semantically valid receptacle or region and its associated inspection viewpoints. Before a query at time $t_q$, the agent has collected only a partial history
+\begin{equation}
+\mathcal H_{\leq t_q}=\{(I_k,D_k,\xi_k,t_k)\mid t_k\leq t_q\},
+\end{equation}
+where $I_k,D_k,\xi_k$ denote RGB, depth, and camera pose. The target's true query-time state $s_q^o\in\mathcal C_o\cup\{\mathrm{unknown}\}$ and any unobserved transition events are hidden.
+
+An episode supplies a target description, query time, initial agent pose $x_0$, a causal memory materialized from $\mathcal H_{\leq t_q}$, and a finite action budget. At decision step $j$, the agent chooses a candidate viewpoint or a low-level navigation action, receives an observation $z_j$, and may terminate with \texttt{STOP} or \texttt{NOT\_FOUND}. Success requires a correct stop near a valid goal viewpoint with the target visible. The policy should maximize success while minimizing travelled distance and inspections:
+\begin{equation}
+\pi^*=\arg\max_{\pi}\;\mathbb E_{\pi}\!\left[
+\mathbb I(\mathrm{success})-\lambda_d L-\lambda_n N_{\mathrm{inspect}}
+\right].
+\label{eq:objective}
+\end{equation}
+The main protocol holds the target fixed after $t_q$, isolating whether a stale history can be transformed into a useful current belief. The online-dynamic extension advances the world clock during execution and may apply an additional transition while the target is outside the camera view.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/p4d_nav_overview.pdf}
+    \caption{Overview of \pfdnav{}. A causal 4D memory is propagated to the query time as a structured persistence--relocation belief. The agent trades target probability against travel cost, converts visibility-qualified observations into posterior evidence, and replans after unsuccessful inspections.}
+    \label{fig:overview}
+\end{figure*}
+
+\subsection{Evidence-Grounded 4D Memory}
+\label{sec:memory}
+
+The 4D memory represents a persistent 3D semantic scene whose entity states evolve over time. For image coordinate $\widetilde{\mathbf u}=[u,v,1]^\top$ with depth $D_t(u,v)$, the corresponding world point is
+\begin{equation}
+\mathbf x^w=\operatorname{proj}_3\!\left(
+\mathbf T_{w\leftarrow c,t}
+\begin{bmatrix}D_t(u,v)\mathbf K^{-1}\widetilde{\mathbf u}\\1\end{bmatrix}
+\right),
+\label{eq:backprojection}
+\end{equation}
+where $\mathbf K$ is the camera intrinsic matrix and $\mathbf T_{w\leftarrow c,t}$ is the camera-to-world transform. Cross-view association consolidates observations using semantic compatibility, 3D overlap, temporal consistency, and source confidence. Repeated observations strengthen one persistent entity rather than creating disconnected detections.
+
+Memory is materialized causally from versioned deltas:
+\begin{equation}
+\mathcal M_{\leq t}=\operatorname{Materialize}(\Delta\mathcal M_0,\ldots,\Delta\mathcal M_t)
+=(\mathcal G_t,\mathcal V_t,\mathcal B_t),
+\label{eq:memory}
+\end{equation}
+where $\mathcal G_t$ stores semantic and spatial relations, $\mathcal V_t$ stores time-valid entity versions, and $\mathcal B_t$ stores observation provenance. The $m$-th version of entity $o$ is
+\begin{equation}
+h_o^m=([t_{o,s}^m,t_{o,e}^m),\,s_o^m,\,c_o^m,\,f_o^m,\,\mathcal P_o^m),
+\end{equation}
+containing a validity interval, candidate state, confidence, visual feature, and evidence handles. Persistent identity is separated from mutable state: moving an object appends a version without erasing its earlier trajectory. All query-time views exclude observations and events after $t_q$.
 
 \begin{figure}[t]
     \centering
     \includegraphics[width=\linewidth]{figures/4D_memroy.pdf}
-    \caption{Construction of 4D World Memory. Multimodal observations are registered in a shared world frame, consolidated under persistent entity identities, and stored as time-valid world and route memory.}
+    \caption{4D memory construction. Multimodal observations are registered in a shared frame, consolidated into persistent entities, and retained as temporally versioned states with supporting evidence.}
     \label{fig:memory}
 \end{figure}
 
-\subsection{Evidence-Grounded 4D World Memory}
+\subsection{Target-Conditioned History Retrieval}
+\label{sec:retrieval}
 
-\paragraph{Direct semantic projection.}
-For pixel $\widetilde{\mathbf u}=[u,v,1]^\top$ with valid depth, the corresponding world point is
+For a target $o$, the retriever first resolves its persistent identity or category-compatible instances, then returns the most recent $K$ causal events
 \begin{equation}
-\mathbf x^w=\operatorname{proj}_3\!\left(\mathbf T_{w\leftarrow c,t}
-\begin{bmatrix}D_t(u,v)\mathbf K^{-1}\widetilde{\mathbf u}\\1\end{bmatrix}\right),
-\label{eq:backprojection}
+H_o=\{e_k=(o_k,s_k,t_k,z_k,c_k,v_k)\}_{k=1}^{K}.
+\label{eq:history}
 \end{equation}
-where $\mathbf K$ is the camera intrinsic matrix and $\mathbf T_{w\leftarrow c,t}$ the camera-to-world transform. Semantic regions from open-vocabulary perception are lifted directly into this frame. Cross-view consolidation uses semantic compatibility, 3D proximity, temporal consistency, and source confidence, so repeated observations strengthen a persistent entity rather than create disconnected detections.
+Here $s_k$ is the observed candidate state; $z_k\in\{\mathrm{seen},\mathrm{notseen}\}$ is the evidence type; $c_k$ is perception confidence; and $v_k$ summarizes whether the hypothesized state was adequately visible, including frustum coverage and unoccluded fraction. Context events may be included when they share an entity, receptacle, region, or time window with the target, but hidden activity labels are never exposed at test time.
 
-\paragraph{Causal, versioned memory.}
-Memory at time $t$ is materialized only from past and current evidence,
+Candidates $i\in\mathcal C_o$ are not global class indices. Each is encoded from its region, receptacle category, functional role, geometry, and instance identity. This pointer-compatible representation permits the number and identity of states to vary across homes and supports evaluation on unseen receptacle instances. An additional \texttt{unknown} candidate absorbs states outside the mapped set.
+
+\subsection{Continuous-Time History Encoder}
+\label{sec:encoder}
+
+Each event token combines entity, state, evidence, confidence, and visibility embeddings with an explicit encoding of elapsed and calendar time:
+\begin{align}
+\mathbf x_k={}&E_o(o_k)+E_s(s_k)+E_z(z_k)+E_c(c_k)+E_v(v_k)\\
+&+\phi_{\Delta}(t_q-t_k)+\phi_{\mathrm{cal}}(t_k),
+\label{eq:eventtoken}
+\end{align}
+where $\phi_{\Delta}$ includes $\log(1+t_q-t_k)$ and $\phi_{\mathrm{cal}}$ contains sinusoidal hour-of-day and day-of-week features. A learned query token specifies the target, query time, and last positively observed state. A small Transformer produces contextual event features and query representation
 \begin{equation}
-\mathcal M_{\leq t}=\operatorname{Materialize}(\Delta\mathcal M_0,\ldots,\Delta\mathcal M_t)
-=(\mathcal G_{\leq t},\mathbb T_{\leq t},\mathcal B_{\leq t}),
-\label{eq:memory}
+(\mathbf h_1,\ldots,\mathbf h_K,\mathbf h_q)
+=\operatorname{CTTransformer}(\mathbf x_1,\ldots,\mathbf x_K,\mathbf x_q).
 \end{equation}
-where $\mathcal G$ is a semantic-spatial graph, $\mathbb T$ a set of world-state segments, and $\mathcal B$ an evidence/provenance bank. An entity has a stable identity $i$, semantic label $\ell_i$, geometry $\mathbf p_i$, relations $\mathcal N_i$, and a pointer to its current version. Its $k$-th state version is
+Unlike a fixed time-bin transition table, this encoder conditions on irregular gaps, repeated negative evidence, and the complete order of observed states. It does not receive oracle mobility type or the activity that generated a hidden transition.
+
+\subsection{Persistence--Relocation Belief}
+\label{sec:belief}
+
+A direct classifier entangles two physically distinct questions: whether anything changed and where the object went. We instead factorize them. Let $s_{\mathrm{last}}$ be the last positive state. The persistence branch predicts
 \begin{equation}
-h_i^k=([\tau_{i,s}^k,\tau_{i,e}^k),y_i^k,c_i^k,\mathbf f_i^k,\mathcal P_i^k),
-\label{eq:version}
+\rho_q=P(s_q^o=s_{\mathrm{last}}\mid H_o,t_q)
+=\sigma(\mathbf w_{\rho}^{\top}\mathbf h_q).
+\label{eq:persistence}
 \end{equation}
-containing a validity interval, structured state, confidence, visual features, and provenance. Stable identity is therefore separated from mutable state: a door remains the same entity when its accessibility changes, and an object may move without losing its history. The graph follows a Timeline--Floor--Room--Object hierarchy and retains metric, containment, proximity, and connectivity relations. Assertions link back to sensor time, source pose, visual support, and confidence.
-
-\subsection{Task-Conditioned Multimodal Retrieval}
-
-Each entity's retrieval record contains its current description, object crop, full-frame context, mapper-owned coordinate, source pose, and provenance. The query is encoded against three semantic channels---description, crop, and context---and ranked independently. For normalized query embedding $\mathbf z_q$ and entity representation $\mathbf z_i^{(m)}$,
+For every relocation candidate $i\neq s_{\mathrm{last}}$, a shared pointer head computes
 \begin{equation}
-s_i^{(m)}=\langle\mathbf z_q,\mathbf z_i^{(m)}\rangle,
-\qquad m\in\{\mathrm{desc},\mathrm{crop},\mathrm{ctx}\}.
+a_i=\frac{(W_q\mathbf h_q)^\top(W_c\mathbf g_i)}{\sqrt d}
++\psi(\mathbf h_q,\mathbf g_i),\qquad
+\pi_q(i)=\frac{\exp a_i}{\sum_{j\neq s_{\mathrm{last}}}\exp a_j},
+\label{eq:pointer}
 \end{equation}
-We combine ranks rather than raw scores because channel scales need not be calibrated. Weighted Reciprocal Rank Fusion gives
+where $\mathbf g_i$ is the candidate representation and $\psi$ captures target--candidate compatibility. The prior belief is
 \begin{equation}
-S_i^{\mathrm{RRF}}=\sum_{m\in\mathcal M_q}\frac{w_m}{K_{\mathrm{RRF}}+r_i^{(m)}},
-\label{eq:rrf}
+b_q^-(i)=
+\begin{cases}
+\rho_q, & i=s_{\mathrm{last}},\\
+(1-\rho_q)\pi_q(i), & i\neq s_{\mathrm{last}}.
+\end{cases}
+\label{eq:prior}
 \end{equation}
-with $K_{\mathrm{RRF}}=60$ and default weights $(1.0,1.0,0.5)$ for description, crop, and context.
+The model is trained end-to-end with a single negative log-likelihood,
+$\mathcal L_{\mathrm{state}}=-\log b_q^-(s_q^o)$. The factorization is therefore an inductive bias, not a separately supervised oracle switch. In static environments it can place mass on persistence; for recurring relocations it can concentrate $\pi_q$; and for irregular objects it can retain a broad distribution.
 
-\paragraph{Relation-aware QueryGraph.}
-Relational instructions are parsed into a target, an anchor, and a supported spatial predicate. For a \texttt{near} relation, target $i$ and anchor $a$ receive
+\subsection{Visibility-Aware Bayesian Evidence Update}
+\label{sec:update}
+
+After navigating to candidate $r$, the agent obtains detection result $z$, detector reliability $c$, and effective visibility $v\in[0,1]$. A positive instance match assigns high likelihood to $r$. A negative observation should suppress $r$ only if the target would probably have been detected there. We use
 \begin{equation}
-S_{i,a}^{\mathrm{spatial}}=\alpha/r_a^{\mathrm{sem}}+(1-\alpha)/(1+\|\mathbf p_i^{xy}-\mathbf p_a^{xy}\|_2),
-\label{eq:relation}
+P(z=\mathrm{notseen}\mid s_q^o=i,c,v)=
+\begin{cases}
+1-cv, & i=r,\\
+1, & i\neq r,
+\end{cases}
+\label{eq:negative}
 \end{equation}
-where $\alpha=0.45$. The best compatible anchor supplies a relation rank that enters \cref{eq:rrf}. Unsupported parses fail closed to the three-channel retrieval path.
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/task_conditioned_memory_retrieval_v10_two_row_visual.png}
-    \caption{Task-conditioned retrieval. A causal memory view supplies semantic, visual, contextual, and relational evidence; rank fusion generates candidates; a constrained VLM confirms a candidate, requests more evidence, or abstains.}
-    \label{fig:retrieval}
-\end{figure}
-
-\paragraph{Constrained VLM resolution.}
-The top-$K$ candidates are presented with their evidence. The VLM must return \texttt{confirmed}, \texttt{ambiguous}, or \texttt{not\_found}; a confirmed identifier must belong to the presented set $\mathcal C_q$, otherwise it is rejected. Crucially, confirmation binds the semantic goal to the coordinate already stored by memory,
+followed by
 \begin{equation}
-\widehat i\in\mathcal C_q\ \text{or}\ \widehat i=\varnothing,
-\qquad \mathbf g_{\mathrm{sem}}=\mathbf p_{\widehat i}.
-\label{eq:binding}
+b_q^+(i)=\frac{b_q^-(i)P(z\mid s_q^o=i,c,v)}
+{\sum_j b_q^-(j)P(z\mid s_q^o=j,c,v)}.
+\label{eq:bayes}
 \end{equation}
-The VLM selects among evidence-backed identities but cannot invent an entity or modify geometry. If evidence is insufficient, the controller can retrieve history, broaden context, acquire a new view, and re-rank within a fixed budget.
+Thus, a clear empty view provides strong negative evidence, whereas an occluded or poorly covered view makes only a small change. The update is parameter free and can be applied repeatedly. Each inspection and its posterior are written back as a provisional memory event, preserving the causal chain used by subsequent decisions.
 
-\subsection{Typed Tools and Closed-Loop Execution}
+\subsection{Belief-Guided Navigation and Replanning}
+\label{sec:planner}
 
-Natural language is normalized into goal $G$, constraints $\Omega$, completion predicate $\chi$, and a subtask dependency graph. Each tool declares a name, typed input schema, permitted controller modes, and schema version; each result returns execution status, structured payload, evidence handles, latency, and a normalized error. The registry validates tool existence, mode, arguments, and call budget before dispatch. This interface separates probabilistic reasoning from authoritative components: mapping owns entity identities and coordinates, workers own deterministic algorithmic outputs, the runtime owns pose and collision feedback, and verification owns state commit.
-
-For navigation, an object coordinate may lie in occupied space, so the planner snaps it to the nearest cell in the robot's reachable free component $\mathcal R_t$:
+Each candidate $i$ has one or more reachable inspection viewpoints $\mathcal W_i$. Let $d(x,\mathcal W_i)$ be the shortest geodesic distance from the current pose and $\widehat v_i$ the expected inspection coverage. The high-level policy selects
 \begin{equation}
-g'=\arg\min_{v\in\mathcal R_t}\|v-g\|_2^2.
-\label{eq:snap}
+i^*=\arg\max_{i\in\mathcal C_o\setminus\mathcal I}
+\frac{b(i)\widehat v_i}
+{d(x,\mathcal W_i)+\lambda_{\mathrm{inspect}}},
+\label{eq:planner}
 \end{equation}
-An 8-connected weighted distance field selects a short-term goal with minimum remaining geodesic distance. Only one action is issued before updated pose and collision evidence trigger replanning. Thus a successful planning call is distinct from a verified physical outcome.
+where $\mathcal I$ contains sufficiently inspected hypotheses. The fixed low-level navigator executes the route and the evidence update in \cref{eq:bayes} produces the belief for the next decision. This separation ensures that gains reflect memory and state selection rather than a different locomotion controller.
 
-\subsection{Conflict-Aware Reflection and Update}
-
-New evidence is compared with current memory along state, position, visibility-aware absence, and topology dimensions. A missing detection counts as evidence of disappearance only if the remembered location should be visible given pose, field of view, occlusion, and sensing conditions. Material conflicts cause the controller to retrieve history, change viewpoint, repeat perception, inspect a route, or seek clarification.
-
-For proposed state $\widehat h_{i,t}$, let evidence item $b$ have reliability $r_b$, agreement $a_b$, and source-dependent weight $w_b$. Corroboration is
+The same interface instantiates three core tasks. \emph{Predictive Object Navigation} executes only the top-belief candidate and measures first-go success. \emph{Belief-Guided Object Search} follows the probability--cost policy under a candidate budget. \emph{Evidence-Aware Replanning} updates after every qualified view and measures recovery from an incorrect first prediction. For online-dynamic episodes, the model is queried at the candidate arrival time $t+\widehat\tau_i$ rather than the current time:
 \begin{equation}
-C_{\mathrm{evidence}}=\frac{\sum_{b\in\mathcal B_t(i)}w_b r_b a_b}{\sum_{b\in\mathcal B_t(i)}w_b+\epsilon}.
+b_{t+\widehat\tau_i}^-=F_\theta(H_o,t+\widehat\tau_i),
 \end{equation}
-A persistent update is committed only when the conflict has been examined and the score exceeds an entity-dependent threshold:
-\begin{equation}
-g_t(i)=\mathbb I[C_{\mathrm{evidence}}\geq\eta_i\ \land\ r_t^{\mathrm{conf}}(i)=1].
-\label{eq:gate}
-\end{equation}
-When the gate is closed, evidence remains provisional; when open, the new state is appended as a version and the current pointer advances. Earlier versions are never overwritten. This design preserves uncertain observations for later reasoning without promoting them prematurely to durable facts.
+and replanning repeats after every action chunk. No explicit router chooses between ``static'' and ``dynamic'' policies; their behavior is induced by the learned belief and the evidence observed during navigation.
