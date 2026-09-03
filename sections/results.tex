@@ -1,47 +1,48 @@
-\section{Results}
+\section{Results and Analysis}
 \label{sec:results}
 
-The repository does not yet contain completed benchmark outputs, so we retain explicit placeholders instead of presenting unverified values. Before submission, every entry in \cref{tab:lmee,tab:openeqa} must be replaced by a measured value or a cited published result, and the surrounding analysis must report uncertainty and failure cases.
+This working draft defines the complete evaluation matrix but does not invent unfinished measurements. Every dash below must be replaced by a reproduced value or a clearly cited published result before submission. The final discussion should be organized around three hypotheses: predictive belief improves the first navigation decision in routine worlds; a calibrated distribution reduces search cost when Top-1 is uncertain; and visibility-aware updates recover efficiently when the prior is wrong.
 
-\begin{table}[t]
-\caption{LMEE-Bench results. Choice accuracy and open-answer score are reported by difficulty. Dashes denote experiments that remain to be run; this table is not submission-ready until they are resolved.}
-\label{tab:lmee}
+\subsection{Does Predictive Memory Improve Navigation?}
+
+\begin{table*}[t]
+\caption{Main results on routine-world N1--N3 episodes. All methods share the same perception, candidates, inspection viewpoints, and low-level navigator. Lower is better for inspections and distance.}
+\label{tab:mainnav}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.6pt}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{llc*{8}{c}}
+\setlength{\tabcolsep}{3.0pt}
+\begin{tabular}{lcccccc}
 \toprule
-\textbf{Method} & \textbf{Memory/Input} & \textbf{Frames} &
-\multicolumn{4}{c}{\textbf{Choice accuracy (\%) $\uparrow$}} &
-\multicolumn{4}{c}{\textbf{Open-answer score $\uparrow$}} \\
-\cmidrule(lr){4-7}\cmidrule(lr){8-11}
-&&& E & M & H & All & E & M & H & All \\
+\textbf{Method} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} & \makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} & \makecell{\textbf{Inspect.}\\\textbf{$\downarrow$}} & \makecell{\textbf{Distance}\\\textbf{$\downarrow$}} & \makecell{\textbf{Recovery}\\\textbf{SR $\uparrow$}}\\
 \midrule
-Direct VQA & Sampled frames & \na & \na&\na&\na&\na & \na&\na&\na&\na\\
-MemoryExplorer \citep{wang2026explore} & Learned memory & \na & \na&\na&\na&\na & \na&\na&\na&\na\\
-ConceptGraphs \citep{gu2024conceptgraphs} & 3D scene graph & \na & \na&\na&\na&\na & \na&\na&\na&\na\\
-\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{4D world memory} & \na & \na&\na&\na&\na & \na&\na&\na&\na\\
-\bottomrule
-\end{tabular}}
-\end{table}
-
-\begin{table}[t]
-\caption{OpenEQA episodic-memory results. LLM-Match is split by environment. Dashes denote pending experiments, not zero-valued results.}
-\label{tab:openeqa}
-\centering
-\small
-\begin{tabular}{llcccc}
-\toprule
-\textbf{Method} & \textbf{Memory/Input} & \textbf{Frames} & \textbf{ScanNet} & \textbf{HM3D} & \textbf{All}\\
+Nearest Candidate & \na & \na & \na & \na & \na & \na\\
+Last Seen & \na & \na & \na & \na & \na & \na\\
+Frequency Prior & \na & \na & \na & \na & \na & \na\\
+Markov Transition & \na & \na & \na & \na & \na & \na\\
+Time-Conditioned Prior & \na & \na & \na & \na & \na & \na\\
+Transformer Direct & \na & \na & \na & \na & \na & \na\\
+PredictiveGraphs-style & \na & \na & \na & \na & \na & \na\\
+FlowMaps-style \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na\\
 \midrule
-Direct VQA & Sampled frames & \na & \na & \na & \na\\
-Caption memory & Text history & \na & \na & \na & \na\\
-ConceptGraphs \citep{gu2024conceptgraphs} & 3D scene graph & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{4D world memory} & \na & \na & \na & \na\\
+P4D-Belief Prior & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{\pfdnav{} (ours)} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+Oracle Current State & \na & \na & \na & \na & \na & \na\\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-\paragraph{Required analyses.}
-The final empirical section should test more than aggregate QA quality. At minimum, it should ablate temporal versions, provenance-aware retrieval, relation rank, constrained VLM resolution, and evidence-gated updates; report retrieval recall before and after VLM verification; measure latency and memory growth; and stratify errors into retrieval failure, stale-state selection, relation failure, hallucinated resolution, and scoring mismatch. These tests directly correspond to the paper's system claims.
+First-Go SR is the cleanest measure of whether a more accurate current-state belief becomes a better physical destination. Search SR and cost then test whether probability mass beyond Top-1 is useful. Recovery SR is evaluated only on episodes in which the initial candidate was incorrect, preventing easy first-attempt successes from hiding poor replanning. The final analysis will report paired episode-level differences and confidence intervals rather than comparing only aggregate means.
+
+\subsection{When Does Predictive Memory Help?}
+
+Stable objects test backward compatibility: a predictive model should not damage a strong last-seen prior. Activity-routine objects test temporal transitions; personal-habit objects test long-term instance memory beyond global activity frequencies; and irregular objects test whether a broad, well-calibrated belief improves search even when Top-1 accuracy has limited headroom. The stratified result matrix is in \cref{tab:mobility}; we will additionally plot SR and excess path length against staleness to distinguish genuine temporal reasoning from memorized hotspots.
+
+\subsection{Does the Gain Come from Learnable Dynamics?}
+
+The paired-world matrix is reported in \cref{tab:worlds}. The expected signature is not uniformly high performance: \pfdnav{} should preserve static performance, gain most in routine worlds, and express greater uncertainty in marginal-matched random worlds. An improvement that remains unchanged after routine transitions are randomized would indicate a frequency, category, or route-length shortcut rather than learned dynamics.
+
+\subsection{Ablations, Generalization, and Failure Analysis}
+
+The final ablation table will jointly report state NLL and navigation cost, revealing whether a representation improves only classification or also changes useful decisions. In particular, we will compare query-time versus arrival-time belief on N4, prior-only versus Bayesian updating on N3, and structured versus direct heads on cross-scene candidates. Generalization results will separate seen-scene/unseen-household, unseen-scene/unseen-household, unseen object instance, and unseen receptacle instance.
+
+Failures will be categorized as entity association, missing candidate, stale-state prediction, overconfident relocation, insufficient visibility, detector error, unreachable viewpoint, or replanning error. Qualitative trajectories will show the prior distribution, route, inspection coverage, posterior, and next decision at each step. This evidence is necessary to establish that improved navigation follows from the claimed closed-loop mechanism.

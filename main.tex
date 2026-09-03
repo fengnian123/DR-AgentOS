@@ -9,6 +9,7 @@
 \usepackage{microtype}
 \usepackage{enumitem}
 \usepackage{hyperref}
+\hypersetup{hidelinks}
 \usepackage{url}
 \usepackage[nameinlink,capitalize,noabbrev]{cleveref}
 
@@ -16,14 +17,15 @@
 % line numbers. Do not modify iclr2027_conference.sty.
 % \iclrfinalcopy
 
-\newcommand{\dragentos}{\textsc{DR-AgentOS}}
+\newcommand{\pfdnav}{\textsc{P4D-Nav}}
+\newcommand{\pfdbench}{\textsc{P4D-Bench}}
 \newcommand{\na}{--}
 \definecolor{tblheader}{RGB}{233,238,245}
 \definecolor{tblours}{RGB}{238,247,238}
 \definecolor{tblreported}{RGB}{244,246,250}
 \newcommand{\hdr}[1]{\colorbox{tblheader}{\strut #1}}
 
-\title{DR-AgentOS: A Persistent Embodied Agent Operating System\\with 4D World Memory}
+\title{Memory in Motion: Predictive 4D Belief for Navigation in Evolving Worlds}
 
 % ICLR 2027 is double blind. Author identities must not appear in either the
 % paper or supplementary material until the camera-ready stage.
@@ -33,7 +35,7 @@
 \maketitle
 
 \begin{abstract}
-Long-horizon embodied agents must remember a changing world, retrieve the right evidence for the current task, and prevent uncertain model outputs from silently becoming physical facts. We present \dragentos{}, a persistent embodied agent operating system that couples a typed agent controller with an evidence-grounded 4D World Memory. The memory lifts multimodal observations into a shared 3D frame, maintains stable entity identities with time-valid state versions, and links every assertion to its sensor provenance. A task-conditioned retrieval service combines descriptions, object crops, scene context, and explicit relations through rank fusion; a constrained vision-language model may select only a retrieved entity or abstain, while coordinates remain owned by mapping. Typed tools, closed-loop verification, conflict-aware reflection, and evidence-gated updates then connect memory to action without granting the language model authority over world state. We evaluate these memory-facing capabilities on LMEE-Bench and OpenEQA. The resulting design treats memory as an auditable system service rather than prompt context, enabling agents to query, act on, and responsibly revise experience over long horizons.
+Object navigation usually assumes that a target remains where it was mapped, yet a long-lived household agent often acts on observations that are hours or days old. Portable objects may move while unobserved, making the last-seen location an unreliable navigation goal. We study \emph{persistent dynamic object navigation}: an agent must locate an object from a partial, temporally stale history, gather physical evidence, and revise its route when memory and observation disagree. We introduce \pfdnav{}, which turns an evidence-grounded 4D memory into a predictive belief over the target's current state. A continuous-time Transformer encodes irregular observation histories, while a structured persistence--relocation pointer head separately estimates whether the last state remains valid and where the object moved otherwise. A visibility-aware Bayesian update converts positive and negative observations into posterior beliefs, enabling the same agent to navigate directly when belief is concentrated, search candidates when it is diffuse, and replan after failed inspections. We further introduce \pfdbench{}, a suite of paired HSSD navigation episodes whose hidden changes are compiled from complementary human activity, object-interaction, and household-state records. The benchmark controls scene, target, start pose, and candidate set across static, routine, and random worlds, isolating whether navigation gains arise from learnable dynamics rather than frequency shortcuts. Experiments evaluate predictive navigation, belief-guided search, evidence-aware recovery, online changes, and cross-scene generalization; numerical results are intentionally left blank in this working draft pending completion of the navigation rollouts.
 \end{abstract}
 
 \input{sections/introduction}
@@ -43,15 +45,6 @@ Long-horizon embodied agents must remember a changing world, retrieve the right 
 \input{sections/results}
 \input{sections/conclusion}
 \input{sections/limitations}
-
-\subsubsection*{Ethics statement}
-\dragentos{} is intended for research on embodied navigation, memory, and question answering. Persistent visual memory may capture people or private environments, and an erroneous retrieved state may cause unsafe physical behavior. Deployments should therefore obtain appropriate data consent, enforce retention and access controls, retain provenance for audit, and place platform-specific safety monitors outside the language-model controller. The benchmarks used here contain no new human-subject study by the authors.
-
-\subsubsection*{Reproducibility statement}
-\Cref{sec:method} specifies the memory records, retrieval and fusion rules, constrained resolver, typed tool interface, navigation rule, and update gate. \Cref{sec:experiments} defines the benchmark protocols and metrics; additional implementation and evaluation details are provided in the appendix. An anonymized code snapshot should accompany the review submission.
-
-\subsubsection*{AI use statement}
-Generative AI tools were used to edit and restructure the manuscript, improve readability, check LaTeX formatting, and assist with local engineering. They were not used to generate benchmark observations or reported evaluation scores. All AI-assisted text and code were reviewed by the authors, who take responsibility for the final content, claims, and artifacts.
 
 \bibliographystyle{iclr2027_conference}
 \bibliography{main}
