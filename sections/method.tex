@@ -247,7 +247,17 @@ and observation provenance in a common representation. Queries can retrieve
 what was observed, where it was located, when a state was valid, and which
 evidence supports the record. In this paper, ``4D'' denotes this combination
 of 3D world structure and temporal state evolution, rather than a collection
-of independent timestamped frames.
+of independent timestamped frames. As illustrated in
+Figure~\ref{fig:4d_world_memory}, synchronized multimodal observations are
+grounded into persistent 3D entities and consolidated into a temporally
+evolving world memory.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/4D_memroy.pdf}
+    \caption{Overview of the 4D World Memory. Multimodal observations are grounded into persistent 3D entities and organized as a temporally evolving semantic memory.}
+    \label{fig:4d_world_memory}
+\end{figure*}
 
 \subsection{Direct 3D Semantic Projection}
 \label{subsec:grounding}
@@ -298,7 +308,8 @@ receive sufficient support.
 
 \subsection{Time as a First-Class Memory Axis}
 
-At decision time $t$, the agent materializes memory only from evidence observed no later than $t$:
+At decision time $t$, the agent materializes memory only from evidence
+observed no later than $t$:
 \begin{equation}
     \mathcal{M}_{\leq t}
     = \operatorname{Materialize}
@@ -312,7 +323,8 @@ evidence available at that time.
 We represent the materialized memory as
 \begin{equation}
     \mathcal{M}_{\leq t}
-    =\left(\mathcal{G}_{\leq t},\mathbb{T}_{\leq t},\mathcal{B}_{\leq t}\right),
+    =\left(\mathcal{G}_{\leq t},\mathbb{T}_{\leq t},
+    \mathcal{B}_{\leq t}\right),
     \qquad
     \mathcal{G}_{\leq t}
     =\left(\mathcal{V}_{\leq t},\mathcal{E}_{\leq t}\right),
@@ -323,12 +335,15 @@ $\mathbb{T}_{\leq t}$ contains temporally ordered world-state segments, and
 $\mathcal{B}_{\leq t}$ is the evidence and provenance bank. For entity $v_i$,
 the persistent record and its $k$-th state version are
 \begin{align}
-    v_i &= \left(i,\ell_i,\mathbf{p}_i,\mathbf{b}_i,\mathcal{N}_i,\pi_i^{\mathrm{cur}}\right),
+    v_i &= \left(
+        i,\ell_i,\mathbf{p}_i,\mathbf{b}_i,
+        \mathcal{N}_i,\pi_i^{\mathrm{cur}}
+    \right),
     \label{eq:entity_record}\\
     h_i^{k} &= \left(
-    [\tau_{i,\mathrm{start}}^{k},\tau_{i,\mathrm{end}}^{k}),
-    y_i^{k},c_i^{k},d_i^{k},\mathbf{f}_i^{k},
-    \mathcal{K}_i^{k},\mathcal{P}_i^{k}
+        [\tau_{i,\mathrm{start}}^{k},\tau_{i,\mathrm{end}}^{k}),
+        y_i^{k},c_i^{k},d_i^{k},\mathbf{f}_i^{k},
+        \mathcal{K}_i^{k},\mathcal{P}_i^{k}
     \right),
     \label{eq:state_version}
 \end{align}
@@ -349,14 +364,14 @@ active segment, a historical segment, or the change between them.
 \subsection{Hierarchical Semantic Graph and Evidence Substrate}
 \label{subsec:memory_hierarchy}
 
-The graph is organized as \textbf{Timeline--Floor--Room--Object}. Places
-supported by the robot trajectory are grouped into rooms, room transitions
-define topological connectivity, and semantic entities are assigned to their
-containing rooms. Edges such as \texttt{contains}, \texttt{near},
-\texttt{connected-by}, and \texttt{has-entrance} support both hierarchical
-queries and spatial grounding. The controller can traverse the hierarchy at
-the resolution required by the task instead of querying every object in the
-environment.
+The graph is organized as a temporally indexed, multi-scale semantic
+hierarchy. Coarse contextual structures are progressively linked to
+fine-grained semantic entities, while trajectory-derived relations encode
+spatial connectivity across different levels of abstraction. Relations such
+as \texttt{contains}, \texttt{near}, \texttt{connected-to}, and
+\texttt{associated-with} support hierarchical retrieval and spatial
+grounding. The controller can traverse the hierarchy at the granularity
+required by the task instead of querying the entire environment.
 
 Each graph assertion remains linked to an evidence record containing its
 observation time, source pose, sensor or rendered view, visual support,
@@ -394,7 +409,28 @@ part of it that is relevant to the current decision. Retrieval in \dragentos{}
 is therefore formulated as \emph{task-conditioned memory view construction},
 not as global nearest-neighbor search over all stored frames. The controller
 compiles the user goal, active subgoal, current execution state, and unresolved
-completion conditions into
+completion conditions into a structured query. As summarized in
+\cref{fig:task_conditioned_memory_retrieval}, the resulting memory view is
+ranked through complementary evidence routes and fused into a compact
+candidate set. A VLM then resolves the candidates under an explicit evidence
+sufficiency check; insufficient evidence triggers targeted retrieval of
+historical keyframes, wider context, or a new view before resolution is
+repeated.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/task_conditioned_memory_retrieval_ppt.pdf}
+    \caption{Task-conditioned retrieval over the 4D World Memory. A causal
+    memory view supplies three embedding-based evidence ranks and a structured
+    relation rank, which are fused by weighted reciprocal rank fusion (RRF)
+    into a Top-$K$ candidate set. A GPT- or Gemini-based VLM resolves only
+    within this set. It returns a grounded readout when the evidence is
+    sufficient; otherwise, the system acquires targeted historical, contextual,
+    or new-view evidence and repeats retrieval and resolution.}
+    \label{fig:task_conditioned_memory_retrieval}
+\end{figure}
+
+Formally, the query is
 \begin{equation}
     \mathbf{q}_t =
     \left(
@@ -412,6 +448,7 @@ scope, temporal validity, desired state, and optional visual evidence. Not
 every query activates every field. A room-description question may primarily
 use hierarchy and relations, a change query emphasizes temporal versions, and
 a visually specified fetch target activates appearance evidence.
+
 
 The query first selects a causal, hierarchy-aware view from the memory defined
 in Eq.~\eqref{eq:memory_graph}:
@@ -432,12 +469,12 @@ $\mathcal{B}_{\leq t}$. Thus, the retrieval stage inherits temporal validity,
 spatial context, identity, and provenance from the 4D World Memory rather than
 reconstructing them from language.
 
-For the recorded second-floor demo, the scene and active timeline provide the
-scope, while the instruction ``Find the chair next to the tall plant'' yields
-a chair target, a plant anchor, and a \texttt{near} relation. The same query
-form also supports the preceding demo interactions: floor- or room-level EQA,
-reference-image object search, safety-entity retrieval, and historical/current
-state comparison differ in their active fields but use the same memory service.
+As a running example, the instruction ``Find the chair next to the tall
+plant'' specifies a chair target, a plant anchor, and a \texttt{near} relation
+within the requested spatial and temporal scope. The same query representation
+supports floor- or room-level question answering, reference-image object
+search, safety-entity retrieval, and historical/current state comparison by
+activating different fields while retaining a common memory interface.
 
 
 \subsection{Evidence-Factorized Entity Retrieval}
@@ -590,31 +627,82 @@ semantic and visual routes are activated.
 \label{subsec:constrained_vlm}
 
 Rank fusion produces a compact set of evidence-backed entity hypotheses, but
-similar instances may remain ambiguous. When required by task risk or
-ambiguity, a VLM acts as a closed-world resolver over the top-ranked
-candidates. For each candidate, it receives the entity description, crop,
-annotated observation, contextual evidence, graph relations, and route-level
-scores. The VLM is not asked to invent a location or a new world entity.
+similar instances may remain ambiguous. A VLM therefore acts as a closed-world
+resolver over the top-ranked candidates. For each candidate, it receives the
+entity description, crop, annotated observation, contextual evidence, graph
+relations, route-level scores, and the currently retrieved historical support.
+The VLM is not asked to generate an entity, location, or coordinate. Its role
+is to select among memory-owned hypotheses and determine whether the available
+evidence is sufficient to warrant that selection.
 
 Let
 \begin{equation}
-    \mathcal{C}_q =
+    \mathcal{C}_q^{(0)} =
     \left\{
     i_1,\ldots,i_{K_v}
     \right\}
     \label{eq:vlm_candidate_set}
 \end{equation}
-denote the candidate set produced by retrieval. The verifier either selects
-one candidate or abstains:
+denote the initial Top-$K_v$ candidate set produced by RRF. At resolution
+round $\ell$, let $\mathcal{E}_q^{(\ell)}$ contain the evidence bundle
+currently exposed for these candidates. The VLM resolver returns a candidate,
+an evidence-sufficiency verdict, and a structured request for missing evidence:
 \begin{equation}
-    \widehat{i}
+    \left(
+    \widehat{i}^{(\ell)},
+    \nu_q^{(\ell)},
+    \Delta\mathcal{E}_q^{(\ell)}
+    \right)
+    = \mathcal{V}_{\mathrm{res}}\!\left(
+    \mathcal{C}_q^{(\ell)},
+    \mathcal{E}_q^{(\ell)}
+    \right),
+    \label{eq:vlm_evidence_resolution}
+\end{equation}
+where
+$\nu_q^{(\ell)}\in\{\textsc{sufficient},\textsc{insufficient},
+\textsc{ambiguous}\}$ and $\Delta\mathcal{E}_q^{(\ell)}$ describes the
+evidence gap, such as a missing co-occurrence view, an unclear object crop, or
+insufficient temporal support. A legal candidate output remains constrained to
+\begin{equation}
+    \widehat{i}^{(\ell)}
     \in
-    \mathcal{C}_q \cup \{\varnothing\}.
+    \mathcal{C}_q^{(\ell)} \cup \{\varnothing\}.
     \label{eq:vlm_candidate_selection}
 \end{equation}
-An output outside $\mathcal{C}_q$ is discarded. If no candidate is adequately
-supported, abstention preserves uncertainty and allows the Agent Harness to
-request another view, broaden the scope, or ask the user for clarification.
+An output outside $\mathcal{C}_q^{(\ell)}$ is discarded. A candidate is
+accepted only when $\nu_q^{(\ell)}=\textsc{sufficient}$. Otherwise, the Agent
+Harness converts the evidence-gap request into a bounded evidence-enrichment
+operation:
+\begin{equation}
+    \left(
+    \mathcal{C}_q^{(\ell+1)},
+    \mathcal{E}_q^{(\ell+1)}
+    \right)
+    = \operatorname{Enrich}\!\left(
+    \mathcal{M}_{\leq t},
+    \mathbf{q}_t,
+    \mathcal{C}_q^{(\ell)},
+    \mathcal{E}_q^{(\ell)},
+    \Delta\mathcal{E}_q^{(\ell)}
+    \right).
+    \label{eq:retrieval_evidence_enrichment}
+\end{equation}
+Enrichment first reuses stored evidence: earlier keyframes of the candidate,
+views in which the target and relation anchor co-occur, wider scene context,
+and alternative time-valid state versions. When memory does not contain the
+required support and the task permits embodied sensing, it may request a new
+viewpoint or repeated observation. Expanding the spatial or temporal scope can
+also introduce new candidates, in which case the active retrieval routes are
+reranked and fused again before the next VLM resolution round.
+
+The resolve--enrich cycle terminates when one candidate is sufficiently
+supported or when its evidence-acquisition budget is exhausted. In the latter
+case, the resolver returns $\varnothing$ with an explicit ambiguous/not-found
+status and the inspected evidence trace. This retrieval-time loop resolves
+entity identity for the current query; the conflict-aware reflection in
+Sec.~\ref{sec:reflection} separately determines whether new observations
+warrant changing persistent world state.
 
 The output of retrieval is a grounded memory readout rather than an action:
 \begin{equation}
@@ -631,16 +719,15 @@ The output of retrieval is a grounded memory readout rather than an action:
     \qquad \widehat{i}\neq\varnothing,
     \label{eq:constrained_vlm_output}
 \end{equation}
-where $\mathcal{K}_{\widehat{i}}^{q}$ is the task-relevant evidence subset and
+where $\widehat{i}$ is the final sufficiently supported candidate,
+$\mathcal{K}_{\widehat{i}}^{q}$ is the task-relevant evidence subset, and
 $\mathcal{A}_{\widehat{i}}^{q}$ contains route scores, matched anchors, and
 other retrieval audit data. Identity, state, relations, coordinates, and
 provenance are copied from memory. The Agent Harness can then use this one
 typed result to answer a question, show supporting evidence, compare temporal
 states, invoke inspection, or ground a subsequent embodied tool. Retrieval
 therefore connects the 4D World Memory to the plan--execute--verify--commit
-loop without collapsing memory access into any single downstream behavior. An
-abstention instead returns an explicit ambiguous/not-found status together
-with the inspected candidate evidence.
+loop without collapsing memory access into any single downstream behavior.
 
 \section{Tool-Augmented Embodied Task Orchestration}
 \label{sec:tool_orchestration}
