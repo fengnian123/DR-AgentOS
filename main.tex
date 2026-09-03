@@ -78,23 +78,23 @@
 \textbf{DR-AgentOS: A Persistent Embodied Agent Operating System with 4D World Memory}
 }
 
-\author[1]{Mingjian Gao}
-\author[1,\ddagger]{Wenqiao Zhang}
-\author[1]{Yuqian Yuan}
-\author[1]{Yang Dai}
-\author[1]{Binhe Yu}
-\author[2]{Zheqi Lv}
-\author[1]{Haoyu Zheng}
-\author[3]{Jiaqi Zhu}
-\author[1]{Zhiqi Ge}
-\author[4]{Zixuan Wan}
-\author[1]{Siliang Tang}
-\author[1]{Yueting Zhuang}
+% \author[1]{Mingjian Gao}
+% \author[1,\ddagger]{Wenqiao Zhang}
+% \author[1]{Yuqian Yuan}
+% \author[1]{Yang Dai}
+% \author[1]{Binhe Yu}
+% \author[2]{Zheqi Lv}
+% \author[1]{Haoyu Zheng}
+% \author[3]{Jiaqi Zhu}
+% \author[1]{Zhiqi Ge}
+% \author[4]{Zixuan Wan}
+% \author[1]{Siliang Tang}
+% \author[1]{Yueting Zhuang}
 
-\affiliation[1]{Zhejiang University}
-\affiliation[2]{Cornell University}
-\affiliation[3]{National University of Singapore}
-\affiliation[4]{Xi'an University of Electronic Science and Technology}
+% \affiliation[1]{Zhejiang University}
+% \affiliation[2]{Cornell University}
+% \affiliation[3]{National University of Singapore}
+% \affiliation[4]{Xi'an University of Electronic Science and Technology}
 
 % \contribution[*]{Equal contribution}
 % \contribution[\dagger]{Project lead}
@@ -105,18 +105,7 @@
 % ============================================================
 
 \abstract{
-Recent work has begun to equip vision-language-action (VLA) policies with explicit intermediate reasoning. In embodied control, however, textual chain-of-thought is a poor fit: irrelevant or weakly textual information can interfere with action prediction, while autoregressive text decoding adds too much latency for real-time closed-loop execution.
-We present \textbf{\method{}}, a visual intermediate-reasoning framework for accurate, low-latency VLA policies.
-Our bootstrapping philosophy is to \emph{guide action with effective visual thinking}: \method{} bootstraps action prediction through a compact visual-evidence interface that preserves spatial precision while avoiding decoding overhead.
-Besides, to further improve performance and efficiency, \method{} adopts a tailored selective routing mechanism to learn the visual evidence tokens, enabling low-latency inference while preserving high-capacity specialization. We also introduce \textbf{\texttt{VisualEvidence-Kit}}, a supervision-and-audit resource centered on a \textbf{\texttt{VisualEvidence-Agent}} that constructs a 754.7k VLA instructions \textbf{\texttt{VisualEvidence-Set}} for route supervision and counterfactual faithfulness tests.
-Across multiple benchmarks and real-robot evaluation, \method{} achieves the highest success rate on most benchmarks while reducing the \textbf{multi-second} latency of reasoning-augmented baselines to the \textbf{sub-second} regime. For example, on BridgeData V2, it reduces step latency from 8.377\,s with ECoT to 0.367\,s, achieving a \textbf{22.8$\times$ speedup}.
 
-\par\smallskip\noindent
-\renewcommand{\arraystretch}{1.1}
-\begin{tabular}{rl}
-\raisebox{-0.2em}{\includegraphics[height=1.1em]{assets/github-logo.pdf}} &
-\textbf{GitHub:} \url{https://github.com/fengnian123/VisualThink-VLA}
-\end{tabular}
 }
 
 % ============================================================
