@@ -1,115 +1,22 @@
-\providecommand{\dragentos}{\textsc{DR-AgentOS}}
-
 \section{Introduction}
 \label{sec:introduction}
 
-Embodied agents are increasingly expected to translate open-ended language
-instructions into decisions that are grounded in perception and executable in
-the physical world. Foundation-model-based systems have expanded the range of
-goals that robots can interpret, while open-vocabulary mapping and scene
-representations provide semantic grounding beyond a fixed set of object
-classes \citep{ahn2022saycan,driess2023palm,huang2023vlmaps,gu2024conceptgraphs}.
-However, many real deployments are not short episodes in a static scene. A
-robot may revisit the same building over days or months, receive tasks whose
-completion depends on earlier observations, and encounter objects, access
-conditions, and traversable routes that have changed since the last visit.
-Long-horizon operation therefore requires more than recognizing the current
-view or producing a plausible next action: the agent must preserve and revise
-a grounded account of the world over time.
+Embodied agents increasingly translate open-ended instructions into actions grounded in perception. Foundation models broaden the goals robots can interpret, while open-vocabulary maps and scene representations provide semantic grounding beyond fixed object classes \citep{ahn2022saycan,driess2023palm,huang2023vlmaps,gu2024conceptgraphs}. Real deployments, however, are not isolated episodes in static scenes. A robot may revisit a building over days or months, receive tasks that depend on earlier observations, and encounter changed objects, access conditions, or routes. It must therefore preserve and revise a grounded account of the world, not merely recognize the current view or predict a plausible next action.
 
-Existing approaches address parts of this problem from different directions.
-Semantic maps and hierarchical scene graphs organize spatial entities and
-relations for language-grounded navigation
-\citep{huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg}, while dynamic and
-lifelong mapping methods model changes in scene geometry or object state
-\citep{bescos2018dynaslam,narayana2020lifelong,liu2024dynamem}. In parallel,
-recent embodied-agent frameworks connect high-level reasoning to callable
-skills, navigation modules, and multimodal memory
-\citep{zhou2026holoagent,tian2026abot,wang2026thea,li2026agenticnav}. These
-developments make persistent embodied agents increasingly feasible, but they
-also expose a system-level gap. Task context, spatial memory, tool execution,
-and state update are often maintained by different components without a
-shared contract for identity, temporal validity, provenance, and execution
-authority.
+Existing work addresses complementary pieces of this problem. Semantic maps and hierarchical scene graphs organize spatial entities and relations \citep{huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg}; dynamic and lifelong mapping models changes in geometry or object state \citep{bescos2018dynaslam,narayana2020lifelong,liu2024dynamem}; and embodied-agent frameworks connect foundation-model reasoning to callable skills and multimodal memory \citep{zhou2026holoagent,tian2026abot,wang2026thea,li2026agenticnav}. Yet task context, spatial memory, tool execution, and state update are often maintained by separate components without a shared contract for identity, temporal validity, provenance, and execution authority.
 
-This gap matters because a fluent controller should not be allowed to define
-the physical state merely by describing it. A retrieved object coordinate
-must originate from mapping; a reported robot pose must come from the
-execution backend; and a successful path-planning call does not establish that
-the robot reached or verified its target. Likewise, a new observation that
-conflicts with memory may reflect a persistent change, but it may also result
-from occlusion, an association error, or a transient condition. Without an
-explicit boundary between reasoning and world-state authority, an agent can
-turn uncertain observations or successful software calls into unsupported
-persistent facts. Long-term operation therefore requires both an evolving
-world representation and a controlled procedure for deciding what evidence is
-allowed to change it.
+That missing contract creates a practical failure mode: a fluent controller can convert uncertain observations or successful software calls into unsupported facts. Object coordinates must originate from mapping, robot poses from the execution backend, and task completion from observed outcomes rather than a planner's return value. Likewise, disagreement with memory may indicate a persistent change, but it may also arise from occlusion, association error, or a transient condition. Long-term operation thus needs both an evolving world model and an explicit policy governing which evidence may change it.
 
-We present \dragentos{}, a persistent embodied agent operating system built
-around a closed-loop Agent Harness and a 4D World Memory. The Agent Harness
-maintains a revisable task plan, constructs bounded decision context, selects
-typed tools, dispatches calls through execution adapters, and verifies their
-physical or informational outcomes. The 4D World Memory provides a common
-source of spatial and temporal authority for these operations. Together they
-form two coupled loops: an execution loop that connects planning, tool use,
-verification, and recovery, and a memory loop that converts grounded and
-verified evidence into reusable world knowledge.
+We present \dragentos{}, a persistent embodied agent operating system built around a typed Agent Controller and a 4D World Memory. The memory represents 3D semantic structure and temporal evolution under persistent identities. Observations are projected into a common frame and organized as a \textbf{Timeline--Floor--Room--Object} hierarchy; mutable attributes occupy time-valid versions, and every assertion remains linked to observations, poses, timestamps, and confidence. Here, ``4D'' denotes an executable, reconstructable world model rather than a sequence of timestamped frames.
 
-The memory represents 3D semantic structure and temporal evolution under
-persistent entity identities. Multimodal observations are projected into a
-shared world coordinate frame and organized as a
-\textbf{Timeline--Floor--Room--Object} hierarchy. An entity retains its
-identity while its position, accessibility, attributes, or relations may be
-represented by time-valid state versions. Each graph assertion remains linked
-to source observations, poses, timestamps, and confidence records. In this
-sense, ``4D'' does not denote a collection of timestamped frames; it denotes a
-world model in which current and historical states can be reconstructed,
-queried, compared, and traced back to their supporting evidence.
+Access to this memory is task conditioned. A structured query selects a causal memory view, after which multimodal retrieval combines descriptions, object crops, scene context, and relations. A constrained vision-language model (VLM) may select only from retrieved entities or abstain; it cannot invent an identity or edit a coordinate. The same source-grounded discipline governs execution: typed tool calls pass through validation, returned evidence is checked before task progress is committed, conflicts trigger active verification, and only corroborated changes become new persistent versions.
 
-Access to this memory is task conditioned. Rather than injecting the complete
-history into a language-model context, the controller constructs a structured
-query from the user goal, active subgoal, execution state, spatial scope,
-temporal constraints, and unresolved completion conditions. Retrieval first
-selects a causal, hierarchy-aware memory view and then combines semantic,
-visual, contextual, and relational evidence. A relation-aware QueryGraph
-supports references such as ``the chair next to the tall plant,'' while a
-closed-world VLM resolver may select only from retrieved entity candidates or
-abstain. When the candidate evidence is insufficient, the resolver identifies
-the missing support so that the system can retrieve historical keyframes,
-wider scene context, or a new observation and repeat the closed-world
-resolution. The resulting record contains a memory-owned identity, state,
-coordinate, relations, and evidence handles; it is a grounded readout that can
-support question answering, inspection, comparison, navigation, or subsequent
-tool selection, rather than an action predicted directly from language.
+We evaluate memory-facing capabilities on LMEE-Bench \citep{wang2026explore} and OpenEQA \citep{majumdar2024openeqa}. These benchmarks test long-term exploration memory and episodic embodied question answering across different environments and question types.
 
-Execution is handled through the same source-grounded discipline. Tool calls
-are validated and routed to deterministic modules, replay systems,
-simulators, or robot controllers through a common runtime boundary. Returned
-receipts are checked at action, subgoal, and task levels before task progress
-is committed. When observations disagree with persistent memory, reflection
-can retain the established state, mark it uncertain, request additional
-evidence, or confirm a new version. This plan--execute--verify--commit cycle
-allows the system to recover from failures and revise its world model without
-equating every observation with a durable fact.
-
-We evaluate the memory-facing capabilities of \dragentos{} on LMEE-Bench
-\citep{wang2026explore}, which tests long-term memory over embodied exploration
-histories, and OpenEQA \citep{majumdar2024openeqa}, which evaluates episodic
-embodied question answering across scanned environments. These settings probe
-whether a persistent structured memory can expose task-relevant evidence over
-long histories and support grounded readout across different environments and
-question types.
-
-\noindent\textbf{Contributions.}
-The main contributions of this work are:
-\begin{itemize}[leftmargin=5mm,itemsep=1mm]
-    \item We present a closed-loop embodied AgentOS architecture that separates
-    high-level reasoning from authoritative tool execution, hierarchical
-    verification, and state commit.
-    \item We introduce an evidence-grounded 4D World Memory that unifies 3D
-    semantics, hierarchical spatial structure, persistent identity, temporal
-    state versions, and observation provenance.
-    \item We develop task-conditioned memory-view construction with
-    factorized multimodal retrieval, relation-aware QueryGraphs, constrained
-    candidate resolution, and evidence-gated state evolution.
+\paragraph{Contributions.}
+Our contributions are:
+\begin{itemize}[leftmargin=5mm,itemsep=0.5mm,topsep=1mm]
+    \item an embodied AgentOS that separates high-level reasoning from authoritative tool execution, outcome verification, and state commit;
+    \item an evidence-grounded 4D World Memory unifying 3D semantics, spatial hierarchy, persistent identity, temporal versions, and observation provenance; and
+    \item task-conditioned retrieval with multimodal rank fusion, relation-aware queries, constrained candidate resolution, and evidence-gated state evolution.
 \end{itemize}
