@@ -1,5 +1,3 @@
 \section{Conclusion}
 
-\method{} introduces a sparse image-grounded evidence interface for frozen VLA policies. In the \openvla{} instantiation studied here, the routed variant preserves much of the benefit of dense soft evidence while reducing control-time overhead, and it remains effective in a real-robot closed-loop setting.
-% VisualEvidence-Kit further provides a route-grounded supervision and audit layer through VisualEvidence-Agent and the resulting VisualEvidence-Set.
-The results indicate that, for embodied control, compact structured evidence in visual space is a more practical intermediate reasoning substrate than long textual reasoning traces.
+We introduced \dragentos{}, a persistent embodied agent operating system that treats memory as an evidence-grounded service shared by perception, reasoning, and action. Its 4D World Memory preserves identity, temporal validity, geometry, and provenance; task-conditioned retrieval exposes a bounded evidence set; and typed tools, constrained resolution, reflection, and gated updates prevent a language model from silently acquiring authority over world state. This architecture provides a concrete basis for auditing how embodied agents remember, act on, and revise experience. Completing the benchmark and ablation matrix in \cref{sec:results} is necessary before drawing comparative empirical conclusions.

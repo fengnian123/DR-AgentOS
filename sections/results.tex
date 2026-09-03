@@ -1,78 +1,47 @@
-\section{Results and Analysis}
+\section{Results}
 \label{sec:results}
 
-\noindent\textbf{LMEE-Bench Comparison.}
-\Cref{tab:lmee_benchmark} evaluates long-term exploration memory under the benchmark's three difficulty levels. Choice accuracy measures exact multiple-choice decisions, while the open-answer score measures semantic agreement with the reference answer on a normalized 0--100 scale. Entries marked with ``--'' are reserved for the final full-benchmark runs.
+The repository does not yet contain completed benchmark outputs, so we retain explicit placeholders instead of presenting unverified values. Before submission, every entry in \cref{tab:lmee,tab:openeqa} must be replaced by a measured value or a cited published result, and the surrounding analysis must report uncertainty and failure cases.
 
-\begin{table}[H]
+\begin{table}[t]
+\caption{LMEE-Bench results. Choice accuracy and open-answer score are reported by difficulty. Dashes denote experiments that remain to be run; this table is not submission-ready until they are resolved.}
+\label{tab:lmee}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.4pt}
-\renewcommand{\arraystretch}{1.18}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{p{0.20\textwidth}p{0.18\textwidth}c*{8}{c}}
+\setlength{\tabcolsep}{2.6pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llc*{8}{c}}
 \toprule
-\textbf{Method} & \textbf{Memory / Input} & \textbf{Frames} &
-\multicolumn{4}{c}{\hdr{\textbf{Choice Accuracy (\%) $\uparrow$}}} &
-\multicolumn{4}{c}{\hdr{\textbf{Open-answer Score $\uparrow$}}} \\
+\textbf{Method} & \textbf{Memory/Input} & \textbf{Frames} &
+\multicolumn{4}{c}{\textbf{Choice accuracy (\%) $\uparrow$}} &
+\multicolumn{4}{c}{\textbf{Open-answer score $\uparrow$}} \\
 \cmidrule(lr){4-7}\cmidrule(lr){8-11}
-& & &
-\textbf{Easy} & \textbf{Medium} & \textbf{Hard} & \textbf{Overall} &
-\textbf{Easy} & \textbf{Medium} & \textbf{Hard} & \textbf{Overall} \\
+&&& E & M & H & All & E & M & H & All \\
 \midrule
-\rowcolor{tblreported}
-\multicolumn{11}{c}{\textit{Direct multi-frame VQA references}} \\
-Qwen3.6-Plus & Direct VQA & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
-GPT-5.4 & Direct VQA & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
-\midrule
-\rowcolor{tblgroupmatched}
-\multicolumn{11}{c}{\textit{Long-term and structured memory methods}} \\
-MemoryExplorer \citep{wang2026explore} & Learned long-term memory & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
-GPT-4 + ConceptGraphs \citep{gu2024conceptgraphs} & Scene graph & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
-3D-Mem / SnapMem & 3D snapshot memory & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
-\rowcolor{tblours}
-\textbf{\dragentos{} (Ours)} & \textbf{Persistent 4D world memory} & \na & \na & \na & \na & \na & \na & \na & \na & \na \\
+Direct VQA & Sampled frames & \na & \na&\na&\na&\na & \na&\na&\na&\na\\
+MemoryExplorer \citep{wang2026explore} & Learned memory & \na & \na&\na&\na&\na & \na&\na&\na&\na\\
+ConceptGraphs \citep{gu2024conceptgraphs} & 3D scene graph & \na & \na&\na&\na&\na & \na&\na&\na&\na\\
+\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{4D world memory} & \na & \na&\na&\na&\na & \na&\na&\na&\na\\
 \bottomrule
-\end{tabular}%
-}
-\caption{Comparison on LMEE-Bench. Results are reported separately for multiple-choice and open-ended questions across the Easy, Medium, and Hard task splits. All ``--'' entries, including frame budgets, are placeholders for pending full-benchmark results.}
-\label{tab:lmee_benchmark}
+\end{tabular}}
 \end{table}
 
-\noindent\textbf{OpenEQA EM-EQA Comparison.}
-\Cref{tab:openeqa_benchmark} compares direct VQA and memory-based methods in the episodic-memory setting. Following OpenEQA, LLM-Match is reported separately for ScanNet and HM3D and over their combined question set.
-
-\begin{table}[H]
+\begin{table}[t]
+\caption{OpenEQA episodic-memory results. LLM-Match is split by environment. Dashes denote pending experiments, not zero-valued results.}
+\label{tab:openeqa}
 \centering
-\scriptsize
-\setlength{\tabcolsep}{5.0pt}
-\renewcommand{\arraystretch}{1.18}
-\resizebox{0.86\textwidth}{!}{%
-\begin{tabular}{p{0.25\textwidth}p{0.22\textwidth}cccc}
+\small
+\begin{tabular}{llcccc}
 \toprule
-\textbf{Method} & \textbf{Memory / Input} & \textbf{Frames} &
-\multicolumn{3}{c}{\hdr{\textbf{LLM-Match (\%) $\uparrow$}}} \\
-\cmidrule(lr){4-6}
-& & & \textbf{ScanNet} & \textbf{HM3D} & \textbf{Overall} \\
+\textbf{Method} & \textbf{Memory/Input} & \textbf{Frames} & \textbf{ScanNet} & \textbf{HM3D} & \textbf{All}\\
 \midrule
-\rowcolor{tblreported}
-\multicolumn{6}{c}{\textit{Direct multi-frame VQA references}} \\
-Qwen3.6-Plus & Direct VQA & \na & \na & \na & \na \\
-GPT-5.4 & Direct VQA & \na & \na & \na & \na \\
-\midrule
-\rowcolor{tblgroupmatched}
-\multicolumn{6}{c}{\textit{Memory-based embodied methods}} \\
-GPT-4 + ConceptGraphs \citep{gu2024conceptgraphs} & Scene graph & \na & \na & \na & \na \\
-GPT-4 + LLaVA-1.5 & Caption memory & \na & \na & \na & \na \\
-R-EQA & Retrieved captions & \na & \na & \na & \na \\
-GraphPad & Dynamic scene memory & \na & \na & \na & \na \\
-3D-Mem / SnapMem & 3D snapshot memory & \na & \na & \na & \na \\
-GaussExplorer & 3DGS memory & \na & \na & \na & \na \\
-\rowcolor{tblours}
-\textbf{\dragentos{} (Ours)} & \textbf{Persistent 4D world memory} & \na & \na & \na & \na \\
+Direct VQA & Sampled frames & \na & \na & \na & \na\\
+Caption memory & Text history & \na & \na & \na & \na\\
+ConceptGraphs \citep{gu2024conceptgraphs} & 3D scene graph & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{4D world memory} & \na & \na & \na & \na\\
 \bottomrule
-\end{tabular}%
-}
-\caption{Comparison on OpenEQA EM-EQA. LLM-Match is reported on ScanNet, HM3D, and the combined set. All ``--'' entries, including frame budgets, are placeholders for pending full-benchmark results.}
-\label{tab:openeqa_benchmark}
+\end{tabular}
 \end{table}
+
+\paragraph{Required analyses.}
+The final empirical section should test more than aggregate QA quality. At minimum, it should ablate temporal versions, provenance-aware retrieval, relation rank, constrained VLM resolution, and evidence-gated updates; report retrieval recall before and after VLM verification; measure latency and memory growth; and stratify errors into retrieval failure, stale-state selection, relation failure, hallucinated resolution, and scoring mismatch. These tests directly correspond to the paper's system claims.

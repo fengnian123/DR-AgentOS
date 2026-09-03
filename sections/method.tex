@@ -1,727 +1,109 @@
-\providecommand{\dragentos}{\textsc{DR-AgentOS}}
+\section{DR-AgentOS}
+\label{sec:method}
 
-\section{Problem Formulation and System Overview}
-\label{sec:problem_overview}
+\subsection{Problem Setting and System Loop}
 
-\subsection{Long-Horizon Embodied Task Setting}
-\label{subsec:problem_setting}
-
-\paragraph{Persistent embodied cognition.}
-Real-world embodied tasks are only partially observable: a robot sees a limited field of view, acts over horizons much longer than a single observation, and revisits an environment whose objects, access conditions, and task-relevant states may have changed. A static map can support localization, but it cannot by itself distinguish a persistent fact from a transient observation or determine whether an old route is still traversable. We therefore formulate long-horizon operation as \emph{persistent embodied cognition}: the robot must maintain a temporally grounded world state while using that state to decide what to observe and do next.
-
-\paragraph{Multimodal observations.}
-At decision round $t$, the available multimodal observation is
-\begin{equation}
-    \mathbf{o}_t = \left\{
-    \mathbf{I}_t,\mathbf{D}_t,\mathbf{L}_t,\mathcal{G}_t,
-    \boldsymbol{\xi}_t,\tau_t
-    \right\},
-    \label{eq:multimodal_observation}
-\end{equation}
-where $\mathbf{I}_t$ and $\mathbf{D}_t$ are RGB and depth observations, $\mathbf{L}_t$ denotes LiDAR or other geometric measurements, $\mathcal{G}_t$ denotes available 3D Gaussian Splatting (3DGS) scene evidence, $\boldsymbol{\xi}_t$ is the robot pose, and $\tau_t$ is the timestamp. The set-valued representation allows the system to operate with the subset of modalities available on a particular platform.
-
-\paragraph{Task-conditioned decision making.}
-Let $\mathcal{T}$ denote the natural-language task, $\mathbf{s}_t$ the current robot and execution state, $\rho_t$ the active task stage and its completion conditions, $\mathcal{Z}$ the set of callable tools, and $\mathcal{M}_t$ the persistent world memory. The Agent Controller first constructs a task-conditioned query and then selects a tool and an executable action:
+At decision round $t$, the agent receives the available subset of RGB image $\mathbf I_t$, depth $\mathbf D_t$, geometric observation $\mathbf L_t$, robot pose $\boldsymbol\xi_t$, and timestamp $\tau_t$. Given natural-language task $\mathcal T$, execution state $\mathbf s_t$, active task stage $\rho_t$, callable tools $\mathcal Z$, and persistent memory $\mathcal M_t$, the controller constructs a task-conditioned query and selects a tool call:
 \begin{align}
-    \mathbf{q}_t &= \mathcal{Q}(\mathcal{T},\rho_t,\mathbf{s}_t),
-    \label{eq:query_construction}\\
-    (z_t,\mathbf{a}_t) &= \Pi\!\left(
-    \mathcal{T},\rho_t,\mathbf{s}_t,
-    \mathcal{R}(\mathcal{M}_t,\mathbf{q}_t),\mathcal{Z}
-    \right),
-    \label{eq:controller_decision}
+\mathbf q_t &= \mathcal Q(\mathcal T,\rho_t,\mathbf s_t), \\
+(z_t,\mathbf a_t) &= \Pi\!\left(\mathcal T,\rho_t,\mathbf s_t,
+\mathcal R(\mathcal M_t,\mathbf q_t),\mathcal Z\right).
+\label{eq:controller}
 \end{align}
-where $\mathcal{Q}$ constructs the query, $\mathcal{R}$ retrieves task-relevant memory, $z_t\in\mathcal{Z}$ is the selected tool, $\mathbf{a}_t$ is its command or argument, and $\Pi$ denotes the controller policy. Equations~\eqref{eq:query_construction} and~\eqref{eq:controller_decision} specify the information available to the controller; they do not assume that $\Pi$ is learned or end-to-end differentiable.
+The controller then verifies execution against explicit completion conditions, detects conflicts with existing memory, gathers evidence when needed, and applies a gated update. This yields a closed perception--memory--reasoning--action--reflection loop rather than a one-shot perception-to-action pipeline.
 
-\subsection{Closed-Loop DR-AgentOS Architecture}
-\label{subsec:system_overview}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/4D_memroy.pdf}
+    \caption{Construction of 4D World Memory. Multimodal observations are registered in a shared world frame, consolidated under persistent entity identities, and stored as time-valid world and route memory.}
+    \label{fig:memory}
+\end{figure}
 
-\paragraph{From a static pipeline to an evolving world model.}
-\dragentos{} realizes Eq.~\eqref{eq:controller_decision} as a closed cognitive loop rather than a fixed perception--navigation pipeline. Multimodal observations are first grounded into a 4D World Memory. Task-conditioned retrieval then exposes relevant entities, relations, states, and historical evidence to the Agent Controller, which decomposes the goal and invokes tools through the Tool Manager.
+\subsection{Evidence-Grounded 4D World Memory}
 
-\paragraph{Action, verification, and memory evolution.}
-Execution results are evaluated against both task completion conditions and prior memory. When new evidence disagrees with stored knowledge, the system invokes Reflection before committing a memory update. The resulting perception--memory--reasoning--action--reflection--update cycle makes experience persistent: action changes the world model, and the revised world model conditions subsequent action.
-
-\section{4D World Memory}
-\label{sec:4d_memory}
-
-The 4D World Memory is the persistent cognitive substrate of \dragentos{}. We define ``4D'' not as a collection of timestamped frames, but as an \emph{executable world model} in which 3D semantic structure and temporal evolution are represented under a common identity system. It unifies geometry, semantics, topology, history, and source evidence so that the Agent Controller can reason about not only \emph{what} and \emph{where}, but also \emph{when}, \emph{whether it is still true}, and \emph{which observation warrants that belief}. This turns memory from a passive context cache into a world-authoritative system state shared by perception, planning, navigation, inspection, and reflection.
-
-\subsection{Direct 3D Semantic Projection}
-\label{subsec:grounding}
-
-\paragraph{A geometry-authoritative world frame.}
-All observations are synchronized by timestamp and registered through the robot pose into a common world frame. For an image coordinate $\widetilde{\mathbf{u}}=[u,v,1]^\top$ with valid depth $D_t(u,v)$, the corresponding world point is
+\paragraph{Direct semantic projection.}
+For pixel $\widetilde{\mathbf u}=[u,v,1]^\top$ with valid depth, the corresponding world point is
 \begin{equation}
-    \mathbf{x}^{w}
-    = \operatorname{proj}_3\!\left(
-        \mathbf{T}_{w\leftarrow c,t}
-        \begin{bmatrix}
-        D_t(u,v)\mathbf{K}^{-1}\widetilde{\mathbf{u}}\\[1mm]1
-        \end{bmatrix}
-    \right),
-    \label{eq:backprojection}
+\mathbf x^w=\operatorname{proj}_3\!\left(\mathbf T_{w\leftarrow c,t}
+\begin{bmatrix}D_t(u,v)\mathbf K^{-1}\widetilde{\mathbf u}\\1\end{bmatrix}\right),
+\label{eq:backprojection}
 \end{equation}
-where $\mathbf{K}$ is the camera intrinsic matrix and $\mathbf{T}_{w\leftarrow c,t}$ is the time-indexed camera-to-world transform. The same coordinate authority is shared by RGB-D observations, point clouds, meshes or 3DGS evidence, navigation nodes, and robot poses; semantic reasoning therefore remains anchored to coordinates that downstream tools can execute.
+where $\mathbf K$ is the camera intrinsic matrix and $\mathbf T_{w\leftarrow c,t}$ the camera-to-world transform. Semantic regions from open-vocabulary perception are lifted directly into this frame. Cross-view consolidation uses semantic compatibility, 3D proximity, temporal consistency, and source confidence, so repeated observations strengthen a persistent entity rather than create disconnected detections.
 
-\paragraph{Semantics are lifted into the graph, not stored beside it.}
-Open-vocabulary perception produces a semantic region, confidence, and visual descriptor \cite{liu2023groundingdino}. We lift this frame-local evidence into a 3D semantic observation and immediately project it into the world graph:
+\paragraph{Causal, versioned memory.}
+Memory at time $t$ is materialized only from past and current evidence,
 \begin{equation}
-    \Pi_{\mathrm{sem}}:
-    (\ell,\Omega,\mathbf{x}^{w},\tau,\mathcal{P})
-    \longmapsto
-    \Delta\mathcal{G}_{\tau},
-    \label{eq:semantic_graph_projection}
+\mathcal M_{\leq t}=\operatorname{Materialize}(\Delta\mathcal M_0,\ldots,\Delta\mathcal M_t)
+=(\mathcal G_{\leq t},\mathbb T_{\leq t},\mathcal B_{\leq t}),
+\label{eq:memory}
 \end{equation}
-where $\ell$ is the canonical semantic class, $\Omega$ is the visual support, $\mathbf{x}^{w}$ is its 3D support, and $\mathcal{P}$ is the source provenance. The mapping either consolidates the observation into a persistent entity or instantiates a new graph node; its containment, proximity, and topological relations are then induced in the same coordinate frame. Thus, 3D semantics are not an auxiliary label layer attached after mapping: they are the primitive from which the semantic graph itself is incrementally constructed. This direct projection avoids the geometric information loss of first translating observations into free-form text and later attempting to recover executable structure.
-
-\paragraph{Persistent identity through cross-view consolidation.}
-Observations are consolidated according to semantic compatibility, 3D proximity, temporal consistency, and source confidence. Canonical class normalization absorbs vocabulary aliases, while metric support separates repeated instances of the same class. Persistent categories accumulate evidence across viewpoints; transient observations remain queryable evidence without being prematurely promoted to long-term facts. The result is an identity-preserving entity layer in which repeated observations strengthen a world hypothesis instead of multiplying disconnected detections.
-
-\subsection{Time as a First-Class Memory Axis}
-
-\paragraph{Causal materialization rather than frame accumulation.}
-At decision time $t$, the agent materializes memory only from evidence observed no later than $t$:
+where $\mathcal G$ is a semantic-spatial graph, $\mathbb T$ a set of world-state segments, and $\mathcal B$ an evidence/provenance bank. An entity has a stable identity $i$, semantic label $\ell_i$, geometry $\mathbf p_i$, relations $\mathcal N_i$, and a pointer to its current version. Its $k$-th state version is
 \begin{equation}
-    \mathcal{M}_{\leq t}
-    = \operatorname{Materialize}
-    \left(\Delta\mathcal{M}_{0},\ldots,\Delta\mathcal{M}_{t}\right).
-    \label{eq:causal_materialization}
+h_i^k=([\tau_{i,s}^k,\tau_{i,e}^k),y_i^k,c_i^k,\mathbf f_i^k,\mathcal P_i^k),
+\label{eq:version}
 \end{equation}
-This prefix-bounded construction makes time operational. It prevents future leakage during replay, scopes retrieval to the agent's actual experience, and allows any past decision point to be reconstructed with the evidence available at that moment. Time therefore governs memory visibility and causality rather than serving as display metadata.
-
-\paragraph{Versioned identity and temporal validity.}
-We represent the materialized memory as
-\begin{equation}
-    \mathcal{M}_{\leq t}
-    =\left(\mathcal{G}_{\leq t},\mathbb{T}_{\leq t},\mathcal{B}_{\leq t}\right),
-    \qquad
-    \mathcal{G}_{\leq t}
-    =\left(\mathcal{V}_{\leq t},\mathcal{E}_{\leq t}\right),
-    \label{eq:memory_graph}
-\end{equation}
-where $\mathcal{G}_{\leq t}$ is the current semantic-spatial graph, $\mathbb{T}_{\leq t}$ is a set of temporally ordered world-state segments, and $\mathcal{B}_{\leq t}$ is an evidence and provenance bank. For entity $v_i$, a stable identity and its $k$-th state version are
-\begin{align}
-    v_i &= \left(i,\ell_i,\mathbf{p}_i,\mathbf{b}_i,\mathcal{N}_i,\pi_i^{\mathrm{cur}}\right),
-    \label{eq:entity_record}\\
-    h_i^{k} &= \left(
-    [\tau_{i,\mathrm{start}}^{k},\tau_{i,\mathrm{end}}^{k}),
-    y_i^{k},c_i^{k},d_i^{k},\mathbf{f}_i^{k},
-    \mathcal{K}_i^{k},\mathcal{P}_i^{k}
-    \right),
-    \label{eq:state_version}
-\end{align}
-where $\pi_i^{\mathrm{cur}}$ points to the currently supported version. The validity interval expresses when a state is believed to hold; $y_i^k$, $c_i^k$, and $d_i^k$ encode state, confidence, and structured semantics; and $\mathcal{K}_i^k$ and $\mathcal{P}_i^k$ retain the visual and sensor provenance. Stable identity is consequently separated from mutable state: a doorway can remain the same entity while its accessibility changes, and a relocated object can preserve its history without forcing the system to choose between overwriting the past and duplicating the object.
-
-\paragraph{World timelines as semantic change boundaries.}
-When multi-view evidence confirms a persistent scene change, \dragentos{} seals the previous world-state segment and opens a new timeline in $\mathbb{T}_{\leq t}$. Timeline edges record the semantic transition, while stable entity identities link corresponding versions across segments. This provides a principled temporal abstraction between two extremes: treating every frame as a new world, or collapsing an evolving environment into a timeless map. Queries can address the active world state, a selected historical segment, or the change connecting them.
-
-\subsection{Hierarchical Semantic Graph and Evidence Substrate}
-\label{subsec:memory_hierarchy}
-
-\paragraph{A multi-resolution world model.}
-The semantic graph is organized as \textbf{Timeline--Floor--Room--Object}. Trajectory-supported places are consolidated into rooms; room transitions induce topological connectivity; and every 3D semantic entity is inserted into its containing room with metric and semantic relations to nearby entities. Relations such as \texttt{contains}, \texttt{near}, \texttt{connected-by}, and \texttt{has-entrance} allow the same memory to answer symbolic questions, ground spatial references, and produce executable navigation targets. Coarse-to-fine traversal lets the controller operate at the resolution demanded by the task without maintaining separate, mutually inconsistent maps.
-
-\paragraph{Evidence-backed abstraction.}
-Every graph assertion remains connected to an evidence ledger containing its observation time, source pose, sensor or rendered view, visual support, confidence, and content identity. Event-triggered keyframes preserve informative motion, semantic novelty, entrances, and region transitions, while redundant frames remain represented through compact temporal deltas. Structured captions and visual embeddings enrich retrieval, but never replace geometry or provenance. The graph is therefore both compact and auditable: high-level concepts remain traceable to the exact world-grounded observations from which they were formed.
-
-\paragraph{Retention across memory timescales.}
-Long-lived geometry and persistent entities form semantic memory; ordered observations and world-state segments form episodic memory; and unresolved, task-local hypotheses remain in working memory until verified. These are retention regimes over one shared graph, not isolated stores. Temporal validity, recurrence, semantic persistence, and task relevance jointly determine what is consolidated, what remains provisional, and what can be safely forgotten. In this way, the memory grows in knowledge rather than merely in volume.
-
-\subsection{Tool-Native Memory as a System Service}
-
-The 4D World Memory is exposed through the typed \nolinkurl{query_spatiotemporal_memory} interface rather than injected as an unstructured prompt. A query selects a replay time or world timeline and returns a causally bounded hierarchy, mapper-owned coordinates, current entity versions, capability declarations, and evidence handles. The same contract can be enriched with persistent objects, keyframes, captions, or embeddings without changing the controller-facing abstraction. As a result, heterogeneous tools consume one source of world authority: the language model decides \emph{what} to query and \emph{why}, while memory determines \emph{what has been observed}, \emph{where it exists}, and \emph{when that knowledge is valid}. This separation elevates 4D memory from a representation module to an operating-system primitive for persistent embodied cognition.
-
-\section{Task-Conditioned Memory Retrieval}
-\label{sec:memory_retrieval}
-
-\subsection{Task-Conditioned Query Construction}
-\label{subsec:retrieval_query}
-
-\paragraph{Why a task-conditioned query is necessary.}
-A global memory is useful only when it exposes the evidence relevant to the current decision. Semantic similarity alone may retrieve an unreachable object, an outdated road condition, or a visually similar but task-irrelevant place. Through Eq.~\eqref{eq:query_construction}, the Agent Controller derives its query from the user instruction, the active subtask, the robot pose and capabilities, and the remaining completion conditions.
-
-\paragraph{Query content.}
-The resulting $\mathbf{q}_t$ may specify target semantics, a spatial scope, a time interval, a desired entity state, and---when available---visual evidence of the target. Query construction therefore determines not only \emph{what} should be retrieved, but also \emph{where}, \emph{when}, and under which task constraints the retrieved evidence remains useful.
+containing a validity interval, structured state, confidence, visual features, and provenance. Stable identity is therefore separated from mutable state: a door remains the same entity when its accessibility changes, and an object may move without losing its history. The graph follows a Timeline--Floor--Room--Object hierarchy and retains metric, containment, proximity, and connectivity relations. Assertions link back to sensor time, source pose, visual support, and confidence.
 
 \subsection{Task-Conditioned Multimodal Retrieval}
-\label{subsec:retrieval_impl}
 
-\paragraph{Retrieval records.}
-Given the task-conditioned query $\mathbf{q}_t$ defined in
-Eq.~\eqref{eq:query_construction}, \dragentos{} retrieves executable targets
-from persistent entity memory rather than directly predicting a spatial goal
-from language. For each stable entity $v_i$, the retrieval index stores
+Each entity's retrieval record contains its current description, object crop, full-frame context, mapper-owned coordinate, source pose, and provenance. The query is encoded against three semantic channels---description, crop, and context---and ranked independently. For normalized query embedding $\mathbf z_q$ and entity representation $\mathbf z_i^{(m)}$,
 \begin{equation}
-    e_i =
-    \left(
-    i,\,
-    d_i^{\mathrm{cur}},\,
-    I_i^{\mathrm{crop}},\,
-    I_i^{\mathrm{ctx}},\,
-    \mathbf{p}_i,\,
-    \boldsymbol{\xi}_i^{\mathrm{src}},\,
-    \mathcal{P}_i
-    \right),
-    \label{eq:retrieval_record}
+s_i^{(m)}=\langle\mathbf z_q,\mathbf z_i^{(m)}\rangle,
+\qquad m\in\{\mathrm{desc},\mathrm{crop},\mathrm{ctx}\}.
 \end{equation}
-where $i$ is the persistent entity identifier, $d_i^{\mathrm{cur}}$ is its
-current structured description, $I_i^{\mathrm{crop}}$ is the object-centric
-crop, $I_i^{\mathrm{ctx}}$ is the corresponding full-frame context,
-$\mathbf{p}_i$ is the mapper-owned world coordinate,
-$\boldsymbol{\xi}_i^{\mathrm{src}}$ is the source observation pose, and
-$\mathcal{P}_i$ records the associated visual provenance.
-
-The object crop used for retrieval does not contain a rendered bounding-box
-overlay. Bounding-box overlays are retained only as human- or VLM-readable
-verification evidence. Similarly, source poses and world coordinates are
-stored as structured metadata instead of being encoded as visual features.
-This separation keeps semantic retrieval independent from geometric
-authority.
-
-\paragraph{Three complementary semantic channels.}
-The current implementation encodes each memory entity in a shared
-3,584-dimensional QQMM-v2 embedding space using three complementary channels:
-\emph{caption}, \emph{crop}, and \emph{context}. The caption channel captures
-object category and language-level attributes; the crop channel emphasizes
-target appearance while suppressing background; and the context channel
-preserves surrounding objects and scene semantics that may disambiguate
-visually similar instances.
-
-Let $\mathbf{z}_q$ denote the normalized embedding of the language query and
-$\mathbf{z}_i^{(m)}$ the normalized representation of entity $i$ in channel
-$m$. The channel-wise similarity is
+We combine ranks rather than raw scores because channel scales need not be calibrated. Weighted Reciprocal Rank Fusion gives
 \begin{equation}
-    s_i^{(m)}
-    =
-    \left\langle
-    \mathbf{z}_q,
-    \mathbf{z}_i^{(m)}
-    \right\rangle,
-    \qquad
-    m\in
-    \left\{
-    \mathrm{cap},
-    \mathrm{crop},
-    \mathrm{ctx}
-    \right\}.
-    \label{eq:qqmm_similarity}
+S_i^{\mathrm{RRF}}=\sum_{m\in\mathcal M_q}\frac{w_m}{K_{\mathrm{RRF}}+r_i^{(m)}},
+\label{eq:rrf}
 \end{equation}
-Each channel is ranked independently. Near-identical scores are treated as
-ties using a small numerical tolerance, preventing arbitrary file or instance
-ordering from introducing artificial rank differences.
+with $K_{\mathrm{RRF}}=60$ and default weights $(1.0,1.0,0.5)$ for description, crop, and context.
 
-\paragraph{Weighted Reciprocal Rank Fusion.}
-Rather than directly combining heterogeneous similarity values, \dragentos{}
-fuses channel-specific rankings through Weighted Reciprocal Rank Fusion
-(RRF). Let $r_i^{(m)}$ denote the rank of entity $i$ in channel $m$. Its fused
-score is
+\paragraph{Relation-aware QueryGraph.}
+Relational instructions are parsed into a target, an anchor, and a supported spatial predicate. For a \texttt{near} relation, target $i$ and anchor $a$ receive
 \begin{equation}
-    S_i^{\mathrm{RRF}}
-    =
-    \sum_{m\in\mathcal{M}_q}
-    \frac{w_m}{K_{\mathrm{RRF}} + r_i^{(m)}},
-    \label{eq:weighted_rrf}
+S_{i,a}^{\mathrm{spatial}}=\alpha/r_a^{\mathrm{sem}}+(1-\alpha)/(1+\|\mathbf p_i^{xy}-\mathbf p_a^{xy}\|_2),
+\label{eq:relation}
 \end{equation}
-where $K_{\mathrm{RRF}}=60$ in the current implementation and
-$\mathcal{M}_q$ denotes the set of active retrieval channels. For the three
-default semantic channels,
+where $\alpha=0.45$. The best compatible anchor supplies a relation rank that enters \cref{eq:rrf}. Unsupported parses fail closed to the three-channel retrieval path.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/task_conditioned_memory_retrieval_v10_two_row_visual.png}
+    \caption{Task-conditioned retrieval. A causal memory view supplies semantic, visual, contextual, and relational evidence; rank fusion generates candidates; a constrained VLM confirms a candidate, requests more evidence, or abstains.}
+    \label{fig:retrieval}
+\end{figure}
+
+\paragraph{Constrained VLM resolution.}
+The top-$K$ candidates are presented with their evidence. The VLM must return \texttt{confirmed}, \texttt{ambiguous}, or \texttt{not\_found}; a confirmed identifier must belong to the presented set $\mathcal C_q$, otherwise it is rejected. Crucially, confirmation binds the semantic goal to the coordinate already stored by memory,
 \begin{equation}
-    \left(
-    w_{\mathrm{cap}},
-    w_{\mathrm{crop}},
-    w_{\mathrm{ctx}}
-    \right)
-    =
-    (1.0,\,1.0,\,0.5).
-    \label{eq:rrf_weights}
+\widehat i\in\mathcal C_q\ \text{or}\ \widehat i=\varnothing,
+\qquad \mathbf g_{\mathrm{sem}}=\mathbf p_{\widehat i}.
+\label{eq:binding}
 \end{equation}
-This rank-based fusion avoids requiring the raw similarity scales of different
-evidence channels to be calibrated against one another, while allowing
-evidence that is consistently ranked highly across channels to receive
-stronger support.
+The VLM selects among evidence-backed identities but cannot invent an entity or modify geometry. If evidence is insufficient, the controller can retrieve history, broaden context, acquire a new view, and re-rank within a fixed budget.
 
-\subsubsection{Relation-Aware QueryGraph}
-\label{subsec:querygraph}
+\subsection{Typed Tools and Closed-Loop Execution}
 
-\paragraph{Explicit spatial relations.}
-Some embodied queries cannot be resolved from object semantics alone. For
-example, ``the chair next to the tall plant'' requires identifying both a
-target category and a spatial anchor. For supported relation expressions,
-\dragentos{} converts the query into a small deterministic QueryGraph
-containing a target, an anchor, and an explicit spatial relation.
+Natural language is normalized into goal $G$, constraints $\Omega$, completion predicate $\chi$, and a subtask dependency graph. Each tool declares a name, typed input schema, permitted controller modes, and schema version; each result returns execution status, structured payload, evidence handles, latency, and a normalized error. The registry validates tool existence, mode, arguments, and call budget before dispatch. This interface separates probabilistic reasoning from authoritative components: mapping owns entity identities and coordinates, workers own deterministic algorithmic outputs, the runtime owns pose and collision feedback, and verification owns state commit.
 
-For a \texttt{near} relation, the system first retrieves the most likely
-anchor entities using semantic retrieval. For target entity $i$ and anchor
-$a$, we define
+For navigation, an object coordinate may lie in occupied space, so the planner snaps it to the nearest cell in the robot's reachable free component $\mathcal R_t$:
 \begin{equation}
-    S_{i,a}^{\mathrm{spatial}}
-    =
-    \alpha
-    \frac{1}{r_a^{\mathrm{sem}}}
-    +
-    (1-\alpha)
-    \frac{1}{
-    1+
-    \left\|
-    \mathbf{p}_i^{xy}
-    -
-    \mathbf{p}_a^{xy}
-    \right\|_2
-    },
-    \label{eq:spatial_relation_score}
+g'=\arg\min_{v\in\mathcal R_t}\|v-g\|_2^2.
+\label{eq:snap}
 \end{equation}
-where $r_a^{\mathrm{sem}}$ is the semantic rank of the anchor,
-$\mathbf{p}^{xy}$ denotes its horizontal world position, and $\alpha=0.45$
-in the current implementation. Each target retains the strongest compatible
-anchor,
+An 8-connected weighted distance field selects a short-term goal with minimum remaining geodesic distance. Only one action is issued before updated pose and collision evidence trigger replanning. Thus a successful planning call is distinct from a verified physical outcome.
+
+\subsection{Conflict-Aware Reflection and Update}
+
+New evidence is compared with current memory along state, position, visibility-aware absence, and topology dimensions. A missing detection counts as evidence of disappearance only if the remembered location should be visible given pose, field of view, occlusion, and sensing conditions. Material conflicts cause the controller to retrieve history, change viewpoint, repeat perception, inspect a route, or seek clarification.
+
+For proposed state $\widehat h_{i,t}$, let evidence item $b$ have reliability $r_b$, agreement $a_b$, and source-dependent weight $w_b$. Corroboration is
 \begin{equation}
-    S_i^{\mathrm{spatial}}
-    =
-    \max_{a\in\mathcal{A}_q}
-    S_{i,a}^{\mathrm{spatial}},
-    \label{eq:best_spatial_anchor}
+C_{\mathrm{evidence}}=\frac{\sum_{b\in\mathcal B_t(i)}w_b r_b a_b}{\sum_{b\in\mathcal B_t(i)}w_b+\epsilon}.
 \end{equation}
-where $\mathcal{A}_q$ is the retrieved anchor set. Entities are then ranked by
-$S_i^{\mathrm{spatial}}$ to obtain the spatial-route rank
-$r_i^{(\mathrm{spatial})}$. When a supported relation is successfully parsed,
-the spatial route is added to Eq.~\eqref{eq:weighted_rrf} with weight
-$w_{\mathrm{spatial}}=1.0$.
-
-The current QueryGraph parser is deliberately fail-closed. Unsupported
-relation structures do not trigger uncertain symbolic constraints; the system
-instead falls back to the standard three-channel retrieval pipeline. This
-design favors auditable relation reasoning over broad but unreliable language
-parsing.
-
-\subsection{Constrained VLM Verification and Executable Goal Binding}
-\label{subsec:constrained_vlm}
-
-\paragraph{Candidate-bounded visual verification.}
-The retrieval stage deliberately separates high-recall candidate generation
-from final visual confirmation. After ranking, \dragentos{} packages the
-highest-ranked candidates together with their captions, object crops,
-bounding-box overlays, source observations, and provenance. The current
-verifier inspects at most the top five candidates.
-
-Let
+A persistent update is committed only when the conflict has been examined and the score exceeds an entity-dependent threshold:
 \begin{equation}
-    \mathcal{C}_q^{\mathrm{vlm}}
-    =
-    \left\{
-    i_1,\ldots,i_{K_v}
-    \right\}
-    \label{eq:legal_candidate_set}
+g_t(i)=\mathbb I[C_{\mathrm{evidence}}\geq\eta_i\ \land\ r_t^{\mathrm{conf}}(i)=1].
+\label{eq:gate}
 \end{equation}
-denote the legal candidate identifiers presented to the VLM. The verifier is
-constrained to return one of three outcomes: \texttt{confirmed},
-\texttt{ambiguous}, or \texttt{not\_found}. For a confirmed result, the
-selected identifier must satisfy
-\begin{equation}
-    \widehat{i}
-    \in
-    \mathcal{C}_q^{\mathrm{vlm}},
-    \qquad
-    \text{or otherwise}\qquad
-    \widehat{i}=\varnothing.
-    \label{eq:constrained_vlm_output}
-\end{equation}
-Any identifier outside $\mathcal{C}_q^{\mathrm{vlm}}$ is rejected by the tool
-interface instead of being interpreted as a newly discovered object. Thus,
-the VLM serves as a bounded visual verifier rather than an authority that can
-create entities.
-
-\paragraph{Memory-owned spatial authority.}
-A second constraint applies to coordinates. Even after visual confirmation,
-the VLM never predicts or edits a navigation coordinate. If entity
-$\widehat{i}$ is confirmed, the executable semantic goal is bound directly to
-the world position stored by the memory system:
-\begin{equation}
-    \mathbf{g}_{\mathrm{sem}}
-    =
-    \mathbf{p}_{\widehat{i}},
-    \label{eq:semantic_goal_binding}
-\end{equation}
-where $\mathbf{p}_{\widehat{i}}$ is copied from the persistent memory record
-without numerical mutation. This establishes a strict separation between
-semantic reasoning and geometric authority: the language model determines
-\emph{which} retrieved entity best matches the task, whereas the mapper and
-memory determine \emph{where} that entity is. Consequently, downstream
-navigation operates on a source-grounded coordinate whose provenance can be
-traced back to the original observations.
-
-\section{Tool-Augmented Embodied Task Orchestration}
-\label{sec:tool_orchestration}
-
-\subsection{Goal Interpretation and Task Decomposition}
-\label{subsec:goal_interpretation}
-
-\paragraph{From instruction to completion conditions.}
-Natural-language commands often specify an outcome without a feasible procedure. The Agent Controller uses a task interpreter $\mathcal{F}$ to normalize $\mathcal{T}$ into a goal $G$, constraints $\Omega$, a verifiable completion predicate $\chi$, and a dependency graph $\mathcal{D}_{\mathcal{T}}$:
-\begin{align}
-    (G,\Omega,\chi,\mathcal{D}_{\mathcal{T}})
-    &= \mathcal{F}(\mathcal{T}),
-    \label{eq:task_interpretation}\\
-    \mathcal{D}_{\mathcal{T}}
-    &= \left(\{u_j\}_{j=1}^{J},\prec,\{\chi_j\}_{j=1}^{J}\right),
-    \label{eq:task_decomposition}
-\end{align}
-where $u_j$ is an executable or observable subtask, $\prec$ encodes prerequisite relations, and $\chi_j$ defines the evidence required to declare that subtask complete.
-
-Explicit completion predicates align execution with the user's actual objective rather than a literal sequence of motions. They also expose infeasible steps, for which the controller can retrieve alternatives, explore, or request user input.
-
-\subsection{Typed Tool Registry and World-Authority Separation}
-\label{subsec:tool_registry}
-
-\paragraph{Typed tool interface.}
-\dragentos{} exposes memory, perception, planning, and inspection capabilities
-through a common typed interface rather than embedding their implementations
-inside the Agent Controller. Each registered tool is described by
-\begin{equation}
-    \mathrm{ToolSpec}
-    =
-    \left(
-    n,\,
-    \sigma_{\mathrm{in}},\,
-    \mathcal{C},\,
-    \nu
-    \right),
-    \label{eq:tool_spec}
-\end{equation}
-where $n$ is the tool name, $\sigma_{\mathrm{in}}$ is its structured input
-schema, $\mathcal{C}$ specifies the controller modes in which the tool is
-available, and $\nu$ denotes the schema version. A controller request is
-represented as
-\begin{equation}
-    \mathrm{ToolCall}
-    =
-    \left(
-    \mathrm{call\_id},\,
-    n,\,
-    \mathbf{a},\,
-    \nu
-    \right),
-    \label{eq:tool_call}
-\end{equation}
-where $\mathbf{a}$ contains the typed arguments. Execution returns
-\begin{equation}
-    \mathrm{ToolResult}
-    =
-    \left(
-    s,\,
-    \mathbf{y},\,
-    \mathcal{E},\,
-    \ell,\,
-    \varepsilon
-    \right),
-    \label{eq:tool_result}
-\end{equation}
-where $s$ is execution status, $\mathbf{y}$ is the structured payload,
-$\mathcal{E}$ contains evidence references, $\ell$ records execution latency,
-and $\varepsilon$ is a normalized error object when execution fails.
-
-\paragraph{Registry execution semantics.}
-Before a tool is invoked, the registry (i) resolves the registered tool name,
-(ii) checks whether the current controller mode is permitted, (iii) validates
-the arguments against the typed input schema, and (iv) accounts for the
-available tool-call budget. Only after these checks does execution enter the
-underlying worker. Failures are returned through the same
-\texttt{ToolResult} contract rather than being exposed as unstructured
-exceptions.
-
-{\setlength{\emergencystretch}{1em}%
-Representative tools include
-\nolinkurl{query_spatiotemporal_memory},
-\nolinkurl{query_exploration_state},
-\nolinkurl{decompose_scene_task},
-\nolinkurl{find_semantic_object}, and cross-round inspection or change-query
-tools. Navigation is exposed through the same interface, allowing a retrieved
-memory coordinate to be passed to the planner without requiring the
-controller to manipulate the map representation directly.\par}
-
-\paragraph{World-authority separation.}
-A central design principle of \dragentos{} is that high-level reasoning does
-not imply authority over the physical world model. The Agent Controller is
-responsible for interpreting goals, selecting tools, and deciding how to
-proceed from structured results, but source-grounded facts remain owned by the
-modules that produce them. Specifically,
-\begin{itemize}
-    \item the \textbf{memory and mapping layers} own persistent entity
-    identifiers, world coordinates, historical observations, and spatial
-    relations;
-    \item the \textbf{tool workers} own deterministic algorithmic outputs
-    such as retrieval rankings, change evidence, and navigation fields;
-    \item the \textbf{execution runtime} owns authoritative robot motion,
-    pose, observations, and collision feedback; and
-    \item the \textbf{verification and memory-update path} determines when
-    newly observed evidence is eligible to alter persistent state.
-\end{itemize}
-
-The controller therefore copies opaque identifiers and source-grounded
-coordinates from tool outputs instead of synthesizing replacements. For
-example, the VLM verification stage may select a legal entity identifier but
-cannot create a new identifier or modify its coordinate, while the navigation
-planner may snap that coordinate to a reachable grid cell without changing
-the underlying memory record. This separation turns the Tool Registry into
-more than a software dispatch mechanism: it defines the boundary between
-probabilistic high-level reasoning and auditable world-state computation,
-enabling heterogeneous perception, memory, navigation, and inspection modules
-to participate in a common AgentOS loop.
-
-\subsection{Memory-Grounded Tool Selection}
-\label{subsec:tool_selection}
-
-\paragraph{Standardized embodied tools.}
-The Tool Manager exposes Memory Retrieval, semantic detection, exploration-state query, map query, route planning, local exploration, navigation, inspection, and interaction through standardized call and return schemas. Each tool consumes task and world-state arguments and returns a structured result with execution status and supporting evidence. Tools are thus selected using the ranked and verified context produced by Eqs.~\eqref{eq:weighted_rrf} and~\eqref{eq:constrained_vlm_output}, rather than being invoked in a predetermined order.
-
-\paragraph{Decision criterion.}
-At each round, the controller balances task progress, execution cost, safety risk, and the value of resolving uncertainty. For a candidate tool--action pair, we define the conceptual utility
-\begin{equation}
-\begin{split}
-    J_t(z,\mathbf{a}) ={}&
-    U_{\mathrm{task}}(z,\mathbf{a})
-    +\lambda_i I_{\mathrm{gain}}(z,\mathbf{a})
-    -\lambda_c C_{\mathrm{exec}}(z,\mathbf{a})
-    -\lambda_r R_{\mathrm{risk}}(z,\mathbf{a}),
-    \label{eq:tool_utility}
-\end{split}
-\end{equation}
-and select
-\begin{equation}
-    (z_t^{*},\mathbf{a}_t^{*}) =
-    \arg\max_{z\in\mathcal{Z},\,\mathbf{a}\in\mathcal{A}(z)}
-    J_t(z,\mathbf{a}),
-    \label{eq:tool_criterion}
-\end{equation}
-where $\mathcal{A}(z)$ is the argument or action space of tool $z$, $U_{\mathrm{task}}$ is expected progress toward $\chi$, $I_{\mathrm{gain}}$ is diagnostic information gain, $C_{\mathrm{exec}}$ is execution cost, and $R_{\mathrm{risk}}$ is task-dependent risk. The coefficients encode operational priorities.
-
-Equation~\eqref{eq:tool_criterion} is a unifying decision rule implemented through controller reasoning and tool feedback. It is not intended to imply that the system explicitly solves an end-to-end differentiable optimization problem.
-
-\subsection{Memory-Grounded FMM-Style Navigation}
-\label{subsec:fmm_navigation}
-
-\paragraph{From semantic coordinates to traversable goals.}
-The entity coordinate in Eq.~\eqref{eq:semantic_goal_binding} represents the
-spatial location of the object itself and may lie on an occupied cell or
-inside the object's geometric support. The navigation layer therefore
-converts the semantic target into a reachable navigation goal instead of
-requiring the retrieval or language model to predict a stand-off location.
-
-Let the top-down navigation map have metric resolution $\rho$ and world origin
-$(x_0,y_0)$. A world coordinate $(x,y)$ is mapped to image-style grid
-coordinates by
-\begin{equation}
-    r
-    =
-    \operatorname{round}
-    \left(
-    \frac{y-y_0}{\rho}
-    \right),
-    \qquad
-    c
-    =
-    \operatorname{round}
-    \left(
-    \frac{x-x_0}{\rho}
-    \right).
-    \label{eq:world_grid_transform}
-\end{equation}
-
-The traversability map is combined with the currently known collision mask,
-and the connected reachable component from the robot is denoted by
-$\mathcal{R}_t$. If the requested semantic goal $g$ is occupied or
-disconnected, it is snapped to the nearest reachable free cell:
-\begin{equation}
-    g'
-    =
-    \arg\min_{v\in\mathcal{R}_t}
-    \left\|
-    v-g
-    \right\|_2^2.
-    \label{eq:fmm_goal_snap}
-\end{equation}
-Goal snapping allows the upstream memory system to preserve the true entity
-coordinate while the navigation layer independently handles traversability.
-
-\paragraph{Geodesic distance field.}
-The current planner implements an FMM-style discrete geodesic field over an
-8-connected grid. Horizontal and vertical transitions have cost $1$, while
-diagonal transitions have cost $\sqrt{2}$. Let $D(v)$ denote the accumulated
-cost from grid cell $v$ to the snapped goal. The distance field satisfies the
-discrete recurrence
-\begin{equation}
-    D(v)
-    =
-    \min_{u\in\mathcal{N}_8(v)}
-    \left[
-    D(u)+c(u,v)
-    \right],
-    \qquad
-    D(g')=0.
-    \label{eq:fmm_distance_field}
-\end{equation}
-The field is propagated with a priority queue. We refer to this module as an
-\emph{FMM-style} planner because it exposes the same goal-to-source
-distance-field interface used by Fast Marching navigation, while the current
-implementation performs weighted shortest-path propagation on the discrete
-grid rather than solving the continuous Eikonal equation.
-
-\paragraph{Short-term goal and closed-loop action.}
-Within a local neighborhood $\mathcal{B}(v_t,R_{\mathrm{stg}})$ around the
-current robot cell $v_t$, the planner selects the reachable location with the
-smallest remaining geodesic distance:
-\begin{equation}
-    v_t^{*}
-    =
-    \arg\min_{
-        v\in
-        \mathcal{B}(v_t,R_{\mathrm{stg}})
-        \cap\mathcal{R}_t
-    }
-    D(v).
-    \label{eq:short_term_goal}
-\end{equation}
-The short-term goal is transformed back into metric coordinates and compared
-with the current heading to generate a discrete motion command such as
-\texttt{MOVE\_FORWARD}, \texttt{TURN\_LEFT},
-\texttt{TURN\_RIGHT}, or \texttt{STOP}.
-
-Importantly, the planner produces one action at a time. After execution, the
-updated pose and collision observation condition the next planning step:
-\begin{align}
-    \mathbf{a}_t
-    &=
-    \pi_{\mathrm{nav}}
-    \left(
-    \mathcal{G}_t^{\mathrm{nav}},
-    \boldsymbol{\xi}_t,
-    \mathbf{g}_{\mathrm{sem}}
-    \right),
-    \label{eq:navigation_action}\\
-    \left(
-    \boldsymbol{\xi}_{t+1},
-    \mathbf{o}_{t+1}
-    \right)
-    &=
-    \mathrm{Runtime}
-    \left(
-    \mathbf{a}_t
-    \right).
-    \label{eq:navigation_runtime}
-\end{align}
-This interface separates path planning from the platform-specific execution
-backend and allows the same semantic memory goal to be consumed by different
-robot or simulator runtimes.
-
-\subsection{Closed-Loop Execution and Replanning}
-\label{subsec:closed_loop_execution}
-
-\paragraph{Execution feedback.}
-After executing $(z_t,\mathbf{a}_t)$, the controller receives a structured tool result together with new sensor observations. It re-evaluates the relevant $\chi_j$ and chooses among continuing the current plan, acquiring another observation, invoking a different tool, replanning, interacting with the user, or terminating.
-
-\paragraph{Adaptive behavior.}
-A blocked connection can update the route state and trigger replanning; an unknown place can trigger local exploration; and a remembered target can avoid unnecessary exploration. These behaviors are selected online from memory and execution feedback rather than encoded as separate scenario-specific pipelines.
-
-\section{Conflict-Aware Reflection}
-\label{sec:reflection}
-
-An observation that disagrees with memory is informative but not automatically correct. Occlusion, a narrow field of view, imperfect association, or a transient obstacle can all resemble a persistent world change. Reflection converts such disagreements into explicit verification decisions.
-
-\subsection{Memory--Observation Conflict Detection}
-\label{subsec:conflict_detection}
-
-\paragraph{Conflict dimensions.}
-For an observed hypothesis $\widehat{v}_{i,t}$ matched to entity $v_i$, the system evaluates
-\begin{equation}
-\begin{split}
-    C_t(i) ={}& \beta_{\mathrm{state}}\delta_{\mathrm{state}}
-    +\beta_{\mathrm{pos}}\delta_{\mathrm{pos}}
-    +\beta_{\mathrm{vis}}\delta_{\mathrm{vis}} \\
-    &+\beta_{\mathrm{topo}}\delta_{\mathrm{topo}},
-    \label{eq:conflict_score}
-\end{split}
-\end{equation}
-where $\delta_{\mathrm{state}}$ denotes disagreement in an entity attribute, $\delta_{\mathrm{pos}}$ measures unexpected displacement, $\delta_{\mathrm{vis}}$ represents a visibility-aware absence test, and $\delta_{\mathrm{topo}}$ captures disagreement in reachability or connectivity. The nonnegative weights $\beta_{(\cdot)}$ adapt the check to the entity type.
-
-\paragraph{Visibility-aware absence reasoning.}
-Failure to observe an entity is not equivalent to its disappearance. The term $\delta_{\mathrm{vis}}$ is meaningful only when the remembered location should be observable under the current pose, field of view, occlusion, and sensing conditions. This distinction allows the same formulation to represent state changes, moved objects, temporary absence, suspected disappearance, and blocked routes without prematurely treating every mismatch as a permanent change.
-
-\subsection{Active Evidence Acquisition and Reflective Decision}
-\label{subsec:active_evidence}
-
-\paragraph{Evidence construction.}
-When $C_t(i)$ is material to the task or to a potential memory update, the controller constructs
-\begin{equation}
-    \mathcal{B}_t(i)=
-    \mathcal{B}_{\mathrm{hist}}(i)
-    \cup\mathcal{B}_{\mathrm{current}}(i)
-    \cup\mathcal{B}_{\mathrm{active}}(i),
-    \label{eq:evidence_set}
-\end{equation}
-where the three terms contain retrieved historical records, current multimodal observations, and deliberately acquired evidence, respectively.
-
-\paragraph{Active verification.}
-The controller may change its viewpoint, move locally, repeat detection, inspect the route or map, retrieve an older keyframe, or request user clarification. The information-gain term in Eq.~\eqref{eq:tool_criterion} makes these verification actions part of online task execution rather than an offline repair procedure.
-
-\paragraph{Reflective outcomes.}
-Reflection selects one of four semantic outcomes: retain the established state, mark it uncertain, record a provisional task-local state, or confirm a state change. The decision considers cross-view agreement, temporal repetition, modality diversity, visibility, source provenance, and the consequence of an incorrect update. A single surprising frame can therefore guide the next observation without immediately rewriting long-term knowledge.
-
-\section{Evidence-Gated Memory Update}
-\label{sec:memory_update}
-
-\subsection{Evidence-Gated State Consolidation}
-\label{subsec:evidence_gating}
-
-\paragraph{Evidence confidence.}
-Each proposed state change $\widehat{h}_{i,t}$ carries the evidence set from Eq.~\eqref{eq:evidence_set}. Let $r_b\in[0,1]$ denote the reliability of evidence item $b$, $a_b\in[0,1]$ its agreement with the proposed change, and $w_b\geq0$ its modality- and source-dependent weight. We summarize corroboration as
-\begin{equation}
-    C_{\mathrm{evidence}}(\mathcal{B}_t(i))
-    = \frac{\sum_{b\in\mathcal{B}_t(i)} w_b r_b a_b}
-    {\sum_{b\in\mathcal{B}_t(i)} w_b+\epsilon},
-    \label{eq:evidence_confidence}
-\end{equation}
-where $\epsilon>0$ prevents an undefined score for an empty evidence set. This deterministic aggregation represents evidential support and is not presented as a learned probabilistic model.
-
-\paragraph{Long-term update gate.}
-Let $r_t^{\mathrm{conf}}(i)\in\{0,1\}$ indicate whether the conflict associated with entity $i$ has been examined using sufficient task-relevant evidence. The system commits a proposed change to long-term memory only when
-\begin{equation}
-    g_t(i)=\mathbb{I}\!\left[
-    C_{\mathrm{evidence}}(\mathcal{B}_t(i))\geq\eta_i
-    \ \land\ r_t^{\mathrm{conf}}(i)=1
-    \right],
-    \label{eq:update_gate}
-\end{equation}
-where $\eta_i$ is an entity- and consequence-aware threshold. High-impact changes can therefore require stronger corroboration than transient task states.
-
-\paragraph{Version-preserving update.}
-Memory evolves according to
-\begin{equation}
-    \mathcal{M}_{t+1}=\mathcal{U}\!\left(
-    \mathcal{M}_t,\widehat{h}_{i,t},\mathcal{B}_t(i),g_t(i)
-    \right),
-    \label{eq:memory_update}
-\end{equation}
-where $\mathcal{U}$ is applied to every affected entity. If $g_t(i)=0$, the current long-term state is retained while the new evidence may remain as an uncertain annotation or provisional task-memory entry. If $g_t(i)=1$, $\widehat{h}_{i,t}$ is appended as a confirmed version with its change time, confidence, and provenance, and the entity's current-state pointer advances. Earlier versions are never overwritten.
-
-Newly discovered entities follow the same evidence-aware consolidation principle before becoming persistent facts. This mechanism separates durable world knowledge, dynamic conditions, and current-task hypotheses while preserving the evidence required to audit later changes.
-
-\subsection{Persistent Online Cognition Loop}
-\label{subsec:online_loop}
-
-\paragraph{Online procedure.}
-The complete execution loop proceeds as follows:
-\begin{enumerate}
-    \item interpret task $\mathcal{T}$ into $(G,\Omega,\chi)$ and construct $\mathcal{D}_{\mathcal{T}}$;
-    \item acquire and spatially ground the available observation $\mathbf{o}_t$;
-    \item construct $\mathbf{q}_t$ and retrieve $\mathcal{R}(\mathcal{M}_t,\mathbf{q}_t)$;
-    \item select and execute $(z_t,\mathbf{a}_t)$ using retrieved memory and tool feedback;
-    \item detect conflicts between new evidence and $\mathcal{M}_t$;
-    \item acquire active evidence and reflect when a conflict remains unresolved and task relevant;
-    \item apply the Evidence-Gated Memory Update to obtain $\mathcal{M}_{t+1}$; and
-    \item re-evaluate completion predicates and replan or terminate accordingly.
-\end{enumerate}
-
-\paragraph{Unified operation across tasks.}
-The loop contains no scenario-specific branch. Differences among large-scale navigation, unknown-space exploration, and repeated inspection enter through the task goal, memory scale, and available tool set. In every case, execution supplies new evidence, Reflection determines what that evidence warrants, and Evidence-Gated Memory Update makes confirmed experience reusable by later tasks.
-
-The resulting perception--memory--reasoning--action--reflection--update cycle is the defining system property of \dragentos{}. A static map remains a useful geometric layer, but it is embedded within a task-conditioned and versioned world model whose contents can be questioned, verified, and responsibly revised during long-term operation.
+When the gate is closed, evidence remains provisional; when open, the new state is appended as a version and the current pointer advances. Earlier versions are never overwritten. This design preserves uncertain observations for later reasoning without promoting them prematurely to durable facts.

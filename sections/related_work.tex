@@ -1,3 +1,8 @@
 \section{Related Work}
 \label{sec:related_work}
 
+\paragraph{Semantic and dynamic world models.}
+Visual Language Maps attach language-aligned features to maps for open-vocabulary navigation \citep{huang2023vlmaps}, while ConceptGraphs and HOV-SG organize entities in open-vocabulary 3D scene graphs \citep{gu2024conceptgraphs,werby2024hovsg}. These representations support spatial retrieval but principally describe a scene state. DynaSLAM removes dynamic content during mapping \citep{bescos2018dynaslam}; lifelong semantic mapping and DynaMem instead update maps as environments evolve \citep{narayana2020lifelong,liu2024dynamem}. Other work represents time-indexed 3D content or human-centered events \citep{gorlo2025daaam,bartoli2026gesto}. \dragentos{} builds on these lines by treating temporal validity, stable identity, and source evidence as a shared service used by reasoning and execution.
+
+\paragraph{Embodied agents and memory.}
+SayCan grounds language-model decisions in skill affordances, and PaLM-E injects embodied observations into a multimodal language model \citep{ahn2022saycan,driess2023palm}. Recent systems increasingly combine foundation models, spatial memory, and tool use \citep{zhou2026holoagent,tian2026abot,wang2026thea,li2026agenticnav,xin2026agentvln}. Long-term-memory and EQA benchmarks test whether stored experience supports later reasoning \citep{majumdar2024openeqa,wang2026explore}. Our focus is the systems boundary between these components: the controller may interpret goals and choose tools, but mapping, execution, verification, and evidence-gated commit retain authority over physical facts.
