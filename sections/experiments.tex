@@ -4,22 +4,110 @@
 \subsection{P4D-Bench}
 \label{sec:benchmark}
 
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/benchmark.jpg}
+    \caption{
+    Overview of \pfdbench{}.
+    The benchmark contains four navigation protocols (N1--N4) and an
+    embodied question answering (EQA) suite over persistent dynamic world
+    histories.
+    N1 evaluates predictive navigation, N2 belief-guided search,
+    N3 evidence-aware replanning, and N4 online navigation under target
+    dynamics.
+    EQA evaluates memory quality through existence, location, temporal,
+    activity, count, comparison, and compositional reasoning questions.
+    N5 is not a separate task, but a cross-scene evaluation subset applied
+    across N1--N4 and EQA.
+    Target objects are stratified into four mobility types, while all
+    protocols share temporal context, observation history, candidate
+    states, and spatial context.
+    }
+    \label{fig:p4dbench}
+\end{figure}
+
 \paragraph{Human-trace-grounded episode generation.}
-\pfdbench{} instantiates persistent dynamic object navigation in Habitat using HSSD scenes \citep{khanna2024hssd}. Rather than sampling arbitrary relocations, we first normalize complementary sources into canonical routine records. CASAS contributes longitudinal activity timing and room occupancy \citep{cook2013casas}; HD-EPIC and ParaHome contribute real object manipulation and action transitions \citep{perrett2025hdepic,kim2024parahome}; and our HOMER+ expansion contributes multi-day household object-state scripts and variations derived from HOMER \citep{patel2023homer}. A record contains actor, activity, object, action, pre- and post-state, source and destination, time, duration, recurrence, provenance, and confidence. The compiler grounds records to semantically compatible HSSD entities, enforces receptacle affordances, collision-free placement, causal state continuity, and navigable inspection viewpoints, and records whether a grounding is exact, fallback, or proxy.
+As illustrated in \cref{fig:p4dbench}, \pfdbench{} evaluates both
+persistent dynamic object navigation and embodied memory reasoning in
+Habitat using HSSD scenes \citep{khanna2024hssd}.
+Navigation episodes and EQA queries are generated from the same underlying
+multi-day object-state histories, so both evaluate whether an agent can
+maintain, predict, and retrieve temporally evolving world state rather
+than memorize independent annotations.
+Rather than sampling arbitrary relocations, we first normalize
+complementary sources into canonical routine records.
+CASAS contributes longitudinal activity timing and room occupancy
+\citep{cook2013casas}; HD-EPIC and ParaHome contribute real object
+manipulation and action transitions
+\citep{perrett2025hdepic,kim2024parahome}; and our HOMER+ expansion
+contributes multi-day household object-state scripts and variations
+derived from HOMER \citep{patel2023homer}.
+A record contains actor, activity, object, action, pre- and post-state,
+source and destination, time, duration, recurrence, provenance, and
+confidence.
+The compiler grounds records to semantically compatible HSSD entities,
+enforces receptacle affordances, collision-free placement, causal state
+continuity, and navigable inspection viewpoints, and records whether a
+grounding is exact, fallback, or proxy.
 
 \paragraph{Paired worlds.}
-For each base query we construct static, routine, and random variants. They share scene, target, last positive observation, query time, legal candidate set, agent start, and navigation budget. In the static variant the target remains at its last state. In the routine variant, hidden transitions follow the compiled temporal and instance-level regularities. In the random variant, destinations are sampled from the same legal candidates while breaking the learned dependence. Pairing prevents scene layout, target identity, and route length from explaining a routine-specific gain.
+For each underlying query we construct static, routine, and random world
+variants.
+They share the scene, target instance, observation history, query time,
+and legal candidate state space.
+For navigation episodes, paired variants additionally share the agent
+start pose, candidate viewpoints, and navigation budget.
+In the static variant, the target remains at its last observed state.
+In the routine variant, hidden transitions follow the compiled temporal
+and instance-level regularities.
+In the random variant, destinations are sampled from the same legal
+candidate set while breaking the learned temporal and activity
+dependence.
+The corresponding EQA queries are generated from the resulting world
+history under the same query template and answer ontology.
+This pairing prevents scene layout, target identity, candidate
+availability, or route difficulty from explaining a routine-specific
+gain.
 
 \paragraph{Mobility types.}
-Every target instance is assigned one analysis label using training history only: \emph{stable}, \emph{activity-routine mobile}, \emph{personal-habit mobile}, or \emph{irregular mobile}. Let
+Every target instance is assigned one analysis label using training
+history only:
+\emph{stable}, \emph{activity-routine mobile},
+\emph{personal-habit mobile}, or \emph{irregular mobile}.
+Let
 \begin{equation}
-r_{\mathrm{move}}(o)=\frac{N_{\mathrm{move}}(o)}{N_{\mathrm{days}}},\quad
-G_{\mathrm{act}}(o)=\operatorname{Acc}(s'\mid s,a,o)-\operatorname{Acc}(s'\mid s,o),
+r_{\mathrm{move}}(o)
+=
+\frac{N_{\mathrm{move}}(o)}{N_{\mathrm{days}}},
+\quad
+G_{\mathrm{act}}(o)
+=
+\operatorname{Acc}(s' \mid s,a,o)
+-
+\operatorname{Acc}(s' \mid s,o),
 \end{equation}
-and $C_{\mathrm{habit}}(o)=\max_sP(s\mid o)$. Frozen training-set thresholds on these statistics determine the label. Labels support stratified reporting but are hidden from all test-time agents. Categories are distributed across multiple mobility types so the label cannot be inferred from the object name alone.
+and
+\begin{equation}
+C_{\mathrm{habit}}(o)=\max_s P(s\mid o).
+\end{equation}
+Here, $r_{\mathrm{move}}$ measures relocation frequency,
+$G_{\mathrm{act}}$ measures the predictive gain from conditioning on
+activity, and $C_{\mathrm{habit}}$ measures concentration around an
+instance-specific preferred state.
+Frozen training-set thresholds on these statistics determine the label.
+The labels are used only for stratified evaluation and are hidden from
+all test-time agents.
+Object categories are distributed across multiple mobility types so that
+the label cannot be inferred from the semantic class alone.
 
 \begin{table}[t]
-\caption{Navigation tasks in \pfdbench{}. N1--N3 form the main evaluation; N4 and N5 test online adaptation and transfer.}
+\caption{
+Task protocols in \pfdbench{}.
+N1--N4 evaluate predictive navigation under progressively stronger
+search and adaptation requirements, while EQA evaluates retrieval and
+reasoning over the same persistent world histories.
+N5 denotes the cross-scene evaluation subset rather than a separate task.
+}
 \label{tab:tasks}
 \centering
 \small
@@ -28,49 +116,197 @@ and $C_{\mathrm{habit}}(o)=\max_sP(s\mid o)$. Frozen training-set thresholds on 
 \toprule
 & \textbf{Task} & \textbf{Decision signal} & \textbf{Primary measure}\\
 \midrule
-N1 & Predictive navigation & Top-1 belief & First-Go SR\\
-N2 & Belief-guided search & Full belief + cost & Search SR / cost\\
-N3 & Evidence replanning & Posterior belief & Recovery SR\\
-N4 & Online-dynamic nav. & Arrival-time belief & Online Recovery SR\\
-N5 & Cross-scene transfer & Shared candidate roles & Generalization SR\\
+N1  & Predictive navigation
+    & Top-1 belief
+    & First-Go SR\\
+N2  & Belief-guided search
+    & Full belief + cost
+    & Search SR / cost\\
+N3  & Evidence-aware replanning
+    & Posterior belief
+    & Recovery SR\\
+N4  & Online-dynamic navigation
+    & Arrival-time belief
+    & Online Recovery SR\\
+EQA & Memory quality evaluation
+    & Retrieved world state
+    & QA accuracy\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Task protocols.}
-N1 allows one predicted candidate and isolates whether state accuracy transfers to physical navigation. N2 permits multiple inspections under a fixed step, distance, and candidate budget. N3 additionally requires a visibility-aware posterior update after every inspection. N4 applies another hidden transition during execution only while the target is outside the current view. N5 holds out scenes, households, object instances, or receptacle instances. The test evaluator withholds current state, target pose, valid goal viewpoints, hidden events, mobility type, and future observations.
+P4D-Bench contains four navigation protocols and one memory reasoning
+protocol.
+N1 (\textbf{25\%}) permits a single predicted candidate and evaluates
+whether the highest-probability future state leads directly to successful
+physical navigation.
+N2 (\textbf{25\%}) exposes the full candidate belief distribution and
+allows multiple inspections under fixed step, distance, and candidate
+budgets, evaluating whether calibrated uncertainty enables efficient
+search.
+N3 (\textbf{20\%}) introduces closed-loop evidence-aware replanning:
+after each unsuccessful inspection, the agent receives visibility-aware
+negative evidence, updates its posterior belief, and selects the next
+candidate.
+N4 (\textbf{15\%}) additionally introduces a hidden target transition
+during execution while the target is outside the current observation,
+requiring the agent to reason about the target state at expected arrival
+time and replan online.
+
+The remaining \textbf{15\%} consists of EQA episodes derived from the
+same persistent world histories.
+Queries cover seven memory dimensions:
+\emph{existence}, \emph{location}, \emph{temporal}, \emph{activity},
+\emph{count}, \emph{comparison}, and \emph{reasoning}.
+These questions probe whether the maintained memory correctly captures
+not only the latest object state but also temporal transitions,
+activity-conditioned behavior, repeated observations, and relations
+across events.
+
+N5 is not allocated an additional task proportion.
+Instead, it denotes a cross-scene generalization subset sampled from
+N1--N4 and EQA using HSSD scenes that are disjoint from training scenes.
+The test evaluator withholds the current target state, target pose,
+valid goal viewpoints, hidden events, mobility type, and future
+observations.
 
 \paragraph{Splits and quality control.}
-We split complete days and households rather than individual queries, and use disjoint HSSD scenes for cross-scene evaluation. Near-duplicate event groups cannot cross splits. Each episode requires a prior positive observation, a non-\texttt{unknown} target state, collision-free instantiation, at least one reachable goal viewpoint, an initial target distance of at least $3$ meters, and no target visibility from the start pose. Counts of scenes, households, days, events, targets, candidates, and episodes will be inserted after the final generation audit (\cref{tab:data}).
+We split complete temporal sequences rather than individual queries so
+that observations from the same underlying routine cannot leak across
+training and evaluation.
+Cross-scene evaluation uses disjoint HSSD scenes, and near-duplicate
+event groups are prevented from crossing splits.
+
+Every generated query requires a valid prior observation history,
+a non-\texttt{unknown} target state, consistent causal transitions,
+and a valid grounding to the instantiated HSSD world.
+Navigation episodes additionally require collision-free target
+instantiation, at least one reachable inspection viewpoint, an initial
+target distance of at least $3$ meters, and no direct target visibility
+from the start pose.
+EQA episodes must have a uniquely recoverable reference answer from the
+ground-truth event history; ambiguous questions and queries whose answer
+depends on unobserved simulator artifacts are removed.
+
+Counts of scenes, days, targets, events, candidates, navigation episodes,
+and EQA queries will be inserted after the final multi-scene generation
+and leakage audit (\cref{tab:data}).
 
 \begin{table}[t]
-\caption{Final benchmark statistics. Entries are intentionally blank until the multi-scene generation and leakage audit are complete.}
+\caption{
+Final benchmark statistics.
+Entries are intentionally blank until the multi-scene generation and
+leakage audit are complete.
+}
 \label{tab:data}
 \centering
 \small
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-\textbf{Split} & \textbf{Scenes} & \textbf{Days} & \textbf{Targets} & \textbf{Episodes}\\
+\textbf{Split}
+& \textbf{Scenes}
+& \textbf{Days}
+& \textbf{Targets}
+& \textbf{Nav. Episodes}
+& \textbf{EQA}\\
 \midrule
-Train & \na & \na & \na & \na\\
-Validation & \na & \na & \na & \na\\
-Test & \na & \na & \na & \na\\
+Train      & \na & \na & \na & \na & \na\\
+Validation & \na & \na & \na & \na & \na\\
+Test       & \na & \na & \na & \na & \na\\
 \midrule
-Total & \na & \na & \na & \na\\
+Total      & \na & \na & \na & \na & \na\\
 \bottomrule
 \end{tabular}
 \end{table}
 
+
 \subsection{Baselines and Ablations}
+\label{sec:baselines}
 
-We compare against four families under identical candidates, viewpoints, perception, path planner, and action budget. \emph{Non-predictive} baselines include Last Seen and Nearest Candidate Search. \emph{Statistical} baselines include Frequency Prior, first-order Markov transitions, time-conditioned transitions, and an instance-hotspot prior. \emph{Learned} baselines include GRU Direct, Transformer Direct, Scene Graph Memory \citep{kurenkov2023dynamic}, a PredictiveGraphs-style filter \citep{saavedraruiz2026predictivegraphs}, and a FlowMaps-style future-location model \citep{argenziano2026flowmaps}. Where an external method assumes a different state space, we rank the same benchmark candidates by its predicted mass to isolate the belief model. N4 additionally compares against Transit-Aware Planning under its required online target path input \citep{dorbala2026portable}. Oracle Current State provides the navigation upper bound; Oracle Activity is reported only as a diagnostic and never as a fair baseline.
+We compare against four baseline families under identical candidate
+states, inspection viewpoints, perception inputs, path planner, and
+navigation budgets.
 
-The principal ablations remove: continuous-time features; the persistence--relocation factorization; instance history; calendar context; negative evidence; visibility calibration; Bayesian updating; or the full belief in favor of Top-1. \emph{P4D-Belief Prior} predicts once and searches without updating, while full \pfdnav{} closes the observe--update--replan loop.
+\emph{Non-predictive} baselines include Last Seen and Nearest Candidate
+Search.
+\emph{Statistical} baselines include Frequency Prior, first-order Markov
+transitions, time-conditioned transitions, and an instance-hotspot prior.
+\emph{Learned} baselines include GRU Direct, Transformer Direct,
+Scene Graph Memory \citep{kurenkov2023dynamic}, a PredictiveGraphs-style
+filter \citep{saavedraruiz2026predictivegraphs}, and a FlowMaps-style
+future-location model \citep{argenziano2026flowmaps}.
+Where an external method assumes a different state space, we project its
+prediction onto the same benchmark candidate set and rank candidates by
+predicted probability mass, isolating differences in belief estimation
+rather than downstream planning.
+
+N4 additionally compares against Transit-Aware Planning under its
+required online target-path input \citep{dorbala2026portable}.
+Oracle Current State provides the navigation upper bound.
+Oracle Activity supplies the ground-truth current activity and is
+reported only as a diagnostic rather than as a fair baseline.
+
+For EQA, all methods are evaluated using the same question templates,
+answer ontology, and answer normalization.
+The queried information must be recovered from the memory state available
+to each method.
+When a learned language readout is required, the readout is held fixed
+across compared memory methods so that EQA primarily measures memory
+quality rather than differences in language-model capacity.
+
+The principal ablations remove:
+continuous-time features;
+the persistence--relocation factorization;
+instance-specific history;
+calendar context;
+negative evidence;
+visibility calibration;
+Bayesian belief updating;
+or the full belief distribution in favor of Top-1 prediction.
+\emph{P4D-Belief Prior} predicts once and searches without belief updates,
+while full \pfdnav{} closes the observe--update--replan loop.
+
 
 \subsection{Metrics}
+\label{sec:metrics}
 
-We report state Top-1/Top-$k$, negative log-likelihood, Brier score, expected calibration error, true-state rank, and persistence AUROC. Navigation metrics include Success Rate (SR), SPL, path length, completion time, First-Go SR, number of inspected candidates, Recovery SR after an incorrect first prediction, and posterior rank improvement. Because a moving target makes a fixed shortest path ambiguous, N4 additionally reports excess path length relative to a trajectory-aware oracle. All aggregate results include bootstrap confidence intervals over episodes and both micro and mobility-type macro averages.
+We first evaluate the predictive belief independently of downstream
+navigation using state Top-1/Top-$k$ accuracy, negative log-likelihood
+(NLL), Brier score, expected calibration error (ECE), true-state rank,
+mean reciprocal rank (MRR), and persistence AUROC.
 
-Results are stratified by world variant, mobility type, transition class (stay, same-region move, cross-region move, multi-move, and return), staleness interval, spatial difficulty, grounding quality, and generalization split. The key causal contrast is the paired routine gain over the same method in static and random variants.
+For navigation, we report Success Rate (SR), SPL, path length,
+completion time, First-Go SR, number of inspected candidates, and search
+cost.
+N3 additionally reports Recovery SR after an incorrect first prediction
+and posterior true-state rank improvement after negative evidence.
+N4 reports Online Recovery SR, replanning count, replanning delay, and
+excess path length relative to a trajectory-aware oracle.
+The trajectory-aware oracle is used because a moving target makes the
+conventional shortest path to a fixed terminal goal ill-defined.
 
-Implementation and reporting details are provided in \cref{app:implementation,app:protocol}.
+For EQA, we report answer accuracy broken down by existence, location,
+temporal, activity, count, comparison, and reasoning questions.
+For questions with structured answer spaces, predictions are normalized
+to the benchmark ontology before scoring.
+We additionally report category-macro accuracy so that frequent
+question types do not dominate the aggregate EQA score.
+
+All aggregate results include bootstrap confidence intervals over
+episodes and both micro averages and mobility-type macro averages.
+Results are stratified by world variant, mobility type, transition class
+(\emph{stay}, \emph{same-region move}, \emph{cross-region move},
+\emph{multi-move}, and \emph{return}), staleness interval, spatial
+difficulty, grounding quality, and generalization split.
+For EQA, results are additionally stratified by question type.
+
+The key causal contrast is the paired routine gain: the improvement of a
+method in the routine world relative to its performance under the paired
+static and random variants.
+This contrast tests whether gains arise from exploiting persistent
+temporal regularities rather than from scene geometry, object identity,
+or generic search behavior.
+
+Implementation and reporting details are provided in
+\cref{app:implementation,app:protocol}.
