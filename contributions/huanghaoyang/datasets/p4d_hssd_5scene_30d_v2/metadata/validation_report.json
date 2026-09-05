@@ -1,0 +1,247 @@
+{
+  "checks": {
+    "away_from_home_meal_count": 135,
+    "bad_public_test_labels": 0,
+    "bad_train_validation_labels": 0,
+    "class_counts_by_scene": {
+      "102344094": {
+        "activity_routine_mobile": 11,
+        "irregular_mobile": 7,
+        "personal_habit_mobile": 8,
+        "stable": 4
+      },
+      "102344280": {
+        "activity_routine_mobile": 11,
+        "irregular_mobile": 7,
+        "personal_habit_mobile": 8,
+        "stable": 4
+      },
+      "102816852": {
+        "activity_routine_mobile": 11,
+        "irregular_mobile": 7,
+        "personal_habit_mobile": 8,
+        "stable": 4
+      },
+      "103997403_171030405": {
+        "activity_routine_mobile": 11,
+        "irregular_mobile": 7,
+        "personal_habit_mobile": 8,
+        "stable": 4
+      },
+      "104348511_171513654": {
+        "activity_routine_mobile": 11,
+        "irregular_mobile": 7,
+        "personal_habit_mobile": 8,
+        "stable": 4
+      }
+    },
+    "continuity_errors": 0,
+    "event_count_by_class": {
+      "activity_routine_mobile": {
+        "max": 185,
+        "mean": 104.89,
+        "min": 51
+      },
+      "irregular_mobile": {
+        "max": 16,
+        "mean": 12.06,
+        "min": 9
+      },
+      "personal_habit_mobile": {
+        "max": 148,
+        "mean": 63.77,
+        "min": 10
+      },
+      "stable": {
+        "max": 0,
+        "mean": 0.0,
+        "min": 0
+      }
+    },
+    "future_history_rows": 0,
+    "invalid_candidate_ids": 0,
+    "irregular_events_with_activity_label": 0,
+    "meal_cleanup_logic_errors": 0,
+    "meal_cleanup_transitions": 1684,
+    "meal_start_unique_minute_counts": {
+      "102344094:eat_breakfast": 32,
+      "102344094:eat_breakfast_away_from_home": 4,
+      "102344094:eat_dinner": 22,
+      "102344094:eat_dinner_away_from_home": 11,
+      "102344094:eat_lunch": 18,
+      "102344094:eat_lunch_away_from_home": 14,
+      "102344280:eat_breakfast": 29,
+      "102344280:eat_breakfast_away_from_home": 4,
+      "102344280:eat_dinner": 23,
+      "102344280:eat_dinner_away_from_home": 7,
+      "102344280:eat_lunch": 22,
+      "102344280:eat_lunch_away_from_home": 13,
+      "102816852:eat_breakfast": 27,
+      "102816852:eat_breakfast_away_from_home": 6,
+      "102816852:eat_dinner": 23,
+      "102816852:eat_dinner_away_from_home": 10,
+      "102816852:eat_lunch": 28,
+      "102816852:eat_lunch_away_from_home": 5,
+      "103997403_171030405:eat_breakfast": 31,
+      "103997403_171030405:eat_breakfast_away_from_home": 3,
+      "103997403_171030405:eat_dinner": 25,
+      "103997403_171030405:eat_dinner_away_from_home": 6,
+      "103997403_171030405:eat_lunch": 29,
+      "104348511_171513654:eat_breakfast": 30,
+      "104348511_171513654:eat_breakfast_away_from_home": 3,
+      "104348511_171513654:eat_dinner": 23,
+      "104348511_171513654:eat_dinner_away_from_home": 14,
+      "104348511_171513654:eat_lunch": 18,
+      "104348511_171513654:eat_lunch_away_from_home": 19
+    },
+    "missing_context_links": 0,
+    "missing_observation_links": 0,
+    "observation_day_coverage": {
+      "test": [
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "train": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29
+      ],
+      "validation": [
+        30,
+        31,
+        32,
+        33,
+        34
+      ]
+    },
+    "observation_split_errors": 0,
+    "one_unknown_state_per_scene": {
+      "102344094": 1,
+      "102344280": 1,
+      "102816852": 1,
+      "103997403_171030405": 1,
+      "104348511_171513654": 1
+    },
+    "physical_scene_errors": [],
+    "physical_scene_smoke_test_valid": true,
+    "public_test_activities_absent": true,
+    "public_test_world_events_absent": true,
+    "query_arrow_schema_identical_across_splits": true,
+    "query_day_coverage": {
+      "test": [
+        35,
+        36,
+        37,
+        38,
+        39
+      ],
+      "train": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29
+      ],
+      "validation": [
+        30,
+        31,
+        32,
+        33,
+        34
+      ]
+    },
+    "query_day_split_errors": 0,
+    "query_id_unique": true,
+    "query_transition_distribution_by_class": {
+      "activity_routine_mobile": {
+        "MOVE_CROSS_REGION": 28,
+        "MOVE_SAME_REGION": 23,
+        "MULTI_MOVE": 386,
+        "RETURN": 1645,
+        "STAY": 668
+      },
+      "irregular_mobile": {
+        "MOVE_CROSS_REGION": 394,
+        "MOVE_SAME_REGION": 124,
+        "MULTI_MOVE": 468,
+        "RETURN": 116,
+        "STAY": 648
+      },
+      "personal_habit_mobile": {
+        "MOVE_CROSS_REGION": 110,
+        "MOVE_SAME_REGION": 81,
+        "MULTI_MOVE": 641,
+        "RETURN": 583,
+        "STAY": 585
+      },
+      "stable": {
+        "STAY": 800
+      }
+    }
+  },
+  "counts": {
+    "activities": 1841,
+    "candidate_states": 140,
+    "catalog_rows": 348,
+    "observations": 5717,
+    "queries": 7300,
+    "world_events": 8742
+  },
+  "failures": [],
+  "valid": true
+}
