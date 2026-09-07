@@ -4,11 +4,20 @@
 \subsection{P4D-Bench}
 \label{sec:benchmark}
 
+The benchmark summary in \cref{fig:dr_agentos_overview} reports the full
+\pfdbench{} release: 54 scenes, 90 scene-days, 239.19k dynamic state
+changes, and 803.68k task instances. The task pool comprises current-state
+prediction (16\%), object navigation (27\%), vision-and-language navigation
+(29\%), and question answering (28\%). The controlled experiments below
+focus on prediction and ObjectNav together with EQA diagnostics; the
+navigation-focused subset is further decomposed into N1--N4, with N5 used
+as a cross-scene evaluation subset.
+
 \begin{figure}[t]
     \centering
     \includegraphics[width=\textwidth]{figures/benchmark.jpg}
     \caption{
-    Overview of \pfdbench{}.
+    Navigation-focused evaluation protocols in \pfdbench{}.
     The benchmark contains four navigation protocols (N1--N4) and an
     embodied question answering (EQA) suite over persistent dynamic world
     histories.
@@ -21,7 +30,9 @@
     across N1--N4 and EQA.
     Target objects are stratified into four mobility types, while all
     protocols share temporal context, observation history, candidate
-    states, and spatial context.
+    states, and spatial context. Percentages shown here describe this
+    analysis subset; \cref{fig:dr_agentos_overview} reports the full task
+    composition.
     }
     \label{fig:p4dbench}
 \end{figure}
@@ -32,10 +43,11 @@
 sampled placements.  We derive activity priors from longitudinal smart-home
 records such as CASAS \citep{cook2013casas} and ARAS, and action--object
 evidence from EPIC-KITCHENS-100 and OPPORTUNITY.  These records provide
-statistics rather than trajectories copied into simulation.  In each HSSD
-home \citep{khanna2024hssd}, we freeze resident schedules, room preferences,
-orderliness, object ownership, and placement habits for 30 days, then jointly
-generate activities, resident region trajectories, and object transitions.
+statistics rather than trajectories copied into simulation. Across 54 HSSD
+scenes \citep{khanna2024hssd} and 90 generated scene-days, we freeze resident
+schedules, room preferences, orderliness, object ownership, and placement
+habits, then jointly generate activities, resident region trajectories, and
+object transitions.
 Frozen distributions make earlier days predictive of later ones, while
 sampled events and exceptions prevent deterministic scripts.  The audited
 configuration yields 42.6 region transitions per resident-day, 6.56
@@ -117,6 +129,11 @@ evidence-aware posterior updates and replanning.  N4 adds execution-time
 target motion, while N5 evaluates held-out scenes or households.  All
 methods share candidates, starts, geometry, control, and budgets; only the
 belief and resulting search order differ.
+
+The full benchmark additionally provides vision-and-language navigation
+instances over the same evolving histories. They exercise the common memory
+interface under language-conditioned goals, but are not included in the
+navigation-focused causal comparisons reported below.
 
 \paragraph{Splits and quality control.}
 We split complete temporal sequences rather than individual queries and

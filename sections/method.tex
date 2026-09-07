@@ -1,10 +1,18 @@
 \section{Predictive 4D Belief Navigation}
 \label{sec:method}
 
-\subsection{Persistent Dynamic Object Navigation}
+\subsection{Persistent Navigation in Evolving Worlds}
 \label{sec:problem}
 
-Let an environment contain a navigable space $\mathcal X$, a set of persistent entities $\mathcal O$, and candidate object states $\mathcal C_o$ for each target $o\in\mathcal O$. A state identifies a semantically valid receptacle or region and its associated inspection viewpoints. Before a query at time $t_q$, the agent has collected only a partial history
+At the system level, the task-relevant state may include object placement,
+spatial configuration, and accessibility. To isolate the coupling between
+hidden world evolution, predictive belief, and physical action, we formalize
+the core task through portable-object goals. Let an environment contain a
+navigable space $\mathcal X$, a set of persistent entities $\mathcal O$, and
+candidate object states $\mathcal C_o$ for each target $o\in\mathcal O$. A
+state identifies a semantically valid receptacle or region and its associated
+inspection viewpoints. Before a query at time $t_q$, the agent has collected
+only a partial history
 \begin{equation}
 \mathcal H_{\leq t_q}=\{(I_k,D_k,\xi_k,t_k)\mid t_k\leq t_q\},
 \end{equation}
@@ -22,8 +30,8 @@ The main protocol holds the target fixed after $t_q$, isolating whether a stale 
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{figures/p4d_nav_overview.pdf}
-    \caption{Overview of \pfdnav{}. A causal 4D memory is propagated to the query time as a structured persistence--relocation belief. The agent trades target probability against travel cost, converts visibility-qualified observations into posterior evidence, and replans after unsuccessful inspections.}
-    \label{fig:overview}
+    \caption{Predictive-navigation core of \dragentos{}. A causal 4D memory is propagated to the query time as a structured persistence--relocation belief. The agent trades target probability against travel cost, converts visibility-qualified observations into posterior evidence, and replans after unsuccessful inspections.}
+    \label{fig:p4dnav_method}
 \end{figure*}
 
 \subsection{Evidence-Grounded 4D Memory}
