@@ -13,29 +13,16 @@ focus on prediction and ObjectNav together with EQA diagnostics; the
 navigation-focused subset is further decomposed into N1--N4, with N5 used
 as a cross-scene evaluation subset.
 
-\begin{figure}[t]
+\begin{wrapfigure}{r}{0.65\textwidth}
     \centering
-    \includegraphics[width=\textwidth]{figures/benchmark.jpg}
+    \vspace{-10pt}
+    \includegraphics[width=0.65\textwidth]{figures/P4D_Benchmark.pdf}
     \caption{
-    Navigation-focused evaluation protocols in \pfdbench{}.
-    The benchmark contains four navigation protocols (N1--N4) and an
-    embodied question answering (EQA) suite over persistent dynamic world
-    histories.
-    N1 evaluates predictive navigation, N2 belief-guided search,
-    N3 evidence-aware replanning, and N4 online navigation under target
-    dynamics.
-    EQA evaluates memory quality through existence, location, temporal,
-    activity, count, comparison, and compositional reasoning questions.
-    N5 is not a separate task, but a cross-scene evaluation subset applied
-    across N1--N4 and EQA.
-    Target objects are stratified into four mobility types, while all
-    protocols share temporal context, observation history, candidate
-    states, and spatial context. Percentages shown here describe this
-    analysis subset; \cref{fig:dr_agentos_overview} reports the full task
-    composition.
+    Overview of P4D-BENCH evaluation protocols.
     }
     \label{fig:p4dbench}
-\end{figure}
+    \vspace{-10pt}
+\end{wrapfigure}
 
 
 \paragraph{Dynamic household construction.}
