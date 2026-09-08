@@ -55,7 +55,7 @@ The Oracle Activity diagnostic may use the hidden activity and source location b
 
 \begin{table}[h]
 \caption{FindingDory results using its native high- and low-level metrics. The
-main paper reports only HL-SR and HL-SPL for compactness.}
+main paper reports HL-SR, LL-SR, and HL-SPL for compactness.}
 \label{tab:findingdory_full}
 \centering
 \scriptsize
@@ -65,7 +65,9 @@ main paper reports only HL-SR and HL-SPL for compactness.}
 \textbf{Method} & \textbf{HL-SR} & \textbf{HL-SPL} & \textbf{LL-SR} & \textbf{LL-SPL}\\
 \midrule
 FindingDory Agent & \na & \na & \na & \na\\
-Strongest memory baseline & \na & \na & \na & \na\\
+LagMemo GLUE & \na & \na & \na & \na\\
+HOV-SG & \na & \na & \na & \na\\
+DynaMem & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{\dragentos{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
@@ -73,7 +75,7 @@ Strongest memory baseline & \na & \na & \na & \na\\
 
 \begin{table}[h]
 \caption{GOAT-Bench modality-wise results on the official evaluation split.
-The main paper reports only aggregate SR and SPL.}
+The main paper reports aggregate SR, SPL, and the Repeat-SR memory diagnostic.}
 \label{tab:goat_modalities}
 \centering
 \scriptsize
@@ -87,8 +89,10 @@ The main paper reports only aggregate SR and SPL.}
 \textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
 \textbf{SR} & \textbf{SPL}\\
 \midrule
-Modular GOAT & \na & \na & \na & \na & \na & \na\\
-Strongest lifelong baseline & \na & \na & \na & \na & \na & \na\\
+VLFM & \na & \na & \na & \na & \na & \na\\
+ZSON & \na & \na & \na & \na & \na & \na\\
+FindingDory Agent & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE & \na & \na & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{\dragentos{}} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule

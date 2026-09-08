@@ -18,11 +18,16 @@ The three benchmarks probe complementary capabilities rather than sharing a
 single pooled score. \pfdbench{} isolates belief over hidden current state and
 its effect on evidence-aware navigation. FindingDory evaluates long-horizon
 memory through high-level goal selection and conditional low-level execution;
-we report its official HL-SR/HL-SPL and LL-SR/LL-SPL. GOAT-Bench evaluates
-lifelong multi-goal navigation; we report SR and SPL on seen, synonym, and
-unseen splits, with category, language, and image goals disaggregated. Every
-comparison uses the benchmark's native protocol, and reported external numbers
-are separated from reproduced results.
+the compact comparison reports HL-SR, LL-SR, and HL-SPL, while the appendix
+retains the full high- and low-level breakdown. GOAT-Bench evaluates lifelong
+multi-goal navigation; in addition to its official SR and SPL, we report
+Repeat-SR on subtasks whose target identity or containing region has appeared
+in the agent's prior stream. The latter is an explicitly marked diagnostic of
+memory reuse, not an official leaderboard metric. Category, language, and image
+goals are disaggregated in the appendix. On \pfdbench{}, First-Go SR, Search SR,
+and SPL jointly expose prediction quality, eventual task success, and path
+efficiency. Every comparison uses the benchmark's native protocol, and reported
+external numbers are separated from reproduced results.
 
 \paragraph{Cross-domain simulation.}
 To distinguish temporal reasoning from renderer- or dataset-specific fitting,
@@ -45,19 +50,31 @@ localization failures.
 \subsection{Baselines and Ablations}
 \label{sec:baselines}
 
-We compare against four baseline families under identical candidate states,
-inspection viewpoints, perception inputs, path planner, and navigation budgets.
+We select baselines from the implementations that have been validated in our
+evaluation stack and organize them by the capability they contribute. The
+\emph{open-vocabulary and lifelong navigation} group contains VLFM
+\citep{yokoyama2024vlfm}, ZSON \citep{majumdar2022zson}, the FindingDory agent
+\citep{yadav2025findingdory}, and LagMemo GLUE \citep{zhou2025lagmemo}. These
+methods test frontier-based semantic search, learned zero-shot navigation,
+long-horizon episodic recall, and persistent 3DGS language memory,
+respectively. The \emph{structured spatio-temporal memory} group contains
+HOV-SG \citep{werby2024hovsg} and DynaMem \citep{liu2024dynamem}, representing
+hierarchical open-vocabulary graphs and online dynamic metric-semantic memory.
+The \emph{predictive world-model} group contains SLaTe-PRO
+\citep{patel2023routine}, SGM+NEP \citep{kurenkov2023dynamic}, FlowMaps
+\citep{argenziano2026flowmaps}, and the Perpetua predictor from
+PredictiveGraphs \citep{saavedraruiz2026predictivegraphs}.
 
-\emph{Non-predictive} baselines include Last Seen and Nearest Candidate Search.
-\emph{Statistical} baselines include Frequency Prior, first-order Markov
-transitions, time-conditioned transitions, and an instance-hotspot prior.
-\emph{Learned} baselines include GRU Direct, Transformer Direct, Scene Graph
-Memory \citep{kurenkov2023dynamic}, a PredictiveGraphs-style filter
-\citep{saavedraruiz2026predictivegraphs}, and a FlowMaps-style future-location
-model \citep{argenziano2026flowmaps}. Where an external method assumes a
-different state space, we project its prediction onto the same benchmark
-candidate set and rank candidates by predicted probability mass, isolating
-belief estimation from downstream planning.
+Navigation systems are executed through their released policies or benchmark
+adapters. Memory-only methods replace \dragentos{}' memory backend while using
+the same detector, goal interface, and low-level controller. Prediction-only
+methods receive the same causal history and candidate set; their state scores
+are passed to the same inspection planner. This component-aligned adaptation is
+reported separately from native published results and prevents a stronger
+detector or controller from being mistaken for better temporal reasoning.
+Last Seen, Frequency, Markov, and Random Forest remain lightweight diagnostic
+baselines in the dedicated \pfdbench{} and predictor tables rather than the
+headline cross-benchmark comparison.
 
 N4 additionally compares against Transit-Aware Planning under its required
 online target-path input \citep{dorbala2026portable}. Oracle Current State

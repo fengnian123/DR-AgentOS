@@ -10,47 +10,61 @@ mechanistic contribution, model dependence, and physical deployment.
 
 \subsection{Comparison across Embodied Benchmarks}
 
-\begin{table}[!htbp]
-\caption{Cross-benchmark comparison. Each benchmark retains its native metrics:
-FindingDory evaluates high-level memory-grounded goal selection, GOAT-Bench
-evaluates lifelong multi-modal navigation, and \pfdbench{} evaluates navigation
-under hidden world evolution. All uncited entries will be reproduced under a
-common perception and controller configuration where interfaces permit.}
+\begin{table*}[t]
+\caption{Cross-benchmark comparison grouped by method capability. FindingDory
+reports high-level success (HL-SR), low-level success (LL-SR), and high-level
+SPL (HL-SPL); GOAT-Bench reports SR, SPL, and repeated-goal success (Repeat-SR);
+\pfdbench{} reports first-destination success (First-Go SR), eventual search
+success (Search SR), and SPL. Repeat-SR is our diagnostic; all other columns use
+the corresponding benchmark protocol. Values are left blank until the complete
+reproduction is finalized.}
 \label{tab:crossbench}
 \centering
-\scriptsize
-\setlength{\tabcolsep}{3.1pt}
-\begin{tabular}{lcccccc}
+\footnotesize
+\setlength{\tabcolsep}{4.0pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccccccc}
 \toprule
-& \multicolumn{2}{c}{\textbf{FindingDory}} &
-\multicolumn{2}{c}{\textbf{GOAT-Bench}} &
-\multicolumn{2}{c}{\textbf{\pfdbench{}}}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-\textbf{Method} & \textbf{HL-SR $\uparrow$} & \textbf{HL-SPL $\uparrow$} &
-\textbf{SR $\uparrow$} & \textbf{SPL $\uparrow$} &
+& \multicolumn{3}{c}{\textbf{FindingDory}} &
+\multicolumn{3}{c}{\textbf{GOAT-Bench}} &
+\multicolumn{3}{c}{\textbf{\pfdbench{}}}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+\textbf{Method} & \textbf{HL-SR $\uparrow$} & \textbf{LL-SR $\uparrow$} &
+\textbf{HL-SPL $\uparrow$} & \textbf{SR $\uparrow$} & \textbf{SPL $\uparrow$} &
+\textbf{Repeat-SR $\uparrow$} & \textbf{First-Go SR $\uparrow$} &
 \textbf{Search SR $\uparrow$} & \textbf{SPL $\uparrow$}\\
 \midrule
-No persistent memory & \na & \na & \na & \na & \na & \na\\
-Last Seen / latest map & \na & \na & \na & \na & \na & \na\\
-FindingDory Agent \citep{yadav2025findingdory} & \na & \na & \na & \na & \na & \na\\
-Modular GOAT \citep{khanna2024goatbench} & \na & \na & \na & \na & \na & \na\\
-Scene Graph Memory \citep{kurenkov2023dynamic} & \na & \na & \na & \na & \na & \na\\
-DynaMem \citep{liu2024dynamem} & \na & \na & \na & \na & \na & \na\\
-PredictiveGraphs-style & \na & \na & \na & \na & \na & \na\\
-FlowMaps-style \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblnav}\multicolumn{10}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
+VLFM \citep{yokoyama2024vlfm} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+ZSON \citep{majumdar2022zson} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+FindingDory Agent \citep{yadav2025findingdory} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE \citep{zhou2025lagmemo} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\rowcolor{tblmemory}\multicolumn{10}{c}{\emph{Structured spatio-temporal memory}}\\
+HOV-SG \citep{werby2024hovsg} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+DynaMem \citep{liu2024dynamem} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\rowcolor{tblpredict}\multicolumn{10}{c}{\emph{Predictive world and state modeling}}\\
+SLaTe-PRO \citep{patel2023routine} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+SGM+NEP \citep{kurenkov2023dynamic} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+FlowMaps \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+Perpetua \citep{saavedraruiz2026predictivegraphs} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
 \rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
+\textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
-\end{table}
+}
+\end{table*}
 
-This table is not used to claim that the benchmark scores are numerically
-interchangeable. Instead, it asks whether one memory--belief--action interface
-retains long-horizon recall on FindingDory, lifelong multi-modal navigation on
-GOAT-Bench, and predictive adaptation on \pfdbench{}. Appendix tables will
-further separate FindingDory HL/LL execution and GOAT category/language/image
-goals so that an aggregate score cannot hide a modality-specific failure.
+The groups mirror the source of each method's advantage rather than suggesting
+that benchmark scores are interchangeable. Released navigation systems are run
+through their native policies when possible; memory and prediction methods are
+inserted into a shared controller as specified in \cref{sec:baselines}. Appendix
+tables further separate FindingDory high-/low-level execution and GOAT
+category/language/image goals so that an aggregate score cannot hide a
+modality-specific failure.
 
 \subsection{Predictive Navigation on P4D-Bench}
 
@@ -70,16 +84,19 @@ Lower is better for inspections and distance.}
 \makecell{\textbf{Distance}\\\textbf{$\downarrow$}} &
 \makecell{\textbf{Recovery}\\\textbf{SR $\uparrow$}}\\
 \midrule
-Nearest Candidate & \na & \na & \na & \na & \na & \na\\
-Last Seen & \na & \na & \na & \na & \na & \na\\
-Frequency Prior & \na & \na & \na & \na & \na & \na\\
-Markov Transition & \na & \na & \na & \na & \na & \na\\
-Time-Conditioned Prior & \na & \na & \na & \na & \na & \na\\
-Transformer Direct & \na & \na & \na & \na & \na & \na\\
-PredictiveGraphs-style & \na & \na & \na & \na & \na & \na\\
-FlowMaps-style \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblnav}\multicolumn{7}{c}{\emph{Navigation and persistent memory}}\\
+VLFM \citep{yokoyama2024vlfm} & \na & \na & \na & \na & \na & \na\\
+FindingDory Agent \citep{yadav2025findingdory} & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE \citep{zhou2025lagmemo} & \na & \na & \na & \na & \na & \na\\
+HOV-SG \citep{werby2024hovsg} & \na & \na & \na & \na & \na & \na\\
+DynaMem \citep{liu2024dynamem} & \na & \na & \na & \na & \na & \na\\
 \midrule
-P4D-Belief Prior & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblpredict}\multicolumn{7}{c}{\emph{Predictive world and state modeling}}\\
+SLaTe-PRO \citep{patel2023routine} & \na & \na & \na & \na & \na & \na\\
+SGM+NEP \citep{kurenkov2023dynamic} & \na & \na & \na & \na & \na & \na\\
+FlowMaps \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na\\
+Perpetua \citep{saavedraruiz2026predictivegraphs} & \na & \na & \na & \na & \na & \na\\
+\midrule
 \rowcolor{tblours}\textbf{\pfdnav{} (ours)} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 Oracle Current State & \na & \na & \na & \na & \na & \na\\
@@ -119,9 +136,9 @@ learnable dynamics rather than matched random transitions.}
 
 \begin{table}[!htbp]
 \caption{Generalization across conventional mesh-based and high-fidelity
-Gaussian-splatting environments. Models are trained on the fixed source domain
-and evaluated without target-domain fine-tuning; SR and SPL use matched task and
-budget definitions.}
+Gaussian-splatting environments. Methods use released weights or the fixed
+source-domain training split and are evaluated without target-domain
+fine-tuning; SR and SPL use matched task and budget definitions.}
 \label{tab:domains}
 \centering
 \scriptsize
@@ -134,9 +151,19 @@ budget definitions.}
 \textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
 \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
 \midrule
-Last Seen & \na & \na & \na & \na & \na & \na & \na & \na\\
-Strongest non-predictive baseline & \na & \na & \na & \na & \na & \na & \na & \na\\
-Strongest predictive baseline & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblnav}\multicolumn{9}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
+VLFM & \na & \na & \na & \na & \na & \na & \na & \na\\
+ZSON & \na & \na & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE & \na & \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\rowcolor{tblmemory}\multicolumn{9}{c}{\emph{Structured spatio-temporal memory}}\\
+HOV-SG & \na & \na & \na & \na & \na & \na & \na & \na\\
+DynaMem & \na & \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\rowcolor{tblpredict}\multicolumn{9}{c}{\emph{Predictive world and state modeling}}\\
+FlowMaps & \na & \na & \na & \na & \na & \na & \na & \na\\
+Perpetua & \na & \na & \na & \na & \na & \na & \na & \na\\
+\midrule
 \rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na}\\
