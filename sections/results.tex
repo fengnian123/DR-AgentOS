@@ -1,19 +1,74 @@
 \section{Results and Analysis}
 \label{sec:results}
 
-This working draft defines the complete evaluation matrix but does not invent unfinished measurements. Every dash below must be replaced by a reproduced value or a clearly cited published result before submission. The final discussion should be organized around three hypotheses: predictive belief improves the first navigation decision in routine worlds; a calibrated distribution reduces search cost when Top-1 is uncertain; and visibility-aware updates recover efficiently when the prior is wrong.
+This working draft fixes the complete reporting structure without fabricating
+unfinished measurements. Every \na{} must be replaced by a reproduced value or
+a clearly marked published result before submission. The tables are organized to
+test distinct claims rather than repeat one aggregate score: breadth across
+benchmarks, effectiveness on the proposed problem, domain generalization,
+mechanistic contribution, model dependence, and physical deployment.
 
-\subsection{Does Predictive Memory Improve Navigation?}
+\subsection{Comparison across Embodied Benchmarks}
 
-\begin{table*}[t]
-\caption{Main results on routine-world N1--N3 episodes. All methods share the same perception, candidates, inspection viewpoints, and low-level navigator. Lower is better for inspections and distance.}
+\begin{table}[!htbp]
+\caption{Cross-benchmark comparison. Each benchmark retains its native metrics:
+FindingDory evaluates high-level memory-grounded goal selection, GOAT-Bench
+evaluates lifelong multi-modal navigation, and \pfdbench{} evaluates navigation
+under hidden world evolution. All uncited entries will be reproduced under a
+common perception and controller configuration where interfaces permit.}
+\label{tab:crossbench}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.1pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{2}{c}{\textbf{FindingDory}} &
+\multicolumn{2}{c}{\textbf{GOAT-Bench}} &
+\multicolumn{2}{c}{\textbf{\pfdbench{}}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+\textbf{Method} & \textbf{HL-SR $\uparrow$} & \textbf{HL-SPL $\uparrow$} &
+\textbf{SR $\uparrow$} & \textbf{SPL $\uparrow$} &
+\textbf{Search SR $\uparrow$} & \textbf{SPL $\uparrow$}\\
+\midrule
+No persistent memory & \na & \na & \na & \na & \na & \na\\
+Last Seen / latest map & \na & \na & \na & \na & \na & \na\\
+FindingDory Agent \citep{yadav2025findingdory} & \na & \na & \na & \na & \na & \na\\
+Modular GOAT \citep{khanna2024goatbench} & \na & \na & \na & \na & \na & \na\\
+Scene Graph Memory \citep{kurenkov2023dynamic} & \na & \na & \na & \na & \na & \na\\
+DynaMem \citep{liu2024dynamem} & \na & \na & \na & \na & \na & \na\\
+PredictiveGraphs-style & \na & \na & \na & \na & \na & \na\\
+FlowMaps-style \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na\\
+\midrule
+\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{\na} & \textbf{\na} &
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This table is not used to claim that the benchmark scores are numerically
+interchangeable. Instead, it asks whether one memory--belief--action interface
+retains long-horizon recall on FindingDory, lifelong multi-modal navigation on
+GOAT-Bench, and predictive adaptation on \pfdbench{}. Appendix tables will
+further separate FindingDory HL/LL execution and GOAT category/language/image
+goals so that an aggregate score cannot hide a modality-specific failure.
+
+\subsection{Predictive Navigation on P4D-Bench}
+
+\begin{table}[!htbp]
+\caption{Main results on routine-world N1--N3 episodes. All methods share
+perception, candidates, inspection viewpoints, and the low-level navigator.
+Lower is better for inspections and distance.}
 \label{tab:mainnav}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3.0pt}
 \begin{tabular}{lcccccc}
 \toprule
-\textbf{Method} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} & \makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} & \makecell{\textbf{Inspect.}\\\textbf{$\downarrow$}} & \makecell{\textbf{Distance}\\\textbf{$\downarrow$}} & \makecell{\textbf{Recovery}\\\textbf{SR $\uparrow$}}\\
+\textbf{Method} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
+\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} &
+\makecell{\textbf{Inspect.}\\\textbf{$\downarrow$}} &
+\makecell{\textbf{Distance}\\\textbf{$\downarrow$}} &
+\makecell{\textbf{Recovery}\\\textbf{SR $\uparrow$}}\\
 \midrule
 Nearest Candidate & \na & \na & \na & \na & \na & \na\\
 Last Seen & \na & \na & \na & \na & \na & \na\\
@@ -25,24 +80,211 @@ PredictiveGraphs-style & \na & \na & \na & \na & \na & \na\\
 FlowMaps-style \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na\\
 \midrule
 P4D-Belief Prior & \na & \na & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{\pfdnav{} (ours)} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\rowcolor{tblours}\textbf{\pfdnav{} (ours)} & \textbf{\na} & \textbf{\na} &
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 Oracle Current State & \na & \na & \na & \na & \na & \na\\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
 
-First-Go SR is the cleanest measure of whether a more accurate current-state belief becomes a better physical destination. Search SR and cost then test whether probability mass beyond Top-1 is useful. Recovery SR is evaluated only on episodes in which the initial candidate was incorrect, preventing easy first-attempt successes from hiding poor replanning. The final analysis will report paired episode-level differences and confidence intervals rather than comparing only aggregate means.
+First-Go SR isolates whether a better current-state belief becomes a better
+physical destination. Search SR and cost then test whether probability mass
+beyond Top-1 is useful. Recovery SR is conditioned on an incorrect first
+prediction so that easy first-attempt successes do not mask poor evidence use.
+We will report paired episode-level differences and confidence intervals.
 
-\subsection{When Does Predictive Memory Help?}
+\begin{figure}[!htbp]
+\centering
+\IfFileExists{figures/temporal_analysis.pdf}{
+    \includegraphics[width=\textwidth]{figures/temporal_analysis.pdf}
+}{
+    \fbox{\begin{minipage}[c][31mm][c]{0.94\textwidth}
+    \centering\small
+    \textbf{Planned three-panel temporal analysis}\\[2mm]
+    (a) SR vs. memory staleness \qquad
+    (b) search SR vs. inspection budget \qquad
+    (c) paired routine gain by mobility regime
+    \end{minipage}}
+}
+\caption{Temporal and decision-level analysis. The final figure will show how
+performance changes as memory becomes stale, whether a calibrated belief improves
+the success--cost frontier, and whether gains concentrate in worlds with
+learnable dynamics rather than matched random transitions.}
+\label{fig:temporal_analysis}
+\end{figure}
 
-Stable objects test backward compatibility: a predictive model should not damage a strong last-seen prior. Activity-routine objects test temporal transitions; personal-habit objects test long-term instance memory beyond global activity frequencies; and irregular objects test whether a broad, well-calibrated belief improves search even when Top-1 accuracy has limited headroom. The stratified result matrix is in \cref{tab:mobility}; we will additionally plot SR and excess path length against staleness to distinguish genuine temporal reasoning from memorized hotspots.
+\FloatBarrier
 
-\subsection{Does the Gain Come from Learnable Dynamics?}
+\subsection{Generalization across Simulation Fidelity}
 
-The paired-world matrix is reported in \cref{tab:worlds}. The expected signature is not uniformly high performance: \pfdnav{} should preserve static performance, gain most in routine worlds, and express greater uncertainty in marginal-matched random worlds. An improvement that remains unchanged after routine transitions are randomized would indicate a frequency, category, or route-length shortcut rather than learned dynamics.
+\begin{table}[!htbp]
+\caption{Generalization across conventional mesh-based and high-fidelity
+Gaussian-splatting environments. Models are trained on the fixed source domain
+and evaluated without target-domain fine-tuning; SR and SPL use matched task and
+budget definitions.}
+\label{tab:domains}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{lcccccccc}
+\toprule
+& \multicolumn{2}{c}{\textbf{MP3D}} & \multicolumn{2}{c}{\textbf{HM3D}} &
+\multicolumn{2}{c}{\textbf{Habitat-GS}} & \multicolumn{2}{c}{\textbf{Interior-GS}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+\textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
+\textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
+\midrule
+Last Seen & \na & \na & \na & \na & \na & \na & \na & \na\\
+Strongest non-predictive baseline & \na & \na & \na & \na & \na & \na & \na & \na\\
+Strongest predictive baseline & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{\na} & \textbf{\na} &
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
+\textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\subsection{Ablations, Generalization, and Failure Analysis}
+The principal comparison is not only average SR but the degradation from
+mesh-based to high-fidelity rendering. We will additionally break failures into
+belief, grounding, detection, and navigation errors to determine whether domain
+shift affects temporal prediction or its visual evidence channel.
 
-The final ablation table will jointly report state NLL and navigation cost, revealing whether a representation improves only classification or also changes useful decisions. In particular, we will compare query-time versus arrival-time belief on N4, prior-only versus Bayesian updating on N3, and structured versus direct heads on cross-scene candidates. Generalization results will separate seen-scene/unseen-household, unseen-scene/unseen-household, unseen object instance, and unseen receptacle instance.
+\FloatBarrier
 
-Failures will be categorized as entity association, missing candidate, stale-state prediction, overconfident relocation, insufficient visibility, detector error, unreachable viewpoint, or replanning error. Qualitative trajectories will show the prior distribution, route, inspection coverage, posterior, and next decision at each step. This evidence is necessary to establish that improved navigation follows from the claimed closed-loop mechanism.
+\subsection{What Components Produce the Gain?}
+
+\begin{table}[!htbp]
+\caption{Module-level ablation. Prediction metrics test belief quality; agent
+metrics test whether each component changes useful behavior.}
+\label{tab:module_ablation}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.0pt}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Variant} & \textbf{Top-1} & \textbf{NLL} & \textbf{SR} &
+\textbf{SPL} & \textbf{Inspect.}\\
+\midrule
+w/o predictive belief & \na & \na & \na & \na & \na\\
+w/o 4D memory (latest observation) & \na & \na & \na & \na & \na\\
+w/o continuous-time encoding & \na & \na & \na & \na & \na\\
+w/o persistence--relocation head & \na & \na & \na & \na & \na\\
+w/o visibility calibration & \na & \na & \na & \na & \na\\
+w/o Bayesian evidence update & \na & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{Full \dragentos{}} & \textbf{\na} & \textbf{\na} &
+\textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The two top-level removals test the paper's central system claims: whether
+prediction adds value beyond retrospective memory, and whether temporally
+versioned evidence adds value beyond the latest observation. The remaining rows
+localize gains within the predictor and agent loop. We will jointly report NLL
+and navigation cost so that improved classification without improved decisions
+is visible.
+
+\begin{table}[!htbp]
+\caption{Predictor comparison with all non-predictive modules fixed. Runtime is
+measured per target query on the same hardware.}
+\label{tab:predictors}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.4pt}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Predictor} & \textbf{Top-1} & \textbf{NLL} & \textbf{ECE} &
+\textbf{First-Go SR} & \textbf{Latency}\\
+\midrule
+Frequency & \na & \na & \na & \na & \na\\
+Markov & \na & \na & \na & \na & \na\\
+Random Forest & \na & \na & \na & \na & \na\\
+GRU & \na & \na & \na & \na & \na\\
+Transformer Direct & \na & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{Structured CT-Transformer} & \textbf{\na} &
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+
+\subsection{Foundation-Model Adaptation}
+
+\begin{table}[!htbp]
+\caption{Compatibility with different frozen foundation-model controllers. All
+models receive identical typed tools, retrieved evidence, prompts, and budgets.}
+\label{tab:foundation_models}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Controller} & \textbf{Tool valid} & \textbf{Task SR} & \textbf{SPL} &
+\textbf{EQA Acc.} & \textbf{Latency}\\
+\midrule
+GPT-family VLM & \na & \na & \na & \na & \na\\
+Qwen-VL-family & \na & \na & \na & \na & \na\\
+Third frozen VLM & \na & \na & \na & \na & \na\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This experiment tests interface portability, not which foundation model is
+universally strongest. Tool-valid rate measures whether a controller follows the
+same structured action contract; the remaining columns measure whether the core
+benefit of predictive memory persists across model families.
+
+\FloatBarrier
+
+\subsection{Real-Robot Validation}
+
+\begin{table}[!htbp]
+\caption{Real-robot tasks. Each scenario is repeated across targets and start
+poses; failures are counted rather than discarded.}
+\label{tab:robot}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabularx}{\textwidth}{lXcccccc}
+\toprule
+\textbf{Environment} & \textbf{Hidden-change scenario} & \textbf{Trials} &
+\textbf{SR} & \textbf{Time} & \textbf{Distance} & \textbf{Inspect.} &
+\textbf{Replans}\\
+\midrule
+Indoor household & Target relocated between visits & \na & \na & \na & \na & \na & \na\\
+Indoor household & Routine return to habitual state & \na & \na & \na & \na & \na & \na\\
+Indoor public space & Ambiguous multi-candidate search & \na & \na & \na & \na & \na & \na\\
+Outdoor deployment & Stale route and evidence recovery & \na & \na & \na & \na & \na & \na\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\IfFileExists{figures/real_robot_case.pdf}{
+    \includegraphics[width=\textwidth]{figures/real_robot_case.pdf}
+}{
+    \fbox{\begin{minipage}[c][34mm][c]{0.94\textwidth}
+    \centering\small
+    \textbf{Planned real-robot case study}\\[2mm]
+    Row 1: stale memory and rejected route \quad
+    Row 2: predictive belief and selected inspection\\
+    Row 3: onboard evidence, posterior update, and successful replanning
+    \end{minipage}}
+}
+\caption{Qualitative real-robot evidence loop. The final figure will align the
+timestamped memory, predicted candidate probabilities, executed route, onboard
+observation, posterior change, and replanned trajectory for the same episode.}
+\label{fig:robot_case}
+\end{figure}
+
+The physical study will report both aggregate outcomes and representative causal
+traces. A convincing case must show what the agent knew before acting, why it
+selected a route, whether the target should have been visible, how the posterior
+changed, and which action followed. Failures will be categorized as entity
+association, missing candidate, stale-state prediction, overconfident relocation,
+insufficient visibility, detector error, localization drift, unreachable
+viewpoint, or replanning error.
+
+\FloatBarrier

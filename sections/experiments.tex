@@ -1,223 +1,119 @@
-\section{Experimental Setup}
+\section{Experiments}
 \label{sec:experiments}
 
-\subsection{P4D-Bench}
-\label{sec:benchmark}
+We evaluate three linked questions: whether \pfdnav{} predicts the latent
+current state more accurately and with better calibration; whether its belief
+improves navigation destinations and search efficiency; and whether the
+closed-loop agent recovers when its initial prediction conflicts with physical
+evidence. All methods use the \pfdbench{} protocols defined in
+\cref{sec:benchmark} and share perception, candidate states, inspection
+viewpoints, low-level control, and action budgets.
 
-The benchmark summary in \cref{fig:dr_agentos_overview} reports the full
-\pfdbench{} release: 54 scenes, 90 scene-days, 239.19k dynamic state
-changes, and 803.68k task instances. The task pool comprises current-state
-prediction (16\%), object navigation (27\%), vision-and-language navigation
-(29\%), and question answering (28\%). The controlled experiments below
-focus on prediction and ObjectNav together with EQA diagnostics; the
-navigation-focused subset is further decomposed into N1--N4, with N5 used
-as a cross-scene evaluation subset.
+\subsection{Evaluation Matrix}
 
-\begin{wrapfigure}{r}{0.6\textwidth}
-    \centering
-    \vspace{-10pt}
-    \includegraphics[width=0.6\textwidth]{figures/P4D_Benchmark.pdf}
-    \caption{
-    Overview of P4D-BENCH evaluation protocols.
-    }
-    \label{fig:p4dbench}
-    \vspace{-10pt}
-\end{wrapfigure}
+\paragraph{Cross-benchmark evaluation.}
+We evaluate the complete agent on \pfdbench{}, FindingDory
+\citep{yadav2025findingdory}, and GOAT-Bench \citep{khanna2024goatbench}.
+The three benchmarks probe complementary capabilities rather than sharing a
+single pooled score. \pfdbench{} isolates belief over hidden current state and
+its effect on evidence-aware navigation. FindingDory evaluates long-horizon
+memory through high-level goal selection and conditional low-level execution;
+we report its official HL-SR/HL-SPL and LL-SR/LL-SPL. GOAT-Bench evaluates
+lifelong multi-goal navigation; we report SR and SPL on seen, synonym, and
+unseen splits, with category, language, and image goals disaggregated. Every
+comparison uses the benchmark's native protocol, and reported external numbers
+are separated from reproduced results.
 
+\paragraph{Cross-domain simulation.}
+To distinguish temporal reasoning from renderer- or dataset-specific fitting,
+we evaluate the same system in conventional mesh-based environments (MP3D and
+HM3D) and high-fidelity Gaussian-splatting environments (Habitat-GS and
+Interior-GS). Scene-specific candidate sets and navigable viewpoints are
+constructed with the same rules, while perception and control configurations
+are held fixed wherever simulator interfaces permit. We report both in-domain
+performance and transfer from the P4D-HSSD training distribution.
 
-\paragraph{Dynamic household construction.}
-\pfdbench{} is built from continuous household histories, not independently
-sampled placements.  We derive activity priors from longitudinal smart-home
-records such as CASAS \citep{cook2013casas} and ARAS, and action--object
-evidence from EPIC-KITCHENS-100 and OPPORTUNITY.  These records provide
-statistics rather than trajectories copied into simulation. Across 54 HSSD
-scenes \citep{khanna2024hssd} and 90 generated scene-days, we freeze resident
-schedules, room preferences, orderliness, object ownership, and placement
-habits, then jointly generate activities, resident region trajectories, and
-object transitions.
-Frozen distributions make earlier days predictive of later ones, while
-sampled events and exceptions prevent deterministic scripts.  The audited
-configuration yields 42.6 region transitions per resident-day, 6.56
-relocations per personal object-day, 52.6\% within-region relocations, and
-zero terminal collisions.  Unsupported parameters are explicitly marked
-as benchmark-authored.
-
-\paragraph{Object-specific dynamics.}
-Each target follows one of four causal mechanisms
-(\cref{tab:mobility-regimes}).
-Every relocation is attributable to an activity, resident transition, or
-tidying event.  Routine objects follow activity chains; personal objects
-follow a placed/carried lifecycle with owner-specific drop habits; and
-irregular destinations depend only on affordance.  Audits verify that
-personal objects do not merely track their owners and that activity or
-actor identity does not predict irregular destinations beyond affordance.
-
-\begin{table}[t]
-\caption{Complementary mobility regimes in \pfdbench{}.  Mobility labels
-are available for stratified evaluation but hidden from the agent.}
-\label{tab:mobility-regimes}
-\centering
-\small
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabularx}{\linewidth}{lXXX}
-\toprule
-\textbf{Regime} & \textbf{Mechanism} & \textbf{Frozen signal} & \textbf{Role}\\
-\midrule
-Stable/rare & Infrequent events & Home/return tendency & Persistence control\\
-Routine & Activity state machine & Chain-specific locations & Routine prediction\\
-Personal & Placed/carried lifecycle & Owner placement habit & Long-term memory\\
-Irregular & Affordance sampling & Affordance only & Uncertainty control\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\paragraph{Physical realization and partial observation.}
-Generated transitions are replayed chronologically in Habitat; only
-semantically valid, collision-free placements with reachable inspection
-viewpoints enter the benchmark.  A robot patrols using the map, time, travel
-cost, and its own history, never current object states, resident locations,
-hidden activities, or generator latents.  Region visits produce local
-snapshots from which observations are derived.  For a target and query time,
-the public input contains only the preceding observations, last-seen state,
-staleness, calendar context, and legal candidates.  Query times cover both
-the natural distribution and mechanism-relevant windows, such as stages of
-a routine or the interval after a personal object is dropped.  Current state,
-hidden transitions, activities, and mobility labels remain private.
-
-\begin{table}[t]
-\caption{
-Prediction and navigation protocols in \pfdbench{}.  Navigation episodes
-are derived from the same target--time queries used for belief evaluation.
-}
-\label{tab:tasks}
-\centering
-\small
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabularx}{\linewidth}{cXXX}
-\toprule
-& \textbf{Task} & \textbf{Decision signal} & \textbf{Primary measure}\\
-\midrule
-P   & Current-state prediction & Region/receptacle belief & R@$k$ / NLL\\
-N1  & Predictive navigation & Top-1 belief & First-Go SR\\
-N2  & Belief-guided search & Full belief + cost & Search SR / cost\\
-N3  & Evidence-aware replanning & Updated posterior & Recovery SR\\
-N4  & Online-dynamic navigation & Arrival-time belief & Online Recovery SR\\
-N5  & Cross-scene generalization & Any protocol above & Held-out SR\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\paragraph{From prediction to navigation.}
-The prediction track first evaluates the region/receptacle belief without
-navigation confounds.  Each navigation episode then reuses the same query
-and adds a start pose, inspection viewpoints, and a budget.  N1 tests the
-Top-1 goal, N2 tests cost-aware search under the full belief, and N3 tests
-evidence-aware posterior updates and replanning.  N4 adds execution-time
-target motion, while N5 evaluates held-out scenes or households.  All
-methods share candidates, starts, geometry, control, and budgets; only the
-belief and resulting search order differ.
-
-The full benchmark additionally provides vision-and-language navigation
-instances over the same evolving histories. They exercise the common memory
-interface under language-conditioned goals, but are not included in the
-navigation-focused causal comparisons reported below.
-
-\paragraph{Splits and quality control.}
-We split complete temporal sequences rather than individual queries and
-reserve disjoint homes for generalization.  Audits check future leakage,
-causal continuity, mobility behavior, physical validity, and patrol
-independence.  Results are stratified by mobility regime, transition class,
-staleness, and spatial difficulty; full statistics and audit thresholds are
-provided in the supplement.
-
-
+\paragraph{Real-robot evaluation.}
+The physical evaluation instantiates hidden relocation, routine return,
+ambiguous multi-candidate search, and failed-first-inspection recovery in indoor
+and outdoor deployments. The robot receives only its accumulated observations
+and onboard sensing; current target state and event cause remain hidden. We
+repeat each task from multiple start poses and report success, completion time,
+path length, inspections, and replans, together with perception, planning, and
+localization failures.
 
 \subsection{Baselines and Ablations}
 \label{sec:baselines}
 
-We compare against four baseline families under identical candidate
-states, inspection viewpoints, perception inputs, path planner, and
-navigation budgets.
+We compare against four baseline families under identical candidate states,
+inspection viewpoints, perception inputs, path planner, and navigation budgets.
 
-\emph{Non-predictive} baselines include Last Seen and Nearest Candidate
-Search.
+\emph{Non-predictive} baselines include Last Seen and Nearest Candidate Search.
 \emph{Statistical} baselines include Frequency Prior, first-order Markov
 transitions, time-conditioned transitions, and an instance-hotspot prior.
-\emph{Learned} baselines include GRU Direct, Transformer Direct,
-Scene Graph Memory \citep{kurenkov2023dynamic}, a PredictiveGraphs-style
-filter \citep{saavedraruiz2026predictivegraphs}, and a FlowMaps-style
-future-location model \citep{argenziano2026flowmaps}.
-Where an external method assumes a different state space, we project its
-prediction onto the same benchmark candidate set and rank candidates by
-predicted probability mass, isolating differences in belief estimation
-rather than downstream planning.
+\emph{Learned} baselines include GRU Direct, Transformer Direct, Scene Graph
+Memory \citep{kurenkov2023dynamic}, a PredictiveGraphs-style filter
+\citep{saavedraruiz2026predictivegraphs}, and a FlowMaps-style future-location
+model \citep{argenziano2026flowmaps}. Where an external method assumes a
+different state space, we project its prediction onto the same benchmark
+candidate set and rank candidates by predicted probability mass, isolating
+belief estimation from downstream planning.
 
-N4 additionally compares against Transit-Aware Planning under its
-required online target-path input \citep{dorbala2026portable}.
-Oracle Current State provides the navigation upper bound.
-Oracle Activity supplies the ground-truth current activity and is
-reported only as a diagnostic rather than as a fair baseline.
+N4 additionally compares against Transit-Aware Planning under its required
+online target-path input \citep{dorbala2026portable}. Oracle Current State
+provides the navigation upper bound. Oracle Activity supplies the ground-truth
+current activity and is reported only as a diagnostic rather than a fair
+baseline.
 
-For EQA, all methods are evaluated using the same question templates,
-answer ontology, and answer normalization.
-The queried information must be recovered from the memory state available
-to each method.
-When a learned language readout is required, the readout is held fixed
-across compared memory methods so that EQA primarily measures memory
-quality rather than differences in language-model capacity.
+For EQA, all methods use the same question templates, answer ontology, and
+normalization. Queried information must be recovered from the memory available
+to each method. When a learned language readout is required, it is held fixed
+across memory methods so that the comparison primarily measures memory quality
+rather than language-model capacity.
 
-The principal ablations remove:
-continuous-time features;
-the persistence--relocation factorization;
-instance-specific history;
-calendar context;
-negative evidence;
-visibility calibration;
-Bayesian belief updating;
-or the full belief distribution in favor of Top-1 prediction.
-\emph{P4D-Belief Prior} predicts once and searches without belief updates,
-while full \pfdnav{} closes the observe--update--replan loop.
+The principal ablations remove continuous-time features; the
+persistence--relocation factorization; instance-specific history; calendar
+context; negative evidence; visibility calibration; Bayesian belief updating;
+or the full distribution in favor of Top-1 prediction. \emph{P4D-Belief Prior}
+predicts once and searches without posterior updates, while full \pfdnav{} closes
+the observe--update--replan loop.
 
+We additionally replace the predictive component with Frequency, Markov,
+Random Forest, GRU, direct Transformer, and the structured continuous-time
+Transformer while keeping memory, candidates, and the agent policy fixed. To
+test whether the system depends on one proprietary controller, we run the same
+typed memory and navigation tools with GPT-family and Qwen-VL-family foundation
+models, plus a third VLM where available. Exact model versions, prompts,
+temperature, tool schemas, and inference budgets will be frozen before test
+evaluation.
 
-\subsection{Metrics}
+\subsection{Metrics and Reporting}
 \label{sec:metrics}
 
-We first evaluate the predictive belief independently of downstream
-navigation using state Top-1/Top-$k$ accuracy, negative log-likelihood
-(NLL), Brier score, expected calibration error (ECE), true-state rank,
-mean reciprocal rank (MRR), and persistence AUROC.
+We first assess predictive belief independently of navigation using state
+Top-1/Top-$k$ accuracy, negative log-likelihood (NLL), Brier score, expected
+calibration error (ECE), true-state rank, mean reciprocal rank (MRR), and
+persistence AUROC.
 
-For navigation, we report Success Rate (SR), SPL, path length,
-completion time, First-Go SR, number of inspected candidates, and search
-cost.
-N3 additionally reports Recovery SR after an incorrect first prediction
-and posterior true-state rank improvement after negative evidence.
-N4 reports Online Recovery SR, replanning count, replanning delay, and
-excess path length relative to a trajectory-aware oracle.
-The trajectory-aware oracle is used because a moving target makes the
-conventional shortest path to a fixed terminal goal ill-defined.
+For navigation, we report Success Rate (SR), SPL, path length, completion time,
+First-Go SR, number of inspected candidates, and search cost. N3 additionally
+reports Recovery SR after an incorrect first prediction and posterior true-state
+rank improvement after negative evidence. N4 reports Online Recovery SR,
+replanning count, replanning delay, and excess path length relative to a
+trajectory-aware oracle. This oracle is required because motion during execution
+makes the conventional shortest path to a fixed terminal goal ill-defined.
 
-For EQA, we report answer accuracy broken down by existence, location,
-temporal, activity, count, comparison, and reasoning questions.
-For questions with structured answer spaces, predictions are normalized
-to the benchmark ontology before scoring.
-We additionally report category-macro accuracy so that frequent
-question types do not dominate the aggregate EQA score.
+For EQA, we report answer accuracy by existence, location, temporal, activity,
+count, comparison, and reasoning question, together with category-macro accuracy.
+Structured outputs are normalized to the benchmark ontology before scoring.
 
-All aggregate results include bootstrap confidence intervals over
-episodes and both micro averages and mobility-type macro averages.
-Results are stratified by world variant, mobility type, transition class
-(\emph{stay}, \emph{same-region move}, \emph{cross-region move},
-\emph{multi-move}, and \emph{return}), staleness interval, spatial
-difficulty, grounding quality, and generalization split.
-For EQA, results are additionally stratified by question type.
-
-The key causal contrast is the paired routine gain: the improvement of a
-method in the routine world relative to its performance under the paired
-static and random variants.
-This contrast tests whether gains arise from exploiting persistent
-temporal regularities rather than from scene geometry, object identity,
-or generic search behavior.
-
-Implementation and reporting details are provided in
-\cref{app:implementation,app:protocol}.
+All aggregate results include bootstrap confidence intervals over episodes and
+both micro and mobility-regime macro averages. We stratify results by paired
+world variant, mobility regime, transition class (\emph{stay}, \emph{same-region
+move}, \emph{cross-region move}, \emph{multi-move}, and \emph{return}),
+staleness, spatial difficulty, grounding quality, and generalization split. The
+key causal contrast is the paired routine gain: improvement in the routine world
+relative to performance on its paired static and random variants. This contrast
+tests whether gains arise from persistent temporal regularities rather than
+scene geometry, identity, or generic search behavior. Implementation and
+reporting details appear in \cref{app:implementation,app:protocol}.

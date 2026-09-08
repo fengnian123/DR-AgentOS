@@ -54,6 +54,48 @@ The Oracle Activity diagnostic may use the hidden activity and source location b
 \subsection{Disaggregated Result Templates}
 
 \begin{table}[h]
+\caption{FindingDory results using its native high- and low-level metrics. The
+main paper reports only HL-SR and HL-SPL for compactness.}
+\label{tab:findingdory_full}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{HL-SR} & \textbf{HL-SPL} & \textbf{LL-SR} & \textbf{LL-SPL}\\
+\midrule
+FindingDory Agent & \na & \na & \na & \na\\
+Strongest memory baseline & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{\dragentos{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{GOAT-Bench modality-wise results on the official evaluation split.
+The main paper reports only aggregate SR and SPL.}
+\label{tab:goat_modalities}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\begin{tabular}{lcccccc}
+\toprule
+& \multicolumn{2}{c}{\textbf{Category goal}} &
+\multicolumn{2}{c}{\textbf{Language goal}} &
+\multicolumn{2}{c}{\textbf{Image goal}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+\textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
+\textbf{SR} & \textbf{SPL}\\
+\midrule
+Modular GOAT & \na & \na & \na & \na & \na & \na\\
+Strongest lifelong baseline & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{\dragentos{}} & \textbf{\na} & \textbf{\na} &
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
 \caption{Search SR by hidden mobility type. Types are determined from training history and withheld from the agent. Macro average weights the four groups equally.}
 \label{tab:mobility}
 \centering
@@ -118,7 +160,7 @@ This source is configured for anonymous ICLR 2027 submission: \verb|\iclrfinalco
 Persistent visual memory may capture people or private spaces, while an incorrect belief may induce unnecessary motion or unsafe behavior. Deployments should obtain consent, enforce retention and access controls, preserve provenance, and retain platform-specific collision avoidance and emergency stops outside the learned model. Our benchmark compiles existing records into simulated HSSD episodes and introduces no new human-subject study.
 
 \paragraph{Reproducibility.}
-\Cref{sec:method} specifies the task, memory, predictor, evidence update, and navigation policy. \Cref{sec:experiments} defines episode construction, leakage controls, baselines, and metrics. An anonymized code and data snapshot will accompany the review submission.
+\Cref{sec:method} specifies the task, memory, predictor, evidence update, and agent policy. \Cref{sec:benchmark} defines episode construction and leakage controls, while \cref{sec:experiments} specifies baselines and metrics. An anonymized code and data snapshot will accompany the review submission.
 
 \paragraph{AI use.}
 Generative AI tools assisted manuscript editing, LaTeX checks, and local engineering. They did not generate benchmark observations, ground-truth labels, or reported scores. The authors reviewed all assisted material and remain responsible for the content and artifacts.

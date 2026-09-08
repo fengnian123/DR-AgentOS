@@ -8,6 +8,7 @@
 \usepackage{xcolor}
 \usepackage{microtype}
 \usepackage{enumitem}
+\usepackage{placeins}
 \usepackage{hyperref}
 \hypersetup{hidelinks}
 \usepackage{url}
@@ -36,12 +37,13 @@
 \maketitle
 
 \begin{abstract}
-Embodied navigation is commonly formulated over a stationary world snapshot: maps and memories are assumed to describe the same state in which actions are executed. This abstraction breaks for long-lived agents. During periods without observation, objects are relocated, spaces are reconfigured, and accessibility changes, so historically valid evidence may induce obsolete goals and inefficient routes. We study \emph{persistent navigation in evolving worlds}, where an agent must infer the current task-relevant world state from partial and temporally stale observations, act under the resulting uncertainty, and revise its plan as physical evidence arrives. We introduce \dragentos{}, a predictive embodied-agent architecture whose navigation core, \pfdnav{}, transforms an evidence-grounded 4D memory into a belief over the current world state. A continuous-time Transformer encodes irregular histories, while a structured persistence--relocation pointer head estimates whether the last supported state remains valid and, otherwise, distributes probability over plausible alternatives. A visibility-aware Bayesian update converts positive and negative observations into posterior evidence, enabling direct navigation under concentrated belief, cost-aware exploration under uncertainty, and replanning when memory and observation disagree. We further introduce \pfdbench{}, a 54-scene, 90-scene-day benchmark with 803.68k tasks and 239.19k hidden state changes, spanning state prediction, object navigation, vision-and-language navigation, and embodied question answering. Paired static, routine, and random worlds isolate whether gains arise from learned dynamics rather than scene-frequency shortcuts. Together, \dragentos{} reframes embodied navigation from executing against a remembered snapshot to reasoning and acting over a continuously evolving world state.
+Embodied navigation is predominantly defined against a stationary world snapshot: maps and memories are treated as descriptions of the state in which the agent will act. This premise fails for long-lived agents because the world continues to evolve while it is unobserved. We identify and formulate \emph{persistent navigation in evolving worlds}, a new problem in which an agent must infer the current task-relevant state from partial, irregular, and temporally stale experience, navigate under that uncertainty, and revise its decisions as physical evidence arrives. Unlike dynamic mapping that reacts to observed changes or navigation that tracks an already moving target, this setting centers on \emph{hidden evolution between visits}: the memory can be historically correct yet operationally obsolete. We introduce \dragentos{}, a predictive embodied-agent architecture whose \pfdnav{} core converts an evidence-grounded 4D memory into an actionable belief over the present world. A continuous-time Transformer models irregular histories, and a structured persistence--relocation pointer head predicts whether the last supported state still holds and where the state likely transitioned otherwise. The agent uses the resulting distribution to choose between direct navigation and cost-aware inspection, then applies a visibility-aware Bayesian update to positive and negative observations before replanning. We also introduce \pfdbench{}, a 54-scene benchmark comprising 803.68k tasks across state prediction, object navigation, vision-and-language navigation, and embodied question answering. Paired static, routine, and random worlds test whether an agent learns evolution rather than exploiting scene-frequency shortcuts. Together, our formulation shifts embodied navigation from acting on a remembered past to maintaining, testing, and acting on beliefs about the world as it is now.
 \end{abstract}
 
 \input{sections/introduction}
 \input{sections/related_work}
 \input{sections/method}
+\input{sections/benchmark}
 \input{sections/experiments}
 \input{sections/results}
 \input{sections/conclusion}
