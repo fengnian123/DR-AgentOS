@@ -67,6 +67,13 @@ modality-specific failure.
 
 \subsection{Predictive Navigation on P4D-Bench}
 
+First-Go SR isolates whether a better current-state belief becomes a better
+physical destination. Search SR and cost then test whether probability mass
+beyond Top-1 is useful. Recovery SR is conditioned on an incorrect first
+prediction so that easy first-attempt successes do not mask poor evidence use.
+The relevant estimands are paired episode-level differences with confidence
+intervals that retain the pairing.
+
 \begin{table}[!htbp]
 \caption{Main results on routine-world N1--N3 episodes. All methods share
 perception, candidates, inspection viewpoints, and the low-level navigator.
@@ -102,13 +109,7 @@ Oracle Current State & \na & \na & \na & \na & \na & \na\\
 \bottomrule
 \end{tabular}
 \end{table}
-
-First-Go SR isolates whether a better current-state belief becomes a better
-physical destination. Search SR and cost then test whether probability mass
-beyond Top-1 is useful. Recovery SR is conditioned on an incorrect first
-prediction so that easy first-attempt successes do not mask poor evidence use.
-The relevant estimands are paired episode-level differences with confidence
-intervals that retain the pairing.
+\FloatBarrier
 
 \paragraph{Qualitative case study.}
 \Cref{fig:p4d_case_study} traces one routine-world episode from stale memory to
