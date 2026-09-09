@@ -39,13 +39,16 @@ are held fixed wherever simulator interfaces permit. We report both in-domain
 performance and transfer from the P4D-HSSD training distribution.
 
 \paragraph{Real-robot evaluation.}
-The physical evaluation instantiates hidden relocation, routine return,
-ambiguous multi-candidate search, and failed-first-inspection recovery in indoor
-and outdoor deployments. The robot receives only its accumulated observations
-and onboard sensing; current target state and event cause remain hidden. We
-repeat each task from multiple start poses and report success, completion time,
-path length, inspections, and replans, together with perception, planning, and
-localization failures.
+\label{sec:real-world-setup}
+We plan paired searches in an indoor office and a managed outdoor site,
+using the same primary robot where feasible. Each site includes eight targets
+under unchanged, routine-consistent, broken-routine, and weak-routine conditions,
+giving 64 paired blocks. Last Seen + Search, Time Frequency, Retrieval + Reasoning,
+and \dragentos{} share causal history, candidates, sensing, and control.
+The proposed budget is three inspections and 360 seconds per run, subject to
+pilot verification. Targets remain stationary and success requires autonomous
+online instance confirmation. Physical measurements are pending;
+\cref{app:real-world} gives the detailed protocol.
 
 \subsection{Baselines and Ablations}
 \label{sec:baselines}
@@ -124,7 +127,7 @@ For EQA, we report answer accuracy by existence, location, temporal, activity,
 count, comparison, and reasoning question, together with category-macro accuracy.
 Structured outputs are normalized to the benchmark ontology before scoring.
 
-All aggregate results include bootstrap confidence intervals over episodes and
+Benchmark aggregate results include bootstrap confidence intervals over episodes and
 both micro and mobility-regime macro averages. We stratify results by paired
 world variant, mobility regime, transition class (\emph{stay}, \emph{same-region
 move}, \emph{cross-region move}, \emph{multi-move}, and \emph{return}),
