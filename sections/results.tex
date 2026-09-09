@@ -110,6 +110,25 @@ prediction so that easy first-attempt successes do not mask poor evidence use.
 The relevant estimands are paired episode-level differences with confidence
 intervals that retain the pairing.
 
+\paragraph{Qualitative case study.}
+\Cref{fig:p4d_case_study} traces one routine-world episode from stale memory to
+physical verification. The target bowl was last observed in a cabinet
+$14.77$ hours before the query, but a dinner-cleanup transition relocates it to
+the kitchen sink. The predictive belief ranks the sink first, allowing
+\pfdnav{} to verify the target in one inspection; the comparison routes expose
+how an obsolete last-seen state or a geometry-only ordering increases search
+cost.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/P4D_CaseStudy.pdf}
+    \caption{P4D-Bench case study from historical observation to
+    belief-guided navigation. Predictive search reaches the activity-induced
+    current state in one inspection, while last-seen and nearest-first search
+    follow less efficient candidate orders.}
+    \label{fig:p4d_case_study}
+\end{figure}
+
 \paragraph{Temporal and budget dependence.}
 Memory staleness, inspection budget, and mobility regime define complementary
 axes of analysis. SR as a function of staleness tests robustness to observation
@@ -329,5 +348,6 @@ on a wrong initial choice, and the history/action ablations therefore require
 separate run-level evidence. A recovery case links the causal history and initial
 belief to an executed inspection, its sensor evidence, the posterior, and the
 next action. No physical case trace or recovery rate is inferred from the
-placeholder table. \Cref{app:real-world} defines the corresponding measurements.
+placeholder table. \Cref{sec:real-world-setup} defines the corresponding
+measurement protocol.
 \FloatBarrier
