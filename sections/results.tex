@@ -1,12 +1,12 @@
 \section{Results and Analysis}
 \label{sec:results}
 
-This working draft fixes the complete reporting structure without fabricating
-unfinished measurements. Every \na{} must be replaced by a reproduced value or
-a clearly marked published result before submission. The tables are organized to
-test distinct claims rather than repeat one aggregate score: breadth across
-benchmarks, effectiveness on the proposed problem, domain generalization,
-mechanistic contribution, model dependence, and physical deployment.
+The evaluation separates six questions: performance across embodied benchmarks,
+predictive navigation on \pfdbench{}, visual-domain generalization, the role of
+individual components, controller dependence, and indoor/outdoor object search.
+\emph{Draft data status:} \na{} denotes an unavailable measurement. The real-world
+table contains explicitly marked numerical placeholders; its associated analysis
+is provisional and must be recomputed from robot outcomes before submission.
 
 \subsection{Comparison across Embodied Benchmarks}
 
@@ -16,8 +16,7 @@ reports high-level success (HL-SR), low-level success (LL-SR), and high-level
 SPL (HL-SPL); GOAT-Bench reports SR, SPL, and repeated-goal success (Repeat-SR);
 \pfdbench{} reports first-destination success (First-Go SR), eventual search
 success (Search SR), and SPL. Repeat-SR is our diagnostic; all other columns use
-the corresponding benchmark protocol. Values are left blank until the complete
-reproduction is finalized.}
+the corresponding benchmark protocol. Dashes denote unavailable measurements.}
 \label{tab:crossbench}
 \centering
 \footnotesize
@@ -108,83 +107,61 @@ First-Go SR isolates whether a better current-state belief becomes a better
 physical destination. Search SR and cost then test whether probability mass
 beyond Top-1 is useful. Recovery SR is conditioned on an incorrect first
 prediction so that easy first-attempt successes do not mask poor evidence use.
-We will report paired episode-level differences and confidence intervals.
+The relevant estimands are paired episode-level differences with confidence
+intervals that retain the pairing.
 
-% \begin{figure}[!htbp]
-% \centering
-% \IfFileExists{figures/temporal_analysis.pdf}{
-%     \includegraphics[width=\textwidth]{figures/temporal_analysis.pdf}
-% }{
-%     \fbox{\begin{minipage}[c][31mm][c]{0.94\textwidth}
-%     \centering\small
-%     \textbf{Planned three-panel temporal analysis}\\[2mm]
-%     (a) SR vs. memory staleness \qquad
-%     (b) search SR vs. inspection budget \qquad
-%     (c) paired routine gain by mobility regime
-%     \end{minipage}}
-% }
-% \caption{Temporal and decision-level analysis. The final figure will show how
-% performance changes as memory becomes stale, whether a calibrated belief improves
-% the success--cost frontier, and whether gains concentrate in worlds with
-% learnable dynamics rather than matched random transitions.}
-% \label{fig:temporal_analysis}
-% \end{figure}
+\paragraph{Temporal and budget dependence.}
+Memory staleness, inspection budget, and mobility regime define complementary
+axes of analysis. SR as a function of staleness tests robustness to observation
+gaps; SR as a function of inspection budget tests the value of alternatives
+beyond Top-1; and paired routine gains separate learnable temporal structure
+from matched random transitions. These diagnostics require episode-level
+measurements and are not inferred from aggregate SR.
 
 \FloatBarrier
 
 \subsection{Generalization across Simulation Fidelity}
 
 \begin{table}[!htbp]
-\caption{Generalization across three environment families: Standard Simulation
-Worlds (HM3D and MP3D), Photorealistic Simulation (Habitat-GS and Interior-GS),
-and Evolving Simulation Worlds (HSSD). Methods use released weights or the fixed
+\caption{Generalization across conventional mesh-based and high-fidelity
+Gaussian-splatting environments. Methods use released weights or the fixed
 source-domain training split and are evaluated without target-domain
 fine-tuning; SR and SPL use matched task and budget definitions.}
 \label{tab:domains}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.4pt}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lcccccccccc}
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{lcccccccc}
 \toprule
-& \multicolumn{4}{c}{\hdr{\textbf{Standard Simulation Worlds}}} &
-\multicolumn{4}{c}{\hdr{\textbf{Photorealistic Simulation}}} &
-\multicolumn{2}{c}{\hdr{\textbf{Evolving Simulation Worlds}}}\\[1mm]
-& \multicolumn{2}{c}{\textbf{HM3D}} & \multicolumn{2}{c}{\textbf{MP3D}} &
-\multicolumn{2}{c}{\textbf{Habitat-GS}} & \multicolumn{2}{c}{\textbf{Interior-GS}} &
-\multicolumn{2}{c}{\textbf{HSSD}}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+& \multicolumn{2}{c}{\textbf{MP3D}} & \multicolumn{2}{c}{\textbf{HM3D}} &
+\multicolumn{2}{c}{\textbf{Habitat-GS}} & \multicolumn{2}{c}{\textbf{Interior-GS}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
 \textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
-\textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
-\textbf{SR} & \textbf{SPL}\\
+\textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
 \midrule
-\rowcolor{tblnav}\multicolumn{11}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
-VLFM & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-ZSON & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-LagMemo GLUE & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblnav}\multicolumn{9}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
+VLFM & \na & \na & \na & \na & \na & \na & \na & \na\\
+ZSON & \na & \na & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
-\rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Structured spatio-temporal memory}}\\
-HOV-SG & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-DynaMem & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblmemory}\multicolumn{9}{c}{\emph{Structured spatio-temporal memory}}\\
+HOV-SG & \na & \na & \na & \na & \na & \na & \na & \na\\
+DynaMem & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
-\rowcolor{tblpredict}\multicolumn{11}{c}{\emph{Predictive world and state modeling}}\\
-FlowMaps & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-Perpetua & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblpredict}\multicolumn{9}{c}{\emph{Predictive world and state modeling}}\\
+FlowMaps & \na & \na & \na & \na & \na & \na & \na & \na\\
+Perpetua & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
 \rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\textbf{\na} & \textbf{\na}\\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
 \end{table}
 
-The principal comparison is not only average SR but the degradation across
-standard simulation, photorealistic rendering, and explicitly evolving worlds.
-We will additionally break failures into belief, grounding, detection, and
-navigation errors to determine whether temporal change and visual domain shift
-affect the predictive belief or its evidence channel.
+The principal comparison is not only average SR but the degradation from
+mesh-based to high-fidelity rendering. A breakdown into belief, grounding, detection, and navigation errors
+distinguishes shifts in temporal prediction from shifts in visual evidence.
 
 \FloatBarrier
 
@@ -217,9 +194,8 @@ w/o Bayesian evidence update & \na & \na & \na & \na & \na\\
 The two top-level removals test the paper's central system claims: whether
 prediction adds value beyond retrospective memory, and whether temporally
 versioned evidence adds value beyond the latest observation. The remaining rows
-localize gains within the predictor and agent loop. We will jointly report NLL
-and navigation cost so that improved classification without improved decisions
-is visible.
+localize gains within the predictor and agent loop. Joint interpretation of NLL and navigation cost distinguishes improved
+classification from improved decisions.
 
 \begin{table}[!htbp]
 \caption{Predictor comparison with all non-predictive modules fixed. Runtime is
@@ -277,65 +253,81 @@ benefit of predictive memory persists across model families.
 \subsection{Real-World Experiments}
 \label{sec:real-world-results}
 
-The physical study tests whether predictive memory improves indoor and outdoor
-search and supports recovery after an unsuccessful inspection. Measurements
-are pending; \cref{tab:robot,fig:robot_case} reserve the quantitative comparison
-and physical case traces.
+We organize the indoor and outdoor comparison around two questions: whether
+history-informed search increases budgeted success, and whether its decisions
+reduce the motion and time needed to inspect candidate locations.
+\Cref{tab:robot} presents the complete comparison layout. The provisional values
+come exclusively from the first dataset in the supplied report; multi-replicate
+averages and sensitivity scenarios are excluded from this table.
 
 \begin{table}[!htbp]
 \centering\scriptsize
-\setlength{\tabcolsep}{3pt}
-\caption{Indoor/outdoor physical search, pending acquisition. Each method has
-32 planned blocks per environment; $n$ will count actual attempts. Dashes denote
-unmeasured values. SR and first-inspection hit require online correct-instance
-confirmation; distance and time include failed attempts.}
+\setlength{\tabcolsep}{4pt}
+\caption{Indoor/outdoor search comparison---\textbf{draft numerical placeholders,
+not physical measurements}. Values reproduce the first synthetic dataset in
+\texttt{RESULTS.md}, with 32 samples per method and environment. The four method
+slots use Last-seen rule, Time-frequency rule, Retrieval proxy, and Predictive
+proxy values, respectively; they do not establish performance of the named
+robot implementations. Replace all entries with measured robot outcomes.
+Distance and time are means over all attempts, including failures.}
 \label{tab:robot}\label{tab:real-world-main}
 \begin{tabular}{llrrrrr}
 \toprule
-Environment & Method & $n$ & SR (\%) & First hit (\%) & Distance (m) & Time (s)\\
+Environment & Method slot & $n$ & Successes & SR (\%) & Distance (m) & Time (s)\\
 \midrule
-Indoor & Last Seen + Search & \na & \na & \na & \na & \na\\
- & Time Frequency & \na & \na & \na & \na & \na\\
- & Retrieval + Reasoning & \na & \na & \na & \na & \na\\
- & \dragentos{} & \na & \na & \na & \na & \na\\
+Indoor & Last Seen + Search & 32 & 13 & 40.62 & 17.15 & 65.73\\
+ & Time Frequency & 32 & 14 & 43.75 & 20.14 & 75.26\\
+ & Retrieval + Reasoning & 32 & 17 & 53.12 & 18.29 & 96.53\\
+\rowcolor{tblours}
+ & \dragentos{} & 32 & 16 & 50.00 & 20.23 & 74.56\\
 \midrule
-Outdoor & Last Seen + Search & \na & \na & \na & \na & \na\\
- & Time Frequency & \na & \na & \na & \na & \na\\
- & Retrieval + Reasoning & \na & \na & \na & \na & \na\\
- & \dragentos{} & \na & \na & \na & \na & \na\\
+Outdoor & Last Seen + Search & 32 & 13 & 40.62 & 45.19 & 111.67\\
+ & Time Frequency & 32 & 13 & 40.62 & 43.87 & 109.13\\
+ & Retrieval + Reasoning & 32 & 13 & 40.62 & 38.92 & 128.51\\
+\rowcolor{tblours}
+ & \dragentos{} & 32 & 12 & 37.50 & 42.22 & 106.37\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Prediction and search.}
-We will report \dragentos{} minus Time Frequency in paired SR within each
-environment and their equal-weight average. First-inspection hit connects the
-initial decision to successful execution, while all-attempt costs expose the
-travel and observation burden. The four movement conditions distinguish useful
-routines from unchanged states and exceptions. History and action-selection
-ablations, failure-penalized time, and clustered uncertainty estimates are
-specified in \cref{app:real-world}.
+\paragraph{Indoor search.}
+In the provisional comparison, the \dragentos{} slot reaches 16/32 successes
+(50.00\%), compared with 14/32 for Time Frequency and 13/32 for Last Seen +
+Search. The corresponding differences are $+6.25$ and $+9.38$ percentage points,
+computed from counts before rounding. Retrieval + Reasoning occupies the
+highest-success slot at 17/32 (53.12\%). The \dragentos{} slot has a mean elapsed
+time of 74.56 seconds, compared with 96.53 seconds for Retrieval + Reasoning,
+but travels farther (20.23 versus 18.29 meters). Thus, the numerical example
+illustrates a success--time tradeoff, rather than uniform dominance in success
+and travel cost.
 
-\begin{figure}[!htbp]
-\centering
-\fbox{\begin{minipage}[c][22mm][c]{0.94\textwidth}
-\centering\small
-\textbf{Physical case traces: pending acquisition}\\[2mm]
-Indoor: history and belief $\rightarrow$ route and observation
-$\rightarrow$ update and next action\\[1mm]
-Outdoor: history and belief $\rightarrow$ route and observation
-$\rightarrow$ update and next action
-\end{minipage}}
-\caption{Reserved layout for indoor/outdoor physical cases, not recorded results.
-Each row will align timestamped prior evidence, an executed inspection, and the
-subsequent decision; images and trajectories await acquisition.}
-\label{fig:robot_case}
-\end{figure}
+\paragraph{Outdoor search.}
+The outdoor placeholders give 12/32 successes (37.50\%) for the \dragentos{}
+slot and 13/32 (40.62\%) for each comparison method. Its mean elapsed time is
+106.37 seconds, compared with 109.13 seconds for Time Frequency and 128.51
+seconds for Retrieval + Reasoning. Its travel distance is lower than Time
+Frequency's (42.22 versus 43.87 meters) but higher than Retrieval + Reasoning's
+(38.92 meters). A shorter attempt at lower SR does not establish more efficient
+successful search: early failures can reduce both elapsed time and distance.
 
-\paragraph{Recovery and failure.}
-Physical traces will distinguish a well-observed absence from an insufficient
-view and show whether the next action resolves the initial error. Recovery
-rates retain method-specific first-wrong denominators; navigation failures,
-missed detections, timeouts, and human interventions remain in the reported
-attempts. Conclusions will be restricted to the measured site--platform settings.
+\paragraph{Aggregate contrast and uncertainty.}
+The primary contrast is the equally weighted mean of the two within-environment
+SR differences between \dragentos{} and Time Frequency. In the placeholder
+counts, this is $(6.25-3.125)/2=1.5625$ percentage points, corresponding to
+28/64 versus 27/64 successes. Pooling the equal-sized environments gives the
+same result but obscures the reversal in the within-environment comparison.
+These descriptive differences do not establish a statistically reliable gain.
+Physical paired uncertainty requires the actual block outcomes and object/day
+identities; quantiles across synthetic studies cannot supply that uncertainty.
+
+\paragraph{Evidence use and failure analysis.}
+Aggregate SR and attempt costs do not determine whether a failure arose from
+an incorrect belief, poor visibility, missed detection, or navigation error.
+Likewise, they do not establish the contribution of posterior updating or
+continuous-time prediction. First-inspection confirmation, recovery conditional
+on a wrong initial choice, and the history/action ablations therefore require
+separate run-level evidence. A recovery case links the causal history and initial
+belief to an executed inspection, its sensor evidence, the posterior, and the
+next action. No physical case trace or recovery rate is inferred from the
+placeholder table. \Cref{app:real-world} defines the corresponding measurements.
 \FloatBarrier

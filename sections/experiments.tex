@@ -5,8 +5,8 @@ We evaluate three linked questions: whether \pfdnav{} predicts the latent
 current state more accurately and with better calibration; whether its belief
 improves navigation destinations and search efficiency; and whether the
 closed-loop agent recovers when its initial prediction conflicts with physical
-evidence. All methods use the \pfdbench{} protocols defined in
-\cref{sec:benchmark} and share perception, candidate states, inspection
+evidence. Benchmark experiments follow the native protocols described below;
+within each comparison, methods share perception, candidate states, inspection
 viewpoints, low-level control, and action budgets.
 
 \subsection{Evaluation Matrix}
@@ -31,26 +31,47 @@ external numbers are separated from reproduced results.
 
 \paragraph{Cross-domain simulation.}
 To distinguish temporal reasoning from renderer- or dataset-specific fitting,
-we evaluate the same system across three environment families aligned with
-\cref{tab:domains}: \emph{Standard Simulation Worlds} (HM3D and MP3D),
-\emph{Photorealistic Simulation} (Habitat-GS and Interior-GS), and
-\emph{Evolving Simulation Worlds} (HSSD). Scene-specific candidate sets and
-navigable viewpoints are constructed with the same rules, while perception and
-control configurations are held fixed wherever simulator interfaces permit. We
-report both in-domain performance and transfer from the P4D-HSSD training
-distribution.
+we evaluate the same system in conventional mesh-based environments (MP3D and
+HM3D) and high-fidelity Gaussian-splatting environments (Habitat-GS and
+Interior-GS). Scene-specific candidate sets and navigable viewpoints are
+constructed with the same rules, while perception and control configurations
+are held fixed wherever simulator interfaces permit. We report both in-domain
+performance and transfer from the P4D-HSSD training distribution.
+
 
 \paragraph{Real-robot evaluation.}
 \label{sec:real-world-setup}
-We plan paired searches in an indoor office and a managed outdoor site,
-using the same primary robot where feasible. Each site includes eight targets
-under unchanged, routine-consistent, broken-routine, and weak-routine conditions,
-giving 64 paired blocks. Last Seen + Search, Time Frequency, Retrieval + Reasoning,
-and \dragentos{} share causal history, candidates, sensing, and control.
-The proposed budget is three inspections and 360 seconds per run, subject to
-pilot verification. Targets remain stationary and success requires autonomous
-online instance confirmation. Physical measurements are pending;
-\cref{app:real-world} gives the detailed protocol.
+We further evaluate \dragentos{} in a real indoor office--laboratory
+environment using three commercial legged robotic platforms: DEEP Robotics
+LYNX M20, X30, and Lite3. M20 serves as the primary platform for quantitative
+evaluation, while X30 and Lite3 are used to examine whether the same
+predictive-memory and belief-guided search framework transfers across different
+robot platforms. The memory representation, prediction module, belief update,
+and high-level search policy are shared across platforms; only the
+robot-specific perception and low-level navigation interfaces differ. Detailed
+manufacturer-reported platform specifications are provided in the appendix.
+
+The real-world evaluation focuses on budgeted object search under persistent
+indoor changes. Target objects are observed over multiple sessions and may be
+relocated between observations according to either recurring routines or
+routine-breaking changes. At query time, the agent must infer the target's
+current location from stale history, select candidate locations to inspect,
+navigate to them, and update its belief when physical observations contradict
+the initial prediction. Targets remain stationary during each search episode,
+so the evaluation isolates hidden state changes between observations rather
+than target motion during execution.
+
+Compared methods receive the same pre-query history, candidate locations,
+starting condition, perception interface, and platform-specific low-level
+navigation stack. Success requires autonomous online confirmation of the target
+within the search budget; missed detections, navigation failures, timeouts, and
+human interventions count as failures. We report Search SR, First-Go SR,
+travel distance, elapsed time, number of inspected locations, and recovery
+after an incorrect first prediction. Detailed task construction, platform
+specifications, and scoring procedures are provided in
+\cref{app:real-world}.
+```
+
 
 \subsection{Baselines and Ablations}
 \label{sec:baselines}
@@ -105,9 +126,9 @@ Random Forest, GRU, direct Transformer, and the structured continuous-time
 Transformer while keeping memory, candidates, and the agent policy fixed. To
 test whether the system depends on one proprietary controller, we run the same
 typed memory and navigation tools with GPT-family and Qwen-VL-family foundation
-models, plus a third VLM where available. Exact model versions, prompts,
-temperature, tool schemas, and inference budgets will be frozen before test
-evaluation.
+models, plus a third VLM where available. Comparisons require fixed model versions, prompts, temperature, tool schemas,
+and inference budgets; these configuration fields belong to the reproducibility
+record in \cref{app:implementation}.
 
 \subsection{Metrics and Reporting}
 \label{sec:metrics}
