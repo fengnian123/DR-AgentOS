@@ -135,46 +135,56 @@ learnable dynamics rather than matched random transitions.}
 \subsection{Generalization across Simulation Fidelity}
 
 \begin{table}[!htbp]
-\caption{Generalization across conventional mesh-based and high-fidelity
-Gaussian-splatting environments. Methods use released weights or the fixed
+\caption{Generalization across three environment families: Standard Simulation
+Worlds (HM3D and MP3D), Photorealistic Simulation (Habitat-GS and Interior-GS),
+and Evolving Simulation Worlds (HSSD). Methods use released weights or the fixed
 source-domain training split and are evaluated without target-domain
 fine-tuning; SR and SPL use matched task and budget definitions.}
 \label{tab:domains}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.6pt}
-\begin{tabular}{lcccccccc}
+\setlength{\tabcolsep}{2.4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccc}
 \toprule
-& \multicolumn{2}{c}{\textbf{MP3D}} & \multicolumn{2}{c}{\textbf{HM3D}} &
-\multicolumn{2}{c}{\textbf{Habitat-GS}} & \multicolumn{2}{c}{\textbf{Interior-GS}}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+& \multicolumn{4}{c}{\hdr{\textbf{Standard Simulation Worlds}}} &
+\multicolumn{4}{c}{\hdr{\textbf{Photorealistic Simulation}}} &
+\multicolumn{2}{c}{\hdr{\textbf{Evolving Simulation Worlds}}}\\[1mm]
+& \multicolumn{2}{c}{\textbf{HM3D}} & \multicolumn{2}{c}{\textbf{MP3D}} &
+\multicolumn{2}{c}{\textbf{Habitat-GS}} & \multicolumn{2}{c}{\textbf{Interior-GS}} &
+\multicolumn{2}{c}{\textbf{HSSD}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+\cmidrule(lr){8-9}\cmidrule(lr){10-11}
 \textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
-\textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
+\textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
+\textbf{SR} & \textbf{SPL}\\
 \midrule
-\rowcolor{tblnav}\multicolumn{9}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
-VLFM & \na & \na & \na & \na & \na & \na & \na & \na\\
-ZSON & \na & \na & \na & \na & \na & \na & \na & \na\\
-LagMemo GLUE & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblnav}\multicolumn{11}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
+VLFM & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+ZSON & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
-\rowcolor{tblmemory}\multicolumn{9}{c}{\emph{Structured spatio-temporal memory}}\\
-HOV-SG & \na & \na & \na & \na & \na & \na & \na & \na\\
-DynaMem & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Structured spatio-temporal memory}}\\
+HOV-SG & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+DynaMem & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
-\rowcolor{tblpredict}\multicolumn{9}{c}{\emph{Predictive world and state modeling}}\\
-FlowMaps & \na & \na & \na & \na & \na & \na & \na & \na\\
-Perpetua & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblpredict}\multicolumn{11}{c}{\emph{Predictive world and state modeling}}\\
+FlowMaps & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+Perpetua & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
 \rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na}\\
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
-The principal comparison is not only average SR but the degradation from
-mesh-based to high-fidelity rendering. We will additionally break failures into
-belief, grounding, detection, and navigation errors to determine whether domain
-shift affects temporal prediction or its visual evidence channel.
+The principal comparison is not only average SR but the degradation across
+standard simulation, photorealistic rendering, and explicitly evolving worlds.
+We will additionally break failures into belief, grounding, detection, and
+navigation errors to determine whether temporal change and visual domain shift
+affect the predictive belief or its evidence channel.
 
 \FloatBarrier
 

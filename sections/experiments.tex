@@ -31,12 +31,14 @@ external numbers are separated from reproduced results.
 
 \paragraph{Cross-domain simulation.}
 To distinguish temporal reasoning from renderer- or dataset-specific fitting,
-we evaluate the same system in conventional mesh-based environments (MP3D and
-HM3D) and high-fidelity Gaussian-splatting environments (Habitat-GS and
-Interior-GS). Scene-specific candidate sets and navigable viewpoints are
-constructed with the same rules, while perception and control configurations
-are held fixed wherever simulator interfaces permit. We report both in-domain
-performance and transfer from the P4D-HSSD training distribution.
+we evaluate the same system across three environment families aligned with
+\cref{tab:domains}: \emph{Standard Simulation Worlds} (HM3D and MP3D),
+\emph{Photorealistic Simulation} (Habitat-GS and Interior-GS), and
+\emph{Evolving Simulation Worlds} (HSSD). Scene-specific candidate sets and
+navigable viewpoints are constructed with the same rules, while perception and
+control configurations are held fixed wherever simulator interfaces permit. We
+report both in-domain performance and transfer from the P4D-HSSD training
+distribution.
 
 \paragraph{Real-robot evaluation.}
 The physical evaluation instantiates hidden relocation, routine return,
