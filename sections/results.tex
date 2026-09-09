@@ -110,25 +110,25 @@ beyond Top-1 is useful. Recovery SR is conditioned on an incorrect first
 prediction so that easy first-attempt successes do not mask poor evidence use.
 We will report paired episode-level differences and confidence intervals.
 
-\begin{figure}[!htbp]
-\centering
-\IfFileExists{figures/temporal_analysis.pdf}{
-    \includegraphics[width=\textwidth]{figures/temporal_analysis.pdf}
-}{
-    \fbox{\begin{minipage}[c][31mm][c]{0.94\textwidth}
-    \centering\small
-    \textbf{Planned three-panel temporal analysis}\\[2mm]
-    (a) SR vs. memory staleness \qquad
-    (b) search SR vs. inspection budget \qquad
-    (c) paired routine gain by mobility regime
-    \end{minipage}}
-}
-\caption{Temporal and decision-level analysis. The final figure will show how
-performance changes as memory becomes stale, whether a calibrated belief improves
-the success--cost frontier, and whether gains concentrate in worlds with
-learnable dynamics rather than matched random transitions.}
-\label{fig:temporal_analysis}
-\end{figure}
+% \begin{figure}[!htbp]
+% \centering
+% \IfFileExists{figures/temporal_analysis.pdf}{
+%     \includegraphics[width=\textwidth]{figures/temporal_analysis.pdf}
+% }{
+%     \fbox{\begin{minipage}[c][31mm][c]{0.94\textwidth}
+%     \centering\small
+%     \textbf{Planned three-panel temporal analysis}\\[2mm]
+%     (a) SR vs. memory staleness \qquad
+%     (b) search SR vs. inspection budget \qquad
+%     (c) paired routine gain by mobility regime
+%     \end{minipage}}
+% }
+% \caption{Temporal and decision-level analysis. The final figure will show how
+% performance changes as memory becomes stale, whether a calibrated belief improves
+% the success--cost frontier, and whether gains concentrate in worlds with
+% learnable dynamics rather than matched random transitions.}
+% \label{fig:temporal_analysis}
+% \end{figure}
 
 \FloatBarrier
 
@@ -274,54 +274,68 @@ benefit of predictive memory persists across model families.
 
 \FloatBarrier
 
-\subsection{Real-Robot Validation}
+\subsection{Real-World Experiments}
+\label{sec:real-world-results}
+
+The physical study tests whether predictive memory improves indoor and outdoor
+search and supports recovery after an unsuccessful inspection. Measurements
+are pending; \cref{tab:robot,fig:robot_case} reserve the quantitative comparison
+and physical case traces.
 
 \begin{table}[!htbp]
-\caption{Real-robot tasks. Each scenario is repeated across targets and start
-poses; failures are counted rather than discarded.}
-\label{tab:robot}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabularx}{\textwidth}{lXcccccc}
+\centering\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{Indoor/outdoor physical search, pending acquisition. Each method has
+32 planned blocks per environment; $n$ will count actual attempts. Dashes denote
+unmeasured values. SR and first-inspection hit require online correct-instance
+confirmation; distance and time include failed attempts.}
+\label{tab:robot}\label{tab:real-world-main}
+\begin{tabular}{llrrrrr}
 \toprule
-\textbf{Environment} & \textbf{Hidden-change scenario} & \textbf{Trials} &
-\textbf{SR} & \textbf{Time} & \textbf{Distance} & \textbf{Inspect.} &
-\textbf{Replans}\\
+Environment & Method & $n$ & SR (\%) & First hit (\%) & Distance (m) & Time (s)\\
 \midrule
-Indoor household & Target relocated between visits & \na & \na & \na & \na & \na & \na\\
-Indoor household & Routine return to habitual state & \na & \na & \na & \na & \na & \na\\
-Indoor public space & Ambiguous multi-candidate search & \na & \na & \na & \na & \na & \na\\
-Outdoor deployment & Stale route and evidence recovery & \na & \na & \na & \na & \na & \na\\
+Indoor & Last Seen + Search & \na & \na & \na & \na & \na\\
+ & Time Frequency & \na & \na & \na & \na & \na\\
+ & Retrieval + Reasoning & \na & \na & \na & \na & \na\\
+ & \dragentos{} & \na & \na & \na & \na & \na\\
+\midrule
+Outdoor & Last Seen + Search & \na & \na & \na & \na & \na\\
+ & Time Frequency & \na & \na & \na & \na & \na\\
+ & Retrieval + Reasoning & \na & \na & \na & \na & \na\\
+ & \dragentos{} & \na & \na & \na & \na & \na\\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \end{table}
+
+\paragraph{Prediction and search.}
+We will report \dragentos{} minus Time Frequency in paired SR within each
+environment and their equal-weight average. First-inspection hit connects the
+initial decision to successful execution, while all-attempt costs expose the
+travel and observation burden. The four movement conditions distinguish useful
+routines from unchanged states and exceptions. History and action-selection
+ablations, failure-penalized time, and clustered uncertainty estimates are
+specified in \cref{app:real-world}.
 
 \begin{figure}[!htbp]
 \centering
-\IfFileExists{figures/real_robot_case.pdf}{
-    \includegraphics[width=\textwidth]{figures/real_robot_case.pdf}
-}{
-    \fbox{\begin{minipage}[c][34mm][c]{0.94\textwidth}
-    \centering\small
-    \textbf{Planned real-robot case study}\\[2mm]
-    Row 1: stale memory and rejected route \quad
-    Row 2: predictive belief and selected inspection\\
-    Row 3: onboard evidence, posterior update, and successful replanning
-    \end{minipage}}
-}
-\caption{Qualitative real-robot evidence loop. The final figure will align the
-timestamped memory, predicted candidate probabilities, executed route, onboard
-observation, posterior change, and replanned trajectory for the same episode.}
+\fbox{\begin{minipage}[c][22mm][c]{0.94\textwidth}
+\centering\small
+\textbf{Physical case traces: pending acquisition}\\[2mm]
+Indoor: history and belief $\rightarrow$ route and observation
+$\rightarrow$ update and next action\\[1mm]
+Outdoor: history and belief $\rightarrow$ route and observation
+$\rightarrow$ update and next action
+\end{minipage}}
+\caption{Reserved layout for indoor/outdoor physical cases, not recorded results.
+Each row will align timestamped prior evidence, an executed inspection, and the
+subsequent decision; images and trajectories await acquisition.}
 \label{fig:robot_case}
 \end{figure}
 
-The physical study will report both aggregate outcomes and representative causal
-traces. A convincing case must show what the agent knew before acting, why it
-selected a route, whether the target should have been visible, how the posterior
-changed, and which action followed. Failures will be categorized as entity
-association, missing candidate, stale-state prediction, overconfident relocation,
-insufficient visibility, detector error, localization drift, unreachable
-viewpoint, or replanning error.
-
+\paragraph{Recovery and failure.}
+Physical traces will distinguish a well-observed absence from an insufficient
+view and show whether the next action resolves the initial error. Recovery
+rates retain method-specific first-wrong denominators; navigation failures,
+missed detections, timeouts, and human interventions remain in the reported
+attempts. Conclusions will be restricted to the measured site--platform settings.
 \FloatBarrier
