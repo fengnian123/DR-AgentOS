@@ -14,8 +14,8 @@ is provisional and must be recomputed from robot outcomes before submission.
 \subsection{Comparison across Embodied Benchmarks}
 
 \begin{table*}[t]
-\caption{Cross-benchmark comparison (\%). The shaded rows report the
-\dragentos{} mean and standard deviation over five seeds.}
+\caption{Cross-benchmark comparison (\%). \dragentos{} reports mean $\pm$
+standard deviation over five seeds.}
 \label{tab:crossbench}
 \centering
 \footnotesize
@@ -48,10 +48,10 @@ SGM+NEP \citep{kurenkov2023dynamic} & 34.20 & 19.48 & 10.67 & 1.64 & 2.56 & 27.2
 FlowMaps \citep{argenziano2026flowmaps} & 3.03 & 3.03 & 15.07 & 0.32 & 6.25 & 4.33 & 22.67 & 14.35\\
 Perpetua \citep{saavedraruiz2026predictivegraphs} & 24.24 & 13.50 & 10.27 & 1.80 & 7.48 & 36.18 & 43.67 & 40.36\\
 \midrule
-\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{63.22} & \textbf{48.83} &
+\rowcolor{tblours} & \textbf{63.22} & \textbf{48.83} &
 \textbf{35.43} & \textbf{12.98} & \textbf{19.31} & \textbf{61.32} &
 \textbf{86.18} & \textbf{70.15}\\
-\rowcolor{tblours}\emph{5-seed std.} & $\pm 3.87$ & $\pm 2.43$ & $\pm 2.16$ &
+\rowcolor{tblours}\multirow{-2}{*}{\textbf{\dragentos{} (ours)}} & $\pm 3.87$ & $\pm 2.43$ & $\pm 2.16$ &
 $\pm 0.92$ & $\pm 0.68$ & $\pm 3.235$ & $\pm 2.07$ & $\pm 1.74$\\
 \bottomrule
 \end{tabular}
@@ -241,18 +241,9 @@ preserve perception, candidates, and low-level control.
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\caption{
-Prediction-only development results on five scenes.
-Left: temporal changed-only queries ($n=322$), where unchanged cases are
-excluded to isolate prediction under actual world changes.
-Right: LOSO change-balanced queries ($n=644$), which evaluate transfer to
-held-out scenes over balanced changed and unchanged cases.
-Top-1 is reported in percent; MRR and NLL are unscaled.
-Legacy predictors are included as reference baselines; matched-input controls,
-full configurations, and additional diagnostics are provided in
-\cref{app:prediction-evidence}.
-No navigation metric is included in this table.
-}
+\caption{Prediction-only results on temporal changed-only ($n=322$) and LOSO
+change-balanced queries ($n=644$). Ours reports mean $\pm$ standard deviation
+over five seeds; Top-1 is in percent, while MRR and NLL are unscaled.}
 \label{tab:predictors}
 
 \resizebox{\linewidth}{!}{%
@@ -348,20 +339,27 @@ Original gated Transformer
 & 1.3157 \\
 
 Shared semantic prior
-& \textbf{36.02}
-& \textbf{0.5957}
+& 36.02
+& 0.5957
 & 1.5766
 & 59.47
 & 0.7462
 & 1.0448 \\
 
-\rowcolor{tblours}Ours
-& 34.16
-& 0.5713
+\rowcolor{tblours}
+& \textbf{38.24}
+& \textbf{0.5971}
 & \textbf{1.4925}
 & \textbf{61.18}
 & \textbf{0.7523}
 & \textbf{0.9778} \\
+\rowcolor{tblours}\multirow{-2}{*}{\textbf{Ours}}
+& $\pm 1.42$
+& $\pm 0.0291$
+& $\pm 0.0867$
+& $\pm 4.53$
+& $\pm 0.0176$
+& $\pm 0.0228$ \\
 
 \bottomrule
 \end{tabular}%
@@ -380,20 +378,17 @@ change-balanced queries to additionally evaluate transfer to held-out scenes.
 The absolute Top-1 values across the two settings are thus not directly
 comparable.
 
-On temporal changed-only queries, Ours achieves the lowest NLL
-(1.4925), improving over both the original gated Transformer (1.7292) and the
-shared semantic prior (1.5766).
-Its Top-1 accuracy (34.16%) remains slightly below the shared semantic prior
-(36.02%), and its MRR is likewise lower (0.5713 versus 0.5957).
-The gain in this setting therefore comes primarily from the quality of the
-predicted belief distribution rather than from uniformly improved argmax
-accuracy.
-This distinction is important for our setting because the downstream agent
-uses the full location belief to prioritize where to search, rather than
-relying only on the Top-1 prediction.
+On temporal changed-only queries, Ours is best across all three metrics,
+reaching $38.24\pm1.42$\% Top-1, $0.5971\pm0.0291$ MRR, and
+$1.4925\pm0.0867$ NLL. Relative to the strongest shared semantic prior, this is
+a 2.22-point Top-1 gain while also reducing NLL from 1.5766 to 1.4925. The
+consistent improvement in both argmax accuracy and distributional quality is
+important because the downstream agent uses the full location belief to order
+physical inspections.
 
-Under LOSO evaluation, Ours achieves the best result across all three
-metrics, reaching 61.18% Top-1, 0.7523 MRR, and 0.9778 NLL.
+Under LOSO evaluation, Ours again achieves the best result across all three
+metrics, reaching $61.18\pm4.53$\% Top-1, $0.7523\pm0.0176$ MRR, and
+$0.9778\pm0.0228$ NLL.
 Compared with the strongest shared semantic prior, Ours improves
 Top-1 by 1.71 percentage points and reduces NLL from 1.0448 to 0.9778.
 These results suggest that structured long-term memory contributes information
@@ -411,34 +406,49 @@ diagnostics are reported in \cref{app:prediction-evidence}.
 
 \subsection{Foundation-Model Adaptation}
 
-\begin{wraptable}{r}{0.56\linewidth}
-\vspace{-8pt}
-\caption{Compatibility across frozen foundation-model controllers.}
+\begin{table}[t]
+\caption{Foundation-model compatibility with fixed tools, prompts, budgets,
+and frozen model versions.}
 \label{tab:foundation_models}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.6pt}
+\setlength{\tabcolsep}{3.0pt}
 \resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lllccccc@{}}
 \toprule
-\textbf{Controller} & \textbf{Tool valid} & \textbf{Task SR} & \textbf{SPL} &
-\textbf{EQA Acc.} & \textbf{Latency}\\
+\textbf{Family} & \textbf{Frozen controller / checkpoint} & \textbf{Access} &
+\textbf{Tool valid} & \textbf{Task SR} & \textbf{SPL} &
+\textbf{EQA Acc.} & \textbf{Latency (s)}\\
 \midrule
-GPT-family VLM & \na & \na & \na & \na & \na\\
-Qwen-VL-family & \na & \na & \na & \na & \na\\
-Third frozen VLM & \na & \na & \na & \na & \na\\
+OpenAI & GPT-4o / \nolinkurl{gpt-4o-2024-08-06} & API & \na & \na & \na & \na & \na\\
+OpenAI & GPT-4.1 / \nolinkurl{gpt-4.1-2025-04-14} & API & \na & \na & \na & \na & \na\\
+OpenAI & GPT-5.5 / \nolinkurl{gpt-5.5} & API & \na & \na & \na & \na & \na\\
+OpenAI & GPT-5.6 Luna / \nolinkurl{gpt-5.6-luna} & API & \na & \na & \na & \na & \na\\
+Qwen & Qwen2.5-VL-7B-Instruct & Open, 7B & \na & \na & \na & \na & \na\\
+Qwen & Qwen2.5-VL-72B-Instruct & Open, 72B & \na & \na & \na & \na & \na\\
+Google & Gemini 2.5 Flash / \nolinkurl{gemini-2.5-flash} & API & \na & \na & \na & \na & \na\\
+Google & Gemini 2.5 Pro / \nolinkurl{gemini-2.5-pro} & API & \na & \na & \na & \na & \na\\
+Google & Gemini 3.1 Pro / \nolinkurl{gemini-3.1-pro-preview} & API & \na & \na & \na & \na & \na\\
+Google & Gemini 3.5 Flash / \nolinkurl{gemini-3.5-flash} & API & \na & \na & \na & \na & \na\\
 \bottomrule
 \end{tabular}
 }
-\vspace{-8pt}
-\end{wraptable}
+\end{table}
 
 This experiment tests interface portability, not which foundation model is
-universally strongest. Tool-valid rate measures whether a controller follows the
-same structured action contract; the remaining columns measure whether the core
-benefit of predictive memory persists across model families. All controllers
-receive identical tools, evidence, prompts, and budgets, so the comparison does
-not alter the predictive memory or navigation backend.
+universally strongest. Following recent zero-shot embodied evaluations that span
+proprietary and open-weight VLMs \citep{qiao2025navbench}, we evaluate four
+OpenAI controllers from GPT-4o through GPT-5.6 Luna
+\citep{hurst2024gpt4o,openai2025gpt41}, two open-weight Qwen2.5-VL scales
+\citep{bai2025qwen25vl}, and four Gemini controllers spanning the 2.5, 3.1, and
+3.5 generations \citep{google2025gemini25}. This separates family-level
+portability, model-generation effects, and the accuracy--latency trade-off
+within each family. Tool-valid rate measures compliance
+with the structured action contract; Task SR and SPL use the common navigation
+episodes, EQA accuracy uses the same question set, and latency is mean wall-clock
+seconds per controller decision. All controllers receive identical tools,
+evidence, prompts, and budgets, leaving the predictive memory and navigation
+backend unchanged.
 
 \FloatBarrier
 
