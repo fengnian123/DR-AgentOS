@@ -14,9 +14,8 @@ is provisional and must be recomputed from robot outcomes before submission.
 \subsection{Comparison across Embodied Benchmarks}
 
 \begin{table*}[t]
-\caption{Cross-benchmark comparison (\%). FindingDory reports high-level
-results, GOAT-Bench includes Repeat-SR, and \pfdbench{} separates first-go from
-eventual search.}
+\caption{Cross-benchmark comparison (\%). The shaded rows report the
+\dragentos{} mean and standard deviation over five seeds.}
 \label{tab:crossbench}
 \centering
 \footnotesize
@@ -52,6 +51,8 @@ Perpetua \citep{saavedraruiz2026predictivegraphs} & 24.24 & 13.50 & 10.27 & 1.80
 \rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{63.22} & \textbf{48.83} &
 \textbf{35.43} & \textbf{12.98} & \textbf{19.31} & \textbf{61.32} &
 \textbf{86.18} & \textbf{70.15}\\
+\rowcolor{tblours}\emph{5-seed std.} & $\pm 3.87$ & $\pm 2.43$ & $\pm 2.16$ &
+$\pm 0.92$ & $\pm 0.68$ & $\pm 3.235$ & $\pm 2.07$ & $\pm 1.74$\\
 \bottomrule
 \end{tabular}
 }
@@ -354,7 +355,7 @@ Shared semantic prior
 & 0.7462
 & 1.0448 \\
 
-Ours
+\rowcolor{tblours}Ours
 & 34.16
 & 0.5713
 & \textbf{1.4925}
