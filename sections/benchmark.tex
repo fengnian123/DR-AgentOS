@@ -14,15 +14,6 @@ and embodied question answering.
 
 \subsection{Design Principles and Scope}
 
-\begin{wrapfigure}{r}{0.58\textwidth}
-    \centering
-    \vspace{-8pt}
-    \includegraphics[width=\linewidth]{figures/P4D_Benchmark.pdf}
-    \caption{Overview of \pfdbench{} evaluation protocols.}
-    \label{fig:p4dbench}
-    \vspace{-8pt}
-\end{wrapfigure}
-
 \pfdbench{} is designed around four principles. First, \emph{temporal
 continuity}: examples are sampled from persistent scene histories rather than
 independent object placements. Second, \emph{causal observability}: the public
@@ -33,6 +24,14 @@ viewpoints. Fourth, \emph{controlled dynamics}: paired worlds keep the scene,
 target, query, and marginal placement factors fixed while varying the hidden
 transition mechanism. These controls separate predictive reasoning from scene
 frequency, route geometry, and privileged simulator access.
+\begin{wrapfigure}{r}{0.58\textwidth}
+    \centering
+    \vspace{-8pt}
+    \includegraphics[width=\linewidth]{figures/P4D_Benchmark.pdf}
+    \caption{Overview of \pfdbench{} evaluation protocols.}
+    \label{fig:p4dbench}
+    \vspace{-8pt}
+\end{wrapfigure}
 
 The task pool comprises current-state prediction (16\%), object navigation
 (27\%), vision-and-language navigation (29\%), and embodied question answering
@@ -97,7 +96,6 @@ Irregular & Affordance sampling & Affordance only & Uncertainty control\\
 \bottomrule
 \end{tabularx}
 \end{table}
-
 For each compatible history and query, we construct paired \emph{static},
 \emph{routine}, and \emph{random} worlds. Static preserves the last supported
 state; routine samples from the household's frozen transition process; and random
@@ -163,7 +161,6 @@ N5  & Cross-scene generalization & Any protocol above & Held-out SR\\
 \bottomrule
 \end{tabularx}
 \end{table}
-
 The EQA suite queries existence, location, temporal order, activity association,
 count, comparison, and compositional relations over the same causal memories.
 Answers are evaluated against a normalized ontology, and questions requiring
