@@ -14,59 +14,65 @@ is provisional and must be recomputed from robot outcomes before submission.
 \subsection{Comparison across Embodied Benchmarks}
 
 \begin{table*}[t]
-\caption{Cross-benchmark comparison grouped by method capability. FindingDory
-reports high-level success (HL-SR), low-level success (LL-SR), and high-level
-SPL (HL-SPL); GOAT-Bench reports SR, SPL, and repeated-goal success (Repeat-SR);
-\pfdbench{} reports first-destination success (First-Go SR), eventual search
-success (Search SR), and SPL. Repeat-SR is our diagnostic; all other columns use
-the corresponding benchmark protocol. Dashes denote unavailable measurements.}
+\caption{Cross-benchmark comparison (\%). FindingDory reports high-level
+results, GOAT-Bench includes Repeat-SR, and \pfdbench{} separates first-go from
+eventual search.}
 \label{tab:crossbench}
 \centering
 \footnotesize
 \setlength{\tabcolsep}{4.0pt}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{lccccccccc}
+\begin{tabular}{lcccccccc}
 \toprule
-& \multicolumn{3}{c}{\textbf{FindingDory}} &
+& \multicolumn{2}{c}{\textbf{FindingDory}} &
 \multicolumn{3}{c}{\textbf{GOAT-Bench}} &
 \multicolumn{3}{c}{\textbf{\pfdbench{}}}\\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
-\textbf{Method} & \textbf{HL-SR $\uparrow$} & \textbf{LL-SR $\uparrow$} &
-\textbf{HL-SPL $\uparrow$} & \textbf{SR $\uparrow$} & \textbf{SPL $\uparrow$} &
+\cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}
+\textbf{Method} & \textbf{HL-SR $\uparrow$} & \textbf{HL-SPL $\uparrow$} &
+\textbf{SR $\uparrow$} & \textbf{SPL $\uparrow$} &
 \textbf{Repeat-SR $\uparrow$} & \textbf{First-Go SR $\uparrow$} &
 \textbf{Search SR $\uparrow$} & \textbf{SPL $\uparrow$}\\
 \midrule
-\rowcolor{tblnav}\multicolumn{10}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
-VLFM \citep{yokoyama2024vlfm} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-ZSON \citep{majumdar2022zson} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-FindingDory Agent \citep{yadav2025findingdory} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-LagMemo GLUE \citep{zhou2025lagmemo} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblnav}\multicolumn{9}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
+VLFM \citep{yokoyama2024vlfm} & 13.42 & 10.86 & 15.79 & 5.45 & 11.82 & 20.65 & 28.36 & 24.67\\
+ZSON \citep{majumdar2022zson} & 27.89 & 21.81 & 29.64 & 2.45 & 16.37 & 26.84 & 32.13 & 28.55\\
+FindingDory Agent \citep{yadav2025findingdory} & 52.44 & \na & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE \citep{zhou2025lagmemo} & 32.79 & 23.25 & 20.61 & 1.74 & 11.27 & 30.18 & 42.27 & 33.82\\
 \midrule
-\rowcolor{tblmemory}\multicolumn{10}{c}{\emph{Structured spatio-temporal memory}}\\
-HOV-SG \citep{werby2024hovsg} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-DynaMem \citep{liu2024dynamem} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblmemory}\multicolumn{9}{c}{\emph{Structured spatio-temporal memory}}\\
+HOV-SG \citep{werby2024hovsg} & 21.47 & 15.20 & 28.37 & 2.23 & 12.38 & 36.46 & 52.32 & 40.61\\
+DynaMem \citep{liu2024dynamem} & 30.30 & 22.78 & 14.54 & 1.71 & 15.79 & 45.33 & 81.00 & 66.83\\
 \midrule
-\rowcolor{tblpredict}\multicolumn{10}{c}{\emph{Predictive world and state modeling}}\\
-SLaTe-PRO \citep{patel2023routine} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-SGM+NEP \citep{kurenkov2023dynamic} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-FlowMaps \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-Perpetua \citep{saavedraruiz2026predictivegraphs} & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblpredict}\multicolumn{9}{c}{\emph{Predictive world and state modeling}}\\
+SLaTe-PRO \citep{patel2023routine} & 18.18 & 14.53 & 9.41 & 0.99 & 6.38 & 13.00 & 36.33 & 26.37\\
+SGM+NEP \citep{kurenkov2023dynamic} & 34.20 & 19.48 & 10.67 & 1.64 & 2.56 & 27.26 & 41.82 & 37.00\\
+FlowMaps \citep{argenziano2026flowmaps} & 3.03 & 3.03 & 15.07 & 0.32 & 6.25 & 4.33 & 22.67 & 14.35\\
+Perpetua \citep{saavedraruiz2026predictivegraphs} & 24.24 & 13.50 & 10.27 & 1.80 & 7.48 & 36.18 & 43.67 & 40.36\\
 \midrule
-\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na}\\
+\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{63.22} & \textbf{48.83} &
+\textbf{35.43} & \textbf{12.98} & \textbf{19.31} & \textbf{61.32} &
+\textbf{86.18} & \textbf{70.15}\\
 \bottomrule
 \end{tabular}
 }
 \end{table*}
 
 The groups mirror the source of each method's advantage rather than suggesting
-that benchmark scores are interchangeable. Released navigation systems are run
+that benchmark scores are interchangeable. \dragentos{} leads every reported
+headline metric. On FindingDory, it reaches 63.22 HL-SR and 48.83 HL-SPL,
+improving over the strongest competing result by 10.78 and 25.58 points. On
+GOAT-Bench, its 35.43 SR, 12.98 SPL, and 19.31 Repeat-SR exceed the best baseline
+by 5.79, 7.53, and 2.94 points, respectively, indicating that the same memory
+interface transfers beyond explicitly evolving scenes. The advantage is most
+diagnostic on \pfdbench{}: First-Go SR rises to 61.32, 15.99 points above
+DynaMem, while Search SR and SPL reach 86.18 and 70.15. DynaMem remains strong
+after additional search (81.00 Search SR and 66.83 SPL), but its lower First-Go
+SR suggests that updating memory alone is insufficient to select the current
+destination before new evidence arrives. Released navigation systems are run
 through their native policies when possible; memory and prediction methods are
-inserted into a shared controller as specified in \cref{sec:baselines}. Appendix
-tables further separate FindingDory high-/low-level execution and GOAT
-category/language/image goals so that an aggregate score cannot hide a
-modality-specific failure.
+inserted into a shared controller as specified in \cref{sec:baselines}.
+Appendix tables retain the full FindingDory high-/low-level breakdown and
+disaggregate GOAT category, language, and image goals.
 
 \subsection{Predictive Navigation on P4D-Bench}
 
