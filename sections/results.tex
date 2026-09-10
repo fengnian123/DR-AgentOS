@@ -75,9 +75,8 @@ The relevant estimands are paired episode-level differences with confidence
 intervals that retain the pairing.
 
 \begin{table}[!htbp]
-\caption{Main results on routine-world N1--N3 episodes. All methods share
-perception, candidates, inspection viewpoints, and the low-level navigator.
-Lower is better for inspections and distance.}
+\caption{P4D-Bench navigation results on routine-world N1--N3 episodes;
+lower is better for inspections and distance.}
 \label{tab:mainnav}
 \centering
 \scriptsize
@@ -123,10 +122,8 @@ cost.
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/P4D_CaseStudy.pdf}
-    \caption{P4D-Bench case study from historical observation to
-    belief-guided navigation. Predictive search reaches the activity-induced
-    current state in one inspection, while last-seen and nearest-first search
-    follow less efficient candidate orders.}
+    \caption{P4D-Bench case study comparing predictive, last-seen, and
+    nearest-first search.}
     \label{fig:p4d_case_study}
 \end{figure}
 
@@ -143,58 +140,64 @@ measurements and are not inferred from aggregate SR.
 \subsection{Generalization across Simulation Fidelity}
 
 \begin{table}[!htbp]
-\caption{Generalization across conventional mesh-based and high-fidelity
-Gaussian-splatting environments. Methods use released weights or the fixed
-source-domain training split and are evaluated without target-domain
-fine-tuning; SR and SPL use matched task and budget definitions.}
+\caption{Generalization across standard, photorealistic, and evolving simulation worlds.}
 \label{tab:domains}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.6pt}
-\begin{tabular}{lcccccccc}
+\setlength{\tabcolsep}{2.2pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccccccccc}
 \toprule
+& \multicolumn{4}{c}{\hdr{\textbf{Standard Simulation Worlds}}} &
+\multicolumn{4}{c}{\hdr{\textbf{Photorealistic Simulation}}} &
+\multicolumn{2}{c}{\hdr{\textbf{Evolving Simulation Worlds}}}\\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}\cmidrule(lr){10-11}
 & \multicolumn{2}{c}{\textbf{MP3D}} & \multicolumn{2}{c}{\textbf{HM3D}} &
-\multicolumn{2}{c}{\textbf{Habitat-GS}} & \multicolumn{2}{c}{\textbf{Interior-GS}}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+\multicolumn{2}{c}{\textbf{Habitat-GS}} & \multicolumn{2}{c}{\textbf{Interior-GS}} &
+\multicolumn{2}{c}{\textbf{HSSD}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
 \textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
-\textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
+\textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
 \midrule
-\rowcolor{tblnav}\multicolumn{9}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
-VLFM & \na & \na & \na & \na & \na & \na & \na & \na\\
-ZSON & \na & \na & \na & \na & \na & \na & \na & \na\\
-LagMemo GLUE & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblnav}\multicolumn{11}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
+VLFM & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+ZSON & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
-\rowcolor{tblmemory}\multicolumn{9}{c}{\emph{Structured spatio-temporal memory}}\\
-HOV-SG & \na & \na & \na & \na & \na & \na & \na & \na\\
-DynaMem & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Structured spatio-temporal memory}}\\
+HOV-SG & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+DynaMem & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
-\rowcolor{tblpredict}\multicolumn{9}{c}{\emph{Predictive world and state modeling}}\\
-FlowMaps & \na & \na & \na & \na & \na & \na & \na & \na\\
-Perpetua & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblpredict}\multicolumn{11}{c}{\emph{Predictive world and state modeling}}\\
+FlowMaps & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+Perpetua & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
 \rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na}\\
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 The principal comparison is not only average SR but the degradation from
-mesh-based to high-fidelity rendering. A breakdown into belief, grounding, detection, and navigation errors
-distinguishes shifts in temporal prediction from shifts in visual evidence.
+standard mesh-based simulation to photorealistic rendering and evolving HSSD
+worlds. A breakdown into belief, grounding, detection, and navigation errors
+distinguishes temporal-prediction shifts from changes in visual evidence.
 
 \FloatBarrier
 
 \subsection{What Components Produce the Gain?}
 
-\begin{table}[!htbp]
-\caption{Module-level ablation. Prediction metrics test belief quality; agent
-metrics test whether each component changes useful behavior.}
+\begin{wraptable}{r}{0.60\linewidth}
+\vspace{-8pt}
+\caption{Module-level ablation of predictive belief and agent components.}
 \label{tab:module_ablation}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.0pt}
-\begin{tabular}{lccccc}
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
 \toprule
 \textbf{Variant} & \textbf{Top-1} & \textbf{NLL} & \textbf{SR} &
 \textbf{SPL} & \textbf{Inspect.}\\
@@ -209,22 +212,30 @@ w/o Bayesian evidence update & \na & \na & \na & \na & \na\\
 \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
-\end{table}
+}
+\vspace{-8pt}
+\end{wraptable}
 
 The two top-level removals test the paper's central system claims: whether
 prediction adds value beyond retrospective memory, and whether temporally
 versioned evidence adds value beyond the latest observation. The remaining rows
-localize gains within the predictor and agent loop. Joint interpretation of NLL and navigation cost distinguishes improved
-classification from improved decisions.
+localize gains within the predictor and agent loop. Joint interpretation of NLL
+and navigation cost distinguishes improved classification from improved
+decisions. In particular, the no-update and no-visibility variants separate the
+initial prediction from the agent's use of later physical evidence. All removals
+preserve perception, candidates, and low-level control.
 
-\begin{table}[!htbp]
-\caption{Predictor comparison with all non-predictive modules fixed. Runtime is
-measured per target query on the same hardware.}
+\FloatBarrier
+
+\begin{wraptable}{r}{0.59\linewidth}
+\vspace{-8pt}
+\caption{Predictor comparison with the remaining system fixed.}
 \label{tab:predictors}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.4pt}
-\begin{tabular}{lccccc}
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
 \toprule
 \textbf{Predictor} & \textbf{Top-1} & \textbf{NLL} & \textbf{ECE} &
 \textbf{First-Go SR} & \textbf{Latency}\\
@@ -238,20 +249,32 @@ Transformer Direct & \na & \na & \na & \na & \na\\
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
-\end{table}
+}
+\vspace{-8pt}
+\end{wraptable}
+
+\paragraph{Predictor families.}
+\Cref{tab:predictors} compares frequency, Markov, and random-forest predictors
+with recurrent and Transformer alternatives under an identical memory,
+candidate set, planner, and observation budget. Top-1 and NLL measure state
+prediction, ECE tests whether confidence is useful for search, and First-Go SR
+connects prediction to embodied behavior. Latency is measured per query on the
+same hardware. This controlled replacement isolates continuous time and the
+persistence--relocation structure from perception and locomotion.
 
 \FloatBarrier
 
 \subsection{Foundation-Model Adaptation}
 
-\begin{table}[!htbp]
-\caption{Compatibility with different frozen foundation-model controllers. All
-models receive identical typed tools, retrieved evidence, prompts, and budgets.}
+\begin{wraptable}{r}{0.56\linewidth}
+\vspace{-8pt}
+\caption{Compatibility across frozen foundation-model controllers.}
 \label{tab:foundation_models}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{lccccc}
+\setlength{\tabcolsep}{2.6pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
 \toprule
 \textbf{Controller} & \textbf{Tool valid} & \textbf{Task SR} & \textbf{SPL} &
 \textbf{EQA Acc.} & \textbf{Latency}\\
@@ -261,12 +284,16 @@ Qwen-VL-family & \na & \na & \na & \na & \na\\
 Third frozen VLM & \na & \na & \na & \na & \na\\
 \bottomrule
 \end{tabular}
-\end{table}
+}
+\vspace{-8pt}
+\end{wraptable}
 
 This experiment tests interface portability, not which foundation model is
 universally strongest. Tool-valid rate measures whether a controller follows the
 same structured action contract; the remaining columns measure whether the core
-benefit of predictive memory persists across model families.
+benefit of predictive memory persists across model families. All controllers
+receive identical tools, evidence, prompts, and budgets, so the comparison does
+not alter the predictive memory or navigation backend.
 
 \FloatBarrier
 
@@ -280,46 +307,17 @@ experimental planning and manuscript development, not measurements from
 completed physical trials.
 
 \paragraph{Predictive memory improves budgeted real-world search.}
-We compare four methods on the primary LYNX M20 platform using 64 matched
-search blocks per method, equally divided between indoor and outdoor
-environments. Each run allows at most three inspection actions and 360 seconds,
-including inference, navigation, and observation.
-
-For this evaluation, First-Go SR requires successful navigation and autonomous
-target confirmation during the first inspection; it does not count a correct
-location prediction alone as success. Search SR measures confirmation within
-the complete episode budget. Episodes that terminate before the first
-inspection remain failures in both metrics.
-
-As shown in \cref{tab:real-main}, Last Seen + Search succeeds in 17 of 64
-episodes (26.6\%). Time Frequency improves this to 20 of 64 (31.3\%), while
-Retrieval + Reasoning succeeds in 24 of 64 (37.5\%). \dragentos{} completes
-31 of 64 episodes (48.4\%), improving over Retrieval + Reasoning by
-10.9 percentage points.
-
-First-Go SR increases from 26.6\% for Retrieval + Reasoning to 34.4\% for
-\dragentos{}. Thus, part of the overall improvement is already present at
-the first inspection, while subsequent search accounts for additional
-successful episodes. Nevertheless, more than half of the \dragentos{}
-episodes remain unsuccessful under the fixed budget, leaving substantial
-room for improvement in end-to-end reliability.
-
-Mean all-attempt travel distance decreases from 50.3\,m for Retrieval +
-Reasoning to 43.8\,m for \dragentos{}, a reduction of 12.9\%. Mean elapsed
-time decreases from 281\,s to 248\,s, and the number of completed inspections
-decreases from 2.03 to 1.84. Because early termination can also shorten failed
-runs, these cost measures are interpreted jointly with Search SR rather than
-as standalone evidence of search efficiency.
+We compare four methods on the primary LYNX M20 platform using 64 matched search
+blocks per method, equally divided between indoor and outdoor environments.
+Each run permits three inspections and 360 seconds. First-Go SR requires
+autonomous target confirmation at the first inspection; Search SR measures
+confirmation within the full episode budget.
 
 \begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\caption{Illustrative real-world results on LYNX M20
-(synthetic draft data; 64 episodes per method).
-All rates are percentages. Distance, elapsed time, and completed inspections
-are averaged over all attempts, including failures.
-Recovery SR uses the conditional denominator defined in the text.}
+\caption{Primary LYNX M20 search results (synthetic draft data; 64 episodes per method).}
 \label{tab:real-main}
 \begin{tabular}{lrrrrrr}
 \toprule
@@ -344,200 +342,11 @@ Retrieval + Reasoning
 \end{tabular}
 \end{table}
 
-\paragraph{Indoor and outdoor search exhibit different difficulty.}
-\Cref{tab:real-domain} separates the M20 results by environment.
-Indoors, \dragentos{} succeeds in 17 of 32 episodes (53.1\%), compared with
-13 of 32 (40.6\%) for Retrieval + Reasoning. Outdoors, it succeeds in
-14 of 32 episodes (43.8\%), compared with 11 of 32 (34.4\%) for the same
-baseline.
+As shown in \cref{tab:real-main}, \dragentos{} raises Search SR from
+37.5\% for Retrieval + Reasoning to 48.4\% and First-Go SR from 26.6\% to
+34.4\%, while reducing mean travel from 50.3\,m to 43.8\,m. Recovery remains
+limited at 24.3\%, so predictive belief does not eliminate end-to-end failures.
+Indoor/outdoor, temporal-condition, recovery, and cross-platform breakdowns are
+reported in \cref{app:real-world}.
 
-The improvement is therefore present in both settings, but the outdoor
-evaluation remains more difficult in this configuration. Outdoor runs also
-incur longer travel distances: for \dragentos{}, mean distance is 65.2\,m
-outdoors and 22.4\,m indoors. These differences are consistent with the
-larger spatial extent of the outdoor search area, although the aggregate
-results alone do not isolate the contributions of geometry, visibility,
-and target characteristics.
-
-Relative to Retrieval + Reasoning, \dragentos{} improves First-Go SR from
-31.3\% to 40.6\% indoors and from 21.9\% to 28.1\% outdoors. The smaller
-outdoor improvement indicates that a useful predictive prior does not
-eliminate the difficulty of physically reaching and confirming the target.
-
-\begin{table}[t]
-\centering
-\small
-\setlength{\tabcolsep}{5pt}
-\caption{Illustrative M20 results by environment
-(synthetic draft data; 32 episodes per environment and method).
-Success rates are percentages and distances are in meters.}
-\label{tab:real-domain}
-\begin{tabular}{lrrrrrr}
-\toprule
-& \multicolumn{3}{c}{Indoor}
-& \multicolumn{3}{c}{Outdoor} \\
-\cmidrule(lr){2-4}
-\cmidrule(lr){5-7}
-Method &
-First-Go & Search SR & Dist. &
-First-Go & Search SR & Dist. \\
-\midrule
-Last Seen + Search
- & 18.8 & 31.3 & 28.6
- & 15.6 & 21.9 & 83.8 \\
-Time Frequency
- & 25.0 & 34.4 & 27.2
- & 18.8 & 28.1 & 78.6 \\
-Retrieval + Reasoning
- & 31.3 & 40.6 & 25.1
- & 21.9 & 34.4 & 75.5 \\
-\textbf{\dragentos{}}
- & \textbf{40.6} & \textbf{53.1} & \textbf{22.4}
- & \textbf{28.1} & \textbf{43.8} & \textbf{65.2} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{The benefit depends on the temporal structure of the change.}
-\Cref{tab:real-condition} reports Search SR under the four temporal
-conditions, with 16 episodes per condition and method.
-
-When the target remains unchanged, Last Seen + Search achieves the highest
-success rate, 68.8\%, compared with 62.5\% for \dragentos{}. This condition
-exposes an important trade-off: projecting historical observations forward
-does not necessarily improve search when the most recent observation is
-already correct.
-
-Under routine-consistent changes, Time Frequency reaches 50.0\% and
-outperforms Retrieval + Reasoning at 43.8\%. \dragentos{} reaches 68.8\%,
-showing its largest advantage when the history contains recurring changes
-that are informative about the current state.
-
-Performance decreases for all methods as these regularities weaken or
-break. \dragentos{} achieves 37.5\% on weak-routine episodes and 25.0\% on
-broken-routine episodes. Retrieval + Reasoning achieves 25.0\% and 18.8\%,
-respectively. In particular, the broken-routine advantage corresponds to
-only one additional success among 16 episodes and should not be interpreted
-as strong evidence of reliable recovery under arbitrary changes.
-
-Overall, the condition breakdown distinguishes exploiting informative
-temporal structure from solving unpredictable relocations. Predictive
-memory is most useful when historical changes contain a usable signal,
-while routine violations remain challenging under a limited search budget.
-
-\begin{table}[t]
-\centering
-\small
-\setlength{\tabcolsep}{5pt}
-\caption{Illustrative M20 Search SR (\%) by temporal condition
-(synthetic draft data; 16 episodes per condition and method).
-Bold indicates the highest value within each condition.}
-\label{tab:real-condition}
-\begin{tabular}{lrrrr}
-\toprule
-Method &
-Unchanged &
-\makecell{Routine-\\consistent} &
-\makecell{Weak-\\routine} &
-\makecell{Broken-\\routine} \\
-\midrule
-Last Seen + Search
- & \textbf{68.8} & 18.8 & 12.5 & 6.3 \\
-Time Frequency
- & 50.0 & 50.0 & 18.8 & 6.3 \\
-Retrieval + Reasoning
- & 62.5 & 43.8 & 25.0 & 18.8 \\
-\textbf{\dragentos{}}
- & 62.5 & \textbf{68.8} & \textbf{37.5} & \textbf{25.0} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{Online correction recovers some unsuccessful first inspections.}
-Recovery SR is evaluated over episodes that complete a first inspection
-without confirming the target. Episodes terminated before any inspection
-are excluded from this conditional metric but remain failures in the
-overall evaluation.
-
-For \dragentos{}, 22 episodes succeed at the first inspection and five
-terminate before any inspection. Of the remaining 37 episodes, nine
-eventually succeed, yielding a Recovery SR of 24.3\%. The corresponding
-counts are 6/47 for Last Seen + Search, 6/43 for Time Frequency, and 7/41
-for Retrieval + Reasoning.
-
-These results show that later observations and additional search can
-contribute to task completion, but recovery remains limited: most
-unsuccessful first inspections are not resolved within the remaining
-budget. The system therefore cannot rely on repeated search to compensate
-for an inaccurate initial belief.
-
-The conditional recovery sets differ across methods, so these rates are
-descriptive rather than a controlled estimate of the effect of Bayesian
-updating. Isolating that effect requires the matched no-update ablation,
-with the initial belief and execution conditions held fixed. Moreover,
-failure to observe a target is treated as uncertain negative evidence,
-rather than proof that the target is absent.
-
-\paragraph{Cross-platform deployment preserves the direction of the gain.}
-We evaluate Last Seen + Search and \dragentos{} on a preselected
-16-block transfer subset, balanced across indoor and outdoor environments
-and the four temporal conditions. The corresponding M20 runs are drawn
-from the main evaluation rather than counted as additional trials.
-X30 and Lite3 each execute the same subset.
-
-As shown in \cref{tab:real-transfer}, \dragentos{} succeeds in 8 of 16
-episodes on M20 and 7 of 16 on both X30 and Lite3. Last Seen + Search
-succeeds in 4, 4, and 5 episodes, respectively. The direction of the
-improvement is consistent across the three platforms, while the magnitude
-varies.
-
-The memory representation, predictor, belief-update rule, and high-level
-search policy are unchanged across platforms. These results are compatible
-with cross-platform reuse of the predictive-search stack, but the small
-transfer set does not establish equivalent performance across robots.
-Each additional success changes the reported rate by 6.25 percentage
-points, and absolute differences between platforms should therefore be
-interpreted cautiously.
-
-\begin{table}[t]
-\centering
-\small
-\setlength{\tabcolsep}{5pt}
-\caption{Illustrative cross-platform results on the same transfer subset
-(synthetic draft data; 16 episodes per platform and method).
-Rates are percentages. M20 entries are a subset of the main evaluation.
-Distance includes successful and failed attempts.}
-\label{tab:real-transfer}
-\begin{tabular}{llrrr}
-\toprule
-Platform & Method &
-First-Go SR & Search SR & Dist. (m) \\
-\midrule
-\multirow{2}{*}{LYNX M20}
- & Last Seen + Search
- & 18.8 & 25.0 & 55.4 \\
- & \textbf{\dragentos{}}
- & \textbf{37.5} & \textbf{50.0} & \textbf{44.6} \\
-\midrule
-\multirow{2}{*}{X30}
- & Last Seen + Search
- & 18.8 & 25.0 & 54.1 \\
- & \textbf{\dragentos{}}
- & \textbf{31.3} & \textbf{43.8} & \textbf{46.8} \\
-\midrule
-\multirow{2}{*}{Lite3}
- & Last Seen + Search
- & 18.8 & 31.3 & 51.8 \\
- & \textbf{\dragentos{}}
- & \textbf{25.0} & \textbf{43.8} & \textbf{45.9} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Taken together, the evaluation characterizes predictive memory as a useful
-but imperfect search prior. Its strongest benefit appears under recurring
-changes, where historical observations can inform the current state.
-Online observations allow some incorrect or unconfirmed hypotheses to be
-revised, but weak regularity, routine violations, and the finite execution
-budget continue to limit overall success.
-
+\FloatBarrier

@@ -38,10 +38,17 @@ history can be transformed into a useful belief about the present. An
 online-dynamic extension advances the world clock during execution and may
 apply an additional hidden transition outside the camera view.
 
+\Cref{fig:p4dnav_method} presents the complete architecture. Timestamped RGB-D
+experience is consolidated into persistent entity histories, transformed into
+a task-conditioned predictive belief, and exposed to an embodied agent through
+typed memory and action skills. Physical evidence closes the loop through
+belief updating and replanning.
+
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{figures/method.pdf}
-    \caption{Predictive-navigation core of \dragentos{}. A causal 4D memory is propagated to the query time as a structured current-state belief, which the agent uses to plan, inspect, update its evidence, and replan.}
+    \caption{Architecture of \dragentos{}, coupling persistent 4D memory,
+    predictive 4D belief, and an evidence-updating embodied agent.}
     \label{fig:p4dnav_method}
 \end{figure*}
 
@@ -50,20 +57,9 @@ apply an additional hidden transition outside the camera view.
 
 \paragraph{Evidence-grounded 4D memory.}
 The memory represents a persistent 3D semantic scene whose entity states evolve
-over time. For image coordinate $\widetilde{\mathbf u}=[u,v,1]^\top$ with depth
-$D_t(u,v)$, the corresponding world point is
-\begin{equation}
-\mathbf x^w=\operatorname{proj}_3\!\left(
-\mathbf T_{w\leftarrow c,t}
-\begin{bmatrix}D_t(u,v)\mathbf K^{-1}\widetilde{\mathbf u}\\1\end{bmatrix}
-\right),
-\label{eq:backprojection}
-\end{equation}
-where $\mathbf K$ is the camera intrinsic matrix and
-$\mathbf T_{w\leftarrow c,t}$ is the camera-to-world transform. Cross-view
-association consolidates observations using semantic compatibility, 3D overlap,
-temporal consistency, and source confidence. Memory is materialized causally
-from versioned deltas:
+over time. Timestamped RGB-D observations are registered in a shared frame and
+associated across views using semantics, geometry, temporal consistency, and
+source confidence. Memory is materialized causally from versioned deltas:
 \begin{equation}
 \mathcal M_{\leq t}=\operatorname{Materialize}(\Delta\mathcal M_0,\ldots,\Delta\mathcal M_t)
 =(\mathcal G_t,\mathcal V_t,\mathcal B_t),
@@ -71,21 +67,10 @@ from versioned deltas:
 \end{equation}
 where $\mathcal G_t$ stores semantic--spatial relations, $\mathcal V_t$ stores
 time-valid entity versions, and $\mathcal B_t$ stores observation provenance.
-The $m$-th version of entity $o$ is
-\begin{equation}
-h_o^m=([t_{o,s}^m,t_{o,e}^m),s_o^m,c_o^m,f_o^m,\mathcal P_o^m),
-\end{equation}
-containing a validity interval, candidate state, confidence, visual feature, and
-evidence handles. Persistent identity is separated from mutable state: a change
-appends a version without erasing the entity's earlier trajectory, and every
-query-time view excludes evidence after $t_q$.
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/DR-AgentOS.pdf}
-    \caption{4D memory construction. Multimodal observations are registered in a shared frame, consolidated into persistent entities, and retained as temporally versioned states with supporting evidence.}
-    \label{fig:memory}
-\end{figure}
+Persistent identity is separated from mutable state: a change appends a
+time-valid version without erasing earlier states, and every query-time view
+excludes evidence after $t_q$. Projection, association, and entity-version
+details are provided in the appendix.
 
 \paragraph{Target-conditioned history and continuous time.}
 For target $o$, a typed memory query resolves its persistent identity and returns

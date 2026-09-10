@@ -11,6 +11,38 @@ The high-level track exposes
 \end{center}
 with a fixed navigation backend. The low-level track exposes Habitat-style forward, turn, look, and stop actions. The main paper uses the high-level track to isolate predictive state selection; low-level results measure sensitivity to control and perception.
 
+\subsection{Detailed 4D Memory Construction}
+\label{app:memory-details}
+
+\Cref{fig:memory} expands the memory-construction stage summarized in the main
+architecture. For image coordinate
+$\widetilde{\mathbf u}=[u,v,1]^\top$ with depth $D_t(u,v)$, the corresponding
+world point is
+\begin{equation}
+\mathbf x^w=\operatorname{proj}_3\!\left(
+\mathbf T_{w\leftarrow c,t}
+\begin{bmatrix}D_t(u,v)\mathbf K^{-1}\widetilde{\mathbf u}\\1\end{bmatrix}
+\right),
+\label{eq:backprojection}
+\end{equation}
+where $\mathbf K$ is the camera intrinsic matrix and
+$\mathbf T_{w\leftarrow c,t}$ is the camera-to-world transform. Cross-view
+association uses semantic compatibility, 3D overlap, temporal consistency, and
+source confidence. The $m$-th version of entity $o$ is
+\begin{equation}
+h_o^m=([t_{o,s}^m,t_{o,e}^m),s_o^m,c_o^m,f_o^m,\mathcal P_o^m),
+\end{equation}
+containing a validity interval, candidate state, confidence, visual feature, and
+evidence handles. A state change appends a version without erasing the earlier
+trajectory, preserving both causal history and observation provenance.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/DR-AgentOS.pdf}
+    \caption{Evidence-grounded construction of the temporally versioned 4D memory.}
+    \label{fig:memory}
+\end{figure}
+
 \subsection{Episode Validity and Leakage Audit}
 \label{app:audit}
 
@@ -169,6 +201,97 @@ Persistent visual memory may capture people or private spaces, while an incorrec
 \paragraph{AI use.}
 Generative AI tools assisted manuscript editing, LaTeX checks, and local engineering. They did not generate benchmark observations, ground-truth labels, or reported scores. The authors reviewed all assisted material and remain responsible for the content and artifacts.
 
+\subsection{Extended Real-World Analysis}
+\label{app:real-world}
+
+The main paper reports the primary LYNX M20 comparison. Here we disaggregate
+the same synthetic planning placeholders by environment and temporal condition,
+describe recovery after an incorrect first inspection, and report a small
+cross-platform transfer subset. These values must be replaced by measured robot
+outcomes before submission.
+
+\paragraph{Environment breakdown.}
+\Cref{tab:real-domain} separates indoor and outdoor trials. The outdoor setting
+has longer routes and lower success for all methods, while the direction of the
+\dragentos{} gain is consistent across both environments.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Illustrative M20 results by environment (synthetic draft data).}
+\label{tab:real-domain}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{3}{c}{Indoor} & \multicolumn{3}{c}{Outdoor} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Method & First-Go & Search SR & Dist. & First-Go & Search SR & Dist. \\
+\midrule
+Last Seen + Search & 18.8 & 31.3 & 28.6 & 15.6 & 21.9 & 83.8 \\
+Time Frequency & 25.0 & 34.4 & 27.2 & 18.8 & 28.1 & 78.6 \\
+Retrieval + Reasoning & 31.3 & 40.6 & 25.1 & 21.9 & 34.4 & 75.5 \\
+\textbf{\dragentos{}} & \textbf{40.6} & \textbf{53.1} & \textbf{22.4}
+& \textbf{28.1} & \textbf{43.8} & \textbf{65.2} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Temporal-condition breakdown.}
+\Cref{tab:real-condition} shows that predictive memory is most useful when
+recurring changes provide a usable historical signal. Last Seen remains strong
+when nothing changes, whereas all methods degrade as regularity weakens.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Illustrative M20 Search SR (\%) by temporal condition (synthetic draft data).}
+\label{tab:real-condition}
+\begin{tabular}{lrrrr}
+\toprule
+Method & Unchanged & \makecell{Routine-\\consistent} &
+\makecell{Weak-\\routine} & \makecell{Broken-\\routine} \\
+\midrule
+Last Seen + Search & \textbf{68.8} & 18.8 & 12.5 & 6.3 \\
+Time Frequency & 50.0 & 50.0 & 18.8 & 6.3 \\
+Retrieval + Reasoning & 62.5 & 43.8 & 25.0 & 18.8 \\
+\textbf{\dragentos{}} & 62.5 & \textbf{68.8} & \textbf{37.5} & \textbf{25.0} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Recovery and cross-platform transfer.}
+Among the 37 M20 episodes in which \dragentos{} completed an unsuccessful first
+inspection, nine later succeeded, giving the 24.3\% conditional Recovery SR in
+the main table. The matched no-update ablation is required to isolate Bayesian
+updating from additional search. \Cref{tab:real-transfer} further shows the same
+direction of improvement on a 16-block subset executed by all three platforms;
+the small sample does not establish equal performance across robots.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Illustrative cross-platform transfer results (synthetic draft data).}
+\label{tab:real-transfer}
+\begin{tabular}{llrrr}
+\toprule
+Platform & Method & First-Go SR & Search SR & Dist. (m) \\
+\midrule
+\multirow{2}{*}{LYNX M20} & Last Seen + Search & 18.8 & 25.0 & 55.4 \\
+& \textbf{\dragentos{}} & \textbf{37.5} & \textbf{50.0} & \textbf{44.6} \\
+\midrule
+\multirow{2}{*}{X30} & Last Seen + Search & 18.8 & 25.0 & 54.1 \\
+& \textbf{\dragentos{}} & \textbf{31.3} & \textbf{43.8} & \textbf{46.8} \\
+\midrule
+\multirow{2}{*}{Lite3} & Last Seen + Search & 18.8 & 31.3 & 51.8 \\
+& \textbf{\dragentos{}} & \textbf{25.0} & \textbf{43.8} & \textbf{45.9} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+
 \subsection{Real-World Robot Platforms}
 \label{app:robot-platforms}
 
@@ -181,52 +304,25 @@ the executed trials. Platform-specific perception and low-level navigation are
 abstracted behind a common interface, while the AgentOS memory, prediction,
 belief-update, and high-level search components remain unchanged.
 
-\begin{table}[t]
+\begin{table}[H]
 \centering
 \small
-\setlength{\tabcolsep}{5pt}
-\caption{Manufacturer-reported specifications of the real-world robot
-platforms. Values are taken from the official DEEP Robotics product
-documentation \citep{deeprobotics_m20,deeprobotics_x30,deeprobotics_lite3}.
-The Lite3 entry corresponds to the LiDAR configuration.}
+\setlength{\tabcolsep}{8pt}
+\caption{Manufacturer-reported specifications of the three robot platforms.}
 \label{tab:robot-platforms}
-\begin{tabularx}{\linewidth}{l l l l l X}
+\begin{tabular}{lllll}
 \toprule
 Platform &
 Morphology &
 Standing size &
 Mass &
-Endurance / range &
-Perception and navigation \\
+Endurance / range \\
 \midrule
-
-LYNX M20 &
-Wheel-legged &
-$820\times430\times570$ mm &
-$\sim$35 kg &
-3 h / 15 km unloaded &
-$2\times$96-line LiDAR,
-$2\times$ wide-angle cameras;
-autonomous navigation and omnidirectional obstacle avoidance \\
-
-X30 &
-Quadruped &
-$1000\times695\times470$ mm &
-56 kg &
-2.5--4 h / $\geq$10 km &
-Integrated perception and autonomous navigation \\
-
-Lite3 (LiDAR) &
-Quadruped &
-$610\times370\times496$ mm &
-13.5 kg &
-1.5--2 h / 2.7 km &
-Front/rear obstacle stopping,
-visual following, forward obstacle avoidance,
-and autonomous navigation \\
-
+LYNX M20 & Wheel-legged & $820\times430\times570$ mm & $\sim$35 kg & 3 h / 15 km unloaded \\
+X30 & Quadruped & $1000\times695\times470$ mm & 56 kg & 2.5--4 h / $\geq$10 km \\
+Lite3 (LiDAR) & Quadruped & $610\times370\times496$ mm & 13.5 kg & 1.5--2 h / 2.7 km \\
 \bottomrule
-\end{tabularx}
+\end{tabular}
 \end{table}
 
 The reported endurance and range values are manufacturer laboratory
@@ -234,3 +330,6 @@ specifications and may differ from those obtained under the indoor and outdoor
 conditions used in our evaluation. We therefore do not use manufacturer-rated
 mobility or endurance as experimental outcomes. Absolute completion time is
 compared only between methods executed on the same robot platform.
+The M20 uses dual 96-line LiDARs and wide-angle cameras; X30 provides integrated
+perception and autonomous navigation; and the Lite3 LiDAR configuration exposes
+obstacle avoidance and autonomous navigation through its platform interface.
