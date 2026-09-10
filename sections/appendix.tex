@@ -168,3 +168,69 @@ Persistent visual memory may capture people or private spaces, while an incorrec
 
 \paragraph{AI use.}
 Generative AI tools assisted manuscript editing, LaTeX checks, and local engineering. They did not generate benchmark observations, ground-truth labels, or reported scores. The authors reviewed all assisted material and remain responsible for the content and artifacts.
+
+\subsection{Real-World Robot Platforms}
+\label{app:robot-platforms}
+
+We conduct the real-world evaluation using three commercial robotic platforms
+from DEEP Robotics: LYNX M20, X30, and Lite3. Table~\ref{tab:robot-platforms}
+summarizes manufacturer-reported specifications relevant to the physical
+evaluation. These specifications characterize the platforms rather than the
+experimental operating conditions; all quantitative results are measured from
+the executed trials. Platform-specific perception and low-level navigation are
+abstracted behind a common interface, while the AgentOS memory, prediction,
+belief-update, and high-level search components remain unchanged.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Manufacturer-reported specifications of the real-world robot
+platforms. Values are taken from the official DEEP Robotics product
+documentation \citep{deeprobotics_m20,deeprobotics_x30,deeprobotics_lite3}.
+The Lite3 entry corresponds to the LiDAR configuration.}
+\label{tab:robot-platforms}
+\begin{tabularx}{\linewidth}{l l l l l X}
+\toprule
+Platform &
+Morphology &
+Standing size &
+Mass &
+Endurance / range &
+Perception and navigation \\
+\midrule
+
+LYNX M20 &
+Wheel-legged &
+$820\times430\times570$ mm &
+$\sim$35 kg &
+3 h / 15 km unloaded &
+$2\times$96-line LiDAR,
+$2\times$ wide-angle cameras;
+autonomous navigation and omnidirectional obstacle avoidance \\
+
+X30 &
+Quadruped &
+$1000\times695\times470$ mm &
+56 kg &
+2.5--4 h / $\geq$10 km &
+Integrated perception and autonomous navigation \\
+
+Lite3 (LiDAR) &
+Quadruped &
+$610\times370\times496$ mm &
+13.5 kg &
+1.5--2 h / 2.7 km &
+Front/rear obstacle stopping,
+visual following, forward obstacle avoidance,
+and autonomous navigation \\
+
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The reported endurance and range values are manufacturer laboratory
+specifications and may differ from those obtained under the indoor and outdoor
+conditions used in our evaluation. We therefore do not use manufacturer-rated
+mobility or endurance as experimental outcomes. Absolute completion time is
+compared only between methods executed on the same robot platform.

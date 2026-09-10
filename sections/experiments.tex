@@ -39,36 +39,40 @@ are held fixed wherever simulator interfaces permit. We report both in-domain
 performance and transfer from the P4D-HSSD training distribution.
 
 
-\paragraph{Real-robot evaluation.}
-\label{sec:real-world-setup}
-We further evaluate \dragentos{} in a real indoor office--laboratory
-environment using three commercial legged robotic platforms: DEEP Robotics
-LYNX M20, X30, and Lite3. M20 serves as the primary platform for quantitative
-evaluation, while X30 and Lite3 are used to examine whether the same
-predictive-memory and belief-guided search framework transfers across different
-robot platforms. The memory representation, prediction module, belief update,
-and high-level search policy are shared across platforms; only the
-robot-specific perception and low-level navigation interfaces differ. Detailed
-manufacturer-reported platform specifications are provided in the appendix.
 
-The real-world evaluation focuses on budgeted object search under persistent
-indoor changes. Target objects are observed over multiple sessions and may be
-relocated between observations according to either recurring routines or
-routine-breaking changes. At query time, the agent must infer the target's
-current location from stale history, select candidate locations to inspect,
-navigate to them, and update its belief when physical observations contradict
-the initial prediction. Targets remain stationary during each search episode,
-so the evaluation isolates hidden state changes between observations rather
-than target motion during execution.
+\subsection{Real-World Evaluation}
+\label{sec:real-world}
+We further evaluate \dragentos{} on three commercial legged robotic platforms,
+DEEP Robotics LYNX M20, X30, and Lite3, across both indoor and outdoor
+environments. M20 serves as the primary platform for quantitative evaluation,
+while X30 and Lite3 are used to examine cross-platform transfer. The memory
+representation, prediction module, belief update, and high-level search policy
+are shared across platforms; only the robot-specific perception and low-level
+navigation interfaces differ. Manufacturer-reported platform specifications
+are provided in the appendix.
 
-Compared methods receive the same pre-query history, candidate locations,
-starting condition, perception interface, and platform-specific low-level
-navigation stack. Success requires autonomous online confirmation of the target
-within the search budget; missed detections, navigation failures, timeouts, and
-human interventions count as failures. We report Search SR, First-Go SR,
-travel distance, elapsed time, number of inspected locations, and recovery
-after an incorrect first prediction. Corresponding outcomes and failure
-analysis are reported in \cref{sec:real-world-results}.
+The real-world evaluation focuses on persistent target search under
+environmental changes that unfold across multiple observation sessions. In the
+indoor setting, both objects and people may change locations over time, with
+their histories exhibiting different degrees of temporal and activity-related
+regularity. The outdoor setting extends the same formulation to larger and
+less constrained spaces, where targets likewise undergo recurring or
+irregular location changes. In both settings, the agent receives historical
+observations before a query and must infer the target's current likely state,
+prioritize candidate locations, navigate to gather physical evidence, and
+revise its belief when new observations contradict the initial prediction.
+
+Targets remain stationary within an individual search episode, so the
+evaluation isolates hidden changes between observations rather than target
+motion during execution. Compared methods receive the same pre-query history,
+candidate locations, starting condition, perception interface, and
+platform-specific low-level navigation stack. Success requires autonomous
+online confirmation of the queried target within the search budget; missed
+detections, navigation failures, timeouts, and human interventions count as
+failures. We report Search SR, First-Go SR, travel distance, elapsed time,
+number of inspected locations, and recovery after an incorrect first
+prediction. Detailed task construction, robot specifications, and scoring
+procedures are provided in \cref{app:real-world}.
 
 
 \subsection{Baselines and Ablations}

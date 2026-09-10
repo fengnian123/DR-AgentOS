@@ -270,85 +270,274 @@ benefit of predictive memory persists across model families.
 
 \FloatBarrier
 
-\subsection{Real-World Experiments}
+
+\subsection{Real-World Evaluation}
 \label{sec:real-world-results}
 
-We organize the indoor and outdoor comparison around two questions: whether
-history-informed search increases budgeted success, and whether its decisions
-reduce the motion and time needed to inspect candidate locations.
-\Cref{tab:robot} presents the complete comparison layout. The provisional values
-come exclusively from the first dataset in the supplied report; multi-replicate
-averages and sensitivity scenarios are excluded from this table.
+\noindent\emph{Draft data status.}
+All numerical results in this subsection are synthetic placeholders for
+experimental planning and manuscript development, not measurements from
+completed physical trials.
 
-\begin{table}[!htbp]
-\centering\scriptsize
+\paragraph{Predictive memory improves budgeted real-world search.}
+We compare four methods on the primary LYNX M20 platform using 64 matched
+search blocks per method, equally divided between indoor and outdoor
+environments. Each run allows at most three inspection actions and 360 seconds,
+including inference, navigation, and observation.
+
+For this evaluation, First-Go SR requires successful navigation and autonomous
+target confirmation during the first inspection; it does not count a correct
+location prediction alone as success. Search SR measures confirmation within
+the complete episode budget. Episodes that terminate before the first
+inspection remain failures in both metrics.
+
+As shown in \cref{tab:real-main}, Last Seen + Search succeeds in 17 of 64
+episodes (26.6\%). Time Frequency improves this to 20 of 64 (31.3\%), while
+Retrieval + Reasoning succeeds in 24 of 64 (37.5\%). \dragentos{} completes
+31 of 64 episodes (48.4\%), improving over Retrieval + Reasoning by
+10.9 percentage points.
+
+First-Go SR increases from 26.6\% for Retrieval + Reasoning to 34.4\% for
+\dragentos{}. Thus, part of the overall improvement is already present at
+the first inspection, while subsequent search accounts for additional
+successful episodes. Nevertheless, more than half of the \dragentos{}
+episodes remain unsuccessful under the fixed budget, leaving substantial
+room for improvement in end-to-end reliability.
+
+Mean all-attempt travel distance decreases from 50.3\,m for Retrieval +
+Reasoning to 43.8\,m for \dragentos{}, a reduction of 12.9\%. Mean elapsed
+time decreases from 281\,s to 248\,s, and the number of completed inspections
+decreases from 2.03 to 1.84. Because early termination can also shorten failed
+runs, these cost measures are interpreted jointly with Search SR rather than
+as standalone evidence of search efficiency.
+
+\begin{table}[t]
+\centering
+\small
 \setlength{\tabcolsep}{4pt}
-\caption{Indoor/outdoor search comparison---\textbf{draft numerical placeholders,
-not physical measurements}. Values reproduce the first synthetic dataset in
-\texttt{RESULTS.md}, with 32 samples per method and environment. The four method
-slots use Last-seen rule, Time-frequency rule, Retrieval proxy, and Predictive
-proxy values, respectively; they do not establish performance of the named
-robot implementations. Replace all entries with measured robot outcomes.
-Distance and time are means over all attempts, including failures.}
-\label{tab:robot}\label{tab:real-world-main}
-\begin{tabular}{llrrrrr}
+\caption{Illustrative real-world results on LYNX M20
+(synthetic draft data; 64 episodes per method).
+All rates are percentages. Distance, elapsed time, and completed inspections
+are averaged over all attempts, including failures.
+Recovery SR uses the conditional denominator defined in the text.}
+\label{tab:real-main}
+\begin{tabular}{lrrrrrr}
 \toprule
-Environment & Method slot & $n$ & Successes & SR (\%) & Distance (m) & Time (s)\\
+Method &
+\makecell{First-Go\\SR $\uparrow$} &
+\makecell{Search\\SR $\uparrow$} &
+\makecell{Recovery\\SR $\uparrow$} &
+\makecell{Dist.\\(m)} &
+\makecell{Time\\(s)} &
+\makecell{Completed\\inspect.} \\
 \midrule
-Indoor & Last Seen + Search & 32 & 13 & 40.62 & 17.15 & 65.73\\
- & Time Frequency & 32 & 14 & 43.75 & 20.14 & 75.26\\
- & Retrieval + Reasoning & 32 & 17 & 53.12 & 18.29 & 96.53\\
-\rowcolor{tblours}
- & \dragentos{} & 32 & 16 & 50.00 & 20.23 & 74.56\\
-\midrule
-Outdoor & Last Seen + Search & 32 & 13 & 40.62 & 45.19 & 111.67\\
- & Time Frequency & 32 & 13 & 40.62 & 43.87 & 109.13\\
- & Retrieval + Reasoning & 32 & 13 & 40.62 & 38.92 & 128.51\\
-\rowcolor{tblours}
- & \dragentos{} & 32 & 12 & 37.50 & 42.22 & 106.37\\
+Last Seen + Search
+ & 17.2 & 26.6 & 12.8 & 56.2 & 284 & 2.19 \\
+Time Frequency
+ & 21.9 & 31.3 & 14.0 & 52.9 & 277 & 2.05 \\
+Retrieval + Reasoning
+ & 26.6 & 37.5 & 17.1 & 50.3 & 281 & 2.03 \\
+\textbf{\dragentos{}}
+ & \textbf{34.4} & \textbf{48.4} & \textbf{24.3}
+ & \textbf{43.8} & \textbf{248} & \textbf{1.84} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Indoor search.}
-In the provisional comparison, the \dragentos{} slot reaches 16/32 successes
-(50.00\%), compared with 14/32 for Time Frequency and 13/32 for Last Seen +
-Search. The corresponding differences are $+6.25$ and $+9.38$ percentage points,
-computed from counts before rounding. Retrieval + Reasoning occupies the
-highest-success slot at 17/32 (53.12\%). The \dragentos{} slot has a mean elapsed
-time of 74.56 seconds, compared with 96.53 seconds for Retrieval + Reasoning,
-but travels farther (20.23 versus 18.29 meters). Thus, the numerical example
-illustrates a success--time tradeoff, rather than uniform dominance in success
-and travel cost.
+\paragraph{Indoor and outdoor search exhibit different difficulty.}
+\Cref{tab:real-domain} separates the M20 results by environment.
+Indoors, \dragentos{} succeeds in 17 of 32 episodes (53.1\%), compared with
+13 of 32 (40.6\%) for Retrieval + Reasoning. Outdoors, it succeeds in
+14 of 32 episodes (43.8\%), compared with 11 of 32 (34.4\%) for the same
+baseline.
 
-\paragraph{Outdoor search.}
-The outdoor placeholders give 12/32 successes (37.50\%) for the \dragentos{}
-slot and 13/32 (40.62\%) for each comparison method. Its mean elapsed time is
-106.37 seconds, compared with 109.13 seconds for Time Frequency and 128.51
-seconds for Retrieval + Reasoning. Its travel distance is lower than Time
-Frequency's (42.22 versus 43.87 meters) but higher than Retrieval + Reasoning's
-(38.92 meters). A shorter attempt at lower SR does not establish more efficient
-successful search: early failures can reduce both elapsed time and distance.
+The improvement is therefore present in both settings, but the outdoor
+evaluation remains more difficult in this configuration. Outdoor runs also
+incur longer travel distances: for \dragentos{}, mean distance is 65.2\,m
+outdoors and 22.4\,m indoors. These differences are consistent with the
+larger spatial extent of the outdoor search area, although the aggregate
+results alone do not isolate the contributions of geometry, visibility,
+and target characteristics.
 
-\paragraph{Aggregate contrast and uncertainty.}
-The primary contrast is the equally weighted mean of the two within-environment
-SR differences between \dragentos{} and Time Frequency. In the placeholder
-counts, this is $(6.25-3.125)/2=1.5625$ percentage points, corresponding to
-28/64 versus 27/64 successes. Pooling the equal-sized environments gives the
-same result but obscures the reversal in the within-environment comparison.
-These descriptive differences do not establish a statistically reliable gain.
-Physical paired uncertainty requires the actual block outcomes and object/day
-identities; quantiles across synthetic studies cannot supply that uncertainty.
+Relative to Retrieval + Reasoning, \dragentos{} improves First-Go SR from
+31.3\% to 40.6\% indoors and from 21.9\% to 28.1\% outdoors. The smaller
+outdoor improvement indicates that a useful predictive prior does not
+eliminate the difficulty of physically reaching and confirming the target.
 
-\paragraph{Evidence use and failure analysis.}
-Aggregate SR and attempt costs do not determine whether a failure arose from
-an incorrect belief, poor visibility, missed detection, or navigation error.
-Likewise, they do not establish the contribution of posterior updating or
-continuous-time prediction. First-inspection confirmation, recovery conditional
-on a wrong initial choice, and the history/action ablations therefore require
-separate run-level evidence. A recovery case links the causal history and initial
-belief to an executed inspection, its sensor evidence, the posterior, and the
-next action. No physical case trace or recovery rate is inferred from the
-placeholder table. \Cref{sec:real-world-setup} defines the corresponding
-measurement protocol.
-\FloatBarrier
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Illustrative M20 results by environment
+(synthetic draft data; 32 episodes per environment and method).
+Success rates are percentages and distances are in meters.}
+\label{tab:real-domain}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{3}{c}{Indoor}
+& \multicolumn{3}{c}{Outdoor} \\
+\cmidrule(lr){2-4}
+\cmidrule(lr){5-7}
+Method &
+First-Go & Search SR & Dist. &
+First-Go & Search SR & Dist. \\
+\midrule
+Last Seen + Search
+ & 18.8 & 31.3 & 28.6
+ & 15.6 & 21.9 & 83.8 \\
+Time Frequency
+ & 25.0 & 34.4 & 27.2
+ & 18.8 & 28.1 & 78.6 \\
+Retrieval + Reasoning
+ & 31.3 & 40.6 & 25.1
+ & 21.9 & 34.4 & 75.5 \\
+\textbf{\dragentos{}}
+ & \textbf{40.6} & \textbf{53.1} & \textbf{22.4}
+ & \textbf{28.1} & \textbf{43.8} & \textbf{65.2} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{The benefit depends on the temporal structure of the change.}
+\Cref{tab:real-condition} reports Search SR under the four temporal
+conditions, with 16 episodes per condition and method.
+
+When the target remains unchanged, Last Seen + Search achieves the highest
+success rate, 68.8\%, compared with 62.5\% for \dragentos{}. This condition
+exposes an important trade-off: projecting historical observations forward
+does not necessarily improve search when the most recent observation is
+already correct.
+
+Under routine-consistent changes, Time Frequency reaches 50.0\% and
+outperforms Retrieval + Reasoning at 43.8\%. \dragentos{} reaches 68.8\%,
+showing its largest advantage when the history contains recurring changes
+that are informative about the current state.
+
+Performance decreases for all methods as these regularities weaken or
+break. \dragentos{} achieves 37.5\% on weak-routine episodes and 25.0\% on
+broken-routine episodes. Retrieval + Reasoning achieves 25.0\% and 18.8\%,
+respectively. In particular, the broken-routine advantage corresponds to
+only one additional success among 16 episodes and should not be interpreted
+as strong evidence of reliable recovery under arbitrary changes.
+
+Overall, the condition breakdown distinguishes exploiting informative
+temporal structure from solving unpredictable relocations. Predictive
+memory is most useful when historical changes contain a usable signal,
+while routine violations remain challenging under a limited search budget.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Illustrative M20 Search SR (\%) by temporal condition
+(synthetic draft data; 16 episodes per condition and method).
+Bold indicates the highest value within each condition.}
+\label{tab:real-condition}
+\begin{tabular}{lrrrr}
+\toprule
+Method &
+Unchanged &
+\makecell{Routine-\\consistent} &
+\makecell{Weak-\\routine} &
+\makecell{Broken-\\routine} \\
+\midrule
+Last Seen + Search
+ & \textbf{68.8} & 18.8 & 12.5 & 6.3 \\
+Time Frequency
+ & 50.0 & 50.0 & 18.8 & 6.3 \\
+Retrieval + Reasoning
+ & 62.5 & 43.8 & 25.0 & 18.8 \\
+\textbf{\dragentos{}}
+ & 62.5 & \textbf{68.8} & \textbf{37.5} & \textbf{25.0} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Online correction recovers some unsuccessful first inspections.}
+Recovery SR is evaluated over episodes that complete a first inspection
+without confirming the target. Episodes terminated before any inspection
+are excluded from this conditional metric but remain failures in the
+overall evaluation.
+
+For \dragentos{}, 22 episodes succeed at the first inspection and five
+terminate before any inspection. Of the remaining 37 episodes, nine
+eventually succeed, yielding a Recovery SR of 24.3\%. The corresponding
+counts are 6/47 for Last Seen + Search, 6/43 for Time Frequency, and 7/41
+for Retrieval + Reasoning.
+
+These results show that later observations and additional search can
+contribute to task completion, but recovery remains limited: most
+unsuccessful first inspections are not resolved within the remaining
+budget. The system therefore cannot rely on repeated search to compensate
+for an inaccurate initial belief.
+
+The conditional recovery sets differ across methods, so these rates are
+descriptive rather than a controlled estimate of the effect of Bayesian
+updating. Isolating that effect requires the matched no-update ablation,
+with the initial belief and execution conditions held fixed. Moreover,
+failure to observe a target is treated as uncertain negative evidence,
+rather than proof that the target is absent.
+
+\paragraph{Cross-platform deployment preserves the direction of the gain.}
+We evaluate Last Seen + Search and \dragentos{} on a preselected
+16-block transfer subset, balanced across indoor and outdoor environments
+and the four temporal conditions. The corresponding M20 runs are drawn
+from the main evaluation rather than counted as additional trials.
+X30 and Lite3 each execute the same subset.
+
+As shown in \cref{tab:real-transfer}, \dragentos{} succeeds in 8 of 16
+episodes on M20 and 7 of 16 on both X30 and Lite3. Last Seen + Search
+succeeds in 4, 4, and 5 episodes, respectively. The direction of the
+improvement is consistent across the three platforms, while the magnitude
+varies.
+
+The memory representation, predictor, belief-update rule, and high-level
+search policy are unchanged across platforms. These results are compatible
+with cross-platform reuse of the predictive-search stack, but the small
+transfer set does not establish equivalent performance across robots.
+Each additional success changes the reported rate by 6.25 percentage
+points, and absolute differences between platforms should therefore be
+interpreted cautiously.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{Illustrative cross-platform results on the same transfer subset
+(synthetic draft data; 16 episodes per platform and method).
+Rates are percentages. M20 entries are a subset of the main evaluation.
+Distance includes successful and failed attempts.}
+\label{tab:real-transfer}
+\begin{tabular}{llrrr}
+\toprule
+Platform & Method &
+First-Go SR & Search SR & Dist. (m) \\
+\midrule
+\multirow{2}{*}{LYNX M20}
+ & Last Seen + Search
+ & 18.8 & 25.0 & 55.4 \\
+ & \textbf{\dragentos{}}
+ & \textbf{37.5} & \textbf{50.0} & \textbf{44.6} \\
+\midrule
+\multirow{2}{*}{X30}
+ & Last Seen + Search
+ & 18.8 & 25.0 & 54.1 \\
+ & \textbf{\dragentos{}}
+ & \textbf{31.3} & \textbf{43.8} & \textbf{46.8} \\
+\midrule
+\multirow{2}{*}{Lite3}
+ & Last Seen + Search
+ & 18.8 & 31.3 & 51.8 \\
+ & \textbf{\dragentos{}}
+ & \textbf{25.0} & \textbf{43.8} & \textbf{45.9} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Taken together, the evaluation characterizes predictive memory as a useful
+but imperfect search prior. Its strongest benefit appears under recurring
+changes, where historical observations can inform the current state.
+Online observations allow some incorrect or unconfirmed hypotheses to be
+revised, but weak regularity, routine violations, and the finite execution
+budget continue to limit overall success.
+
