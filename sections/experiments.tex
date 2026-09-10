@@ -29,6 +29,25 @@ and SPL jointly expose prediction quality, eventual task success, and path
 efficiency. Every comparison uses the benchmark's native protocol, and reported
 external numbers are separated from reproduced results.
 
+\paragraph{Prediction-only study.}
+We train on days 0--29, select configurations on days 30--34, and evaluate on
+days 35--39 of five HSSD scene histories (5,475/910/915 queries).
+Temporal evaluation pools the five scenes; leave-one-scene-out (LOSO) trains
+and selects on four scenes and tests on the fifth. All methods share query
+identities and legal candidates. We report temporal \emph{changed} queries
+($n=322$), whose current state differs from the last positive observation,
+and pooled LOSO \emph{change-balanced} queries ($n=644$), with equal changed
+and unchanged counts within observation-age bins. These are conditional
+prediction metrics, not navigation success rates. The complete natural
+distribution and implementation details appear in
+\cref{app:prediction-evidence}. This single-seed study evaluates the full
+Ours-Memory configuration after development informed by earlier test results;
+its richer inputs and search budget differ from the frozen legacy baselines.
+A separate three-seed study with fresh synthetic trajectories and matched
+neural inputs tests whether its advantages survive stronger controls.
+
+
+
 \paragraph{Cross-domain simulation.}
 To distinguish temporal reasoning from renderer- or dataset-specific fitting,
 we evaluate the same system in conventional mesh-based environments (MP3D and
