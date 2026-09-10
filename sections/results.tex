@@ -230,40 +230,175 @@ preserve perception, candidates, and low-level control.
 
 \FloatBarrier
 
-\begin{wraptable}{r}{0.59\linewidth}
-\vspace{-8pt}
-\caption{Predictor comparison with the remaining system fixed.}
-\label{tab:predictors}
+\begin{table}[t]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}lccccc@{}}
-\toprule
-\textbf{Predictor} & \textbf{Top-1} & \textbf{NLL} & \textbf{ECE} &
-\textbf{First-Go SR} & \textbf{Latency}\\
-\midrule
-Frequency & \na & \na & \na & \na & \na\\
-Markov & \na & \na & \na & \na & \na\\
-Random Forest & \na & \na & \na & \na & \na\\
-GRU & \na & \na & \na & \na & \na\\
-Transformer Direct & \na & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{Structured CT-Transformer} & \textbf{\na} &
-\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
-\bottomrule
-\end{tabular}
+\setlength{\tabcolsep}{3pt}
+\caption{
+Prediction-only development results on five scenes.
+Left: temporal changed-only queries ($n=322$), where unchanged cases are
+excluded to isolate prediction under actual world changes.
+Right: LOSO change-balanced queries ($n=644$), which evaluate transfer to
+held-out scenes over balanced changed and unchanged cases.
+Top-1 is reported in percent; MRR and NLL are unscaled.
+Legacy predictors are included as reference baselines; matched-input controls,
+full configurations, and additional diagnostics are provided in
+\cref{app:prediction-evidence}.
+No navigation metric is included in this table.
 }
-\vspace{-8pt}
-\end{wraptable}
+\label{tab:predictors}
 
-\paragraph{Predictor families.}
-\Cref{tab:predictors} compares frequency, Markov, and random-forest predictors
-with recurrent and Transformer alternatives under an identical memory,
-candidate set, planner, and observation budget. Top-1 and NLL measure state
-prediction, ECE tests whether confidence is useful for search, and First-Go SR
-connects prediction to embodied behavior. Latency is measured per query on the
-same hardware. This controlled replacement isolates continuous time and the
-persistence--relocation structure from perception and locomotion.
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrrrr}
+\toprule
+Predictor
+& Temporal Top-1 $\uparrow$
+& MRR $\uparrow$
+& NLL $\downarrow$
+& LOSO Top-1 $\uparrow$
+& MRR $\uparrow$
+& NLL $\downarrow$ \\
+\midrule
+
+Uniform Random
+& 9.32
+& 0.2607
+& 2.4509
+& 11.96
+& 0.3050
+& 2.2980 \\
+
+Last Seen
+& 0.00
+& 0.1699
+& 3.4011
+& 50.00
+& 0.5850
+& 1.8825 \\
+
+Object Frequency
+& 30.75
+& 0.5476
+& 1.7397
+& 50.47
+& 0.6441
+& 1.8455 \\
+
+Time Frequency
+& 33.85
+& 0.5462
+& 1.8400
+& 49.53
+& 0.6166
+& 1.6455 \\
+
+Markov
+& 18.94
+& 0.4435
+& 2.3772
+& 49.38
+& 0.6286
+& 1.6982 \\
+
+Activity-Markov
+& 25.16
+& 0.4582
+& 2.2436
+& 49.84
+& 0.6221
+& 1.6183 \\
+
+Random Forest
+& 20.50
+& 0.4851
+& 1.9181
+& 58.07
+& 0.7283
+& 1.1441 \\
+
+Packed MLP
+& 29.50
+& 0.5225
+& 2.1036
+& 58.07
+& 0.7173
+& 1.3105 \\
+
+GRU
+& 32.61
+& 0.5471
+& 1.8279
+& 54.04
+& 0.7016
+& 1.2558 \\
+
+Original gated Transformer
+& 34.16
+& 0.5586
+& 1.7292
+& 51.71
+& 0.6884
+& 1.3157 \\
+
+Shared semantic prior
+& \textbf{36.02}
+& \textbf{0.5957}
+& 1.5766
+& 59.47
+& 0.7462
+& 1.0448 \\
+
+Ours
+& 34.16
+& 0.5713
+& \textbf{1.4925}
+& \textbf{61.18}
+& \textbf{0.7523}
+& \textbf{0.9778} \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\paragraph{Current-state belief prediction.}
+\label{sec:prediction-results}
+
+Before coupling prediction with navigation, we first isolate whether long-term
+memory can recover the current object state from stale observations.
+\Cref{tab:predictors} evaluates two complementary settings.
+The temporal split contains changed-only queries and therefore removes trivial
+cases in which the last-seen state remains correct, while the LOSO split uses
+change-balanced queries to additionally evaluate transfer to held-out scenes.
+The absolute Top-1 values across the two settings are thus not directly
+comparable.
+
+On temporal changed-only queries, Ours achieves the lowest NLL
+(1.4925), improving over both the original gated Transformer (1.7292) and the
+shared semantic prior (1.5766).
+Its Top-1 accuracy (34.16%) remains slightly below the shared semantic prior
+(36.02%), and its MRR is likewise lower (0.5713 versus 0.5957).
+The gain in this setting therefore comes primarily from the quality of the
+predicted belief distribution rather than from uniformly improved argmax
+accuracy.
+This distinction is important for our setting because the downstream agent
+uses the full location belief to prioritize where to search, rather than
+relying only on the Top-1 prediction.
+
+Under LOSO evaluation, Ours achieves the best result across all three
+metrics, reaching 61.18% Top-1, 0.7523 MRR, and 0.9778 NLL.
+Compared with the strongest shared semantic prior, Ours improves
+Top-1 by 1.71 percentage points and reduces NLL from 1.0448 to 0.9778.
+These results suggest that structured long-term memory contributes information
+beyond shared semantic regularities and improves the transfer of current-state
+beliefs to unseen scenes.
+
+Because this table evaluates prediction independently of embodied execution,
+it does not by itself establish a navigation advantage.
+We therefore next evaluate whether these improved beliefs translate into more
+efficient search and navigation.
+Full predictor configurations, matched-input controls, and additional
+diagnostics are reported in \cref{app:prediction-evidence}.
 
 \FloatBarrier
 
