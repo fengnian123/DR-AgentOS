@@ -293,6 +293,44 @@ Platform & Method & First-Go SR & Search SR & Dist. (m) \\
 
 \FloatBarrier
 
+\subsection{Qualitative Real-World Cases}
+\label{app:real-world-cases}
+
+\Cref{fig:real-world-case-indoor,fig:real-world-case-outdoor} illustrate
+indoor and outdoor task execution, complementing the analysis in
+\cref{app:real-world}. The indoor sequence shows person verification and
+navigation to a meeting room; the outdoor sequence shows route replanning
+after encountering an obstacle while searching for shared bikes. These
+qualitative examples illustrate the observed task sequences and do not
+provide additional aggregate success-rate measurements.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/Real_World_Case_1.pdf}
+\caption{Indoor real-world case: finding a person, collecting documents, and
+bringing them to a meeting room. (a) The robot leaves the starting room and
+searches the office area (steps 1--4). (b) An identity mismatch is followed by
+target confirmation and document collection (steps 5--8). (c) The robot
+returns to the corridor and reaches the meeting room (steps 9--12).
+Arrows indicate motion; red and green annotations mark a mismatch and
+confirmed task milestones, respectively.}
+\label{fig:real-world-case-indoor}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/Real_World_Case_2.pdf}
+\caption{Outdoor real-world case: finding shared bikes usually parked near
+an intersection at the requested time of day. (a) The robot follows the
+preferred route, encounters a blockage, and replans (steps 1--4).
+(b) It takes a detour along the sidewalk and locates the shared bikes
+(steps 5--8). Arrows indicate motion; the red annotation marks the blocked
+route and the green annotation marks the located bikes.}
+\label{fig:real-world-case-outdoor}
+\end{figure}
+
+\FloatBarrier
+
 \subsection{Real-World Robot Platforms}
 \label{app:robot-platforms}
 
