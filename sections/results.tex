@@ -407,48 +407,67 @@ diagnostics are reported in \cref{app:prediction-evidence}.
 \subsection{Foundation-Model Adaptation}
 
 \begin{table}[!htbp]
-\caption{Foundation-model compatibility with fixed tools, prompts, budgets,
-and frozen model versions.}
+\caption{Backbone robustness on \pfdbench{} under matched tools, prompts,
+episodes, and action budgets.}
 \label{tab:foundation_models}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.0pt}
+\setlength{\tabcolsep}{2.5pt}
 \resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}lllccccc@{}}
+\begin{tabular}{@{}llccccccc@{}}
 \toprule
-\textbf{Family} & \textbf{Frozen controller / checkpoint} & \textbf{Access} &
-\textbf{Tool valid} & \textbf{Task SR} & \textbf{SPL} &
-\textbf{EQA Acc.} & \textbf{Latency (s)}\\
+\multirow{2}{*}{\textbf{Family}} &
+\multirow{2}{*}{\textbf{Fixed controller endpoint}} &
+\multicolumn{3}{c}{\textbf{Last-seen Agent}} &
+\multicolumn{3}{c}{\textbf{\dragentos{}}} &
+\multirow{2}{*}{\makecell{\textbf{$\Delta$ Search}\\\textbf{SR $\uparrow$}}}\\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+& & \makecell{First-Go\\SR $\uparrow$} & \makecell{Search\\SR $\uparrow$} &
+SPL $\uparrow$ & \makecell{First-Go\\SR $\uparrow$} &
+\makecell{Search\\SR $\uparrow$} & SPL $\uparrow$ & \\
 \midrule
-OpenAI & GPT-4o / \nolinkurl{gpt-4o-2024-08-06} & API & \na & \na & \na & \na & \na\\
-OpenAI & GPT-4.1 / \nolinkurl{gpt-4.1-2025-04-14} & API & \na & \na & \na & \na & \na\\
-OpenAI & GPT-5.5 / \nolinkurl{gpt-5.5} & API & \na & \na & \na & \na & \na\\
-OpenAI & GPT-5.6 Luna / \nolinkurl{gpt-5.6-luna} & API & \na & \na & \na & \na & \na\\
-Qwen & Qwen2.5-VL-7B-Instruct & Open, 7B & \na & \na & \na & \na & \na\\
-Qwen & Qwen2.5-VL-72B-Instruct & Open, 72B & \na & \na & \na & \na & \na\\
-Google & Gemini 2.5 Flash / \nolinkurl{gemini-2.5-flash} & API & \na & \na & \na & \na & \na\\
-Google & Gemini 2.5 Pro / \nolinkurl{gemini-2.5-pro} & API & \na & \na & \na & \na & \na\\
-Google & Gemini 3.1 Pro / \nolinkurl{gemini-3.1-pro-preview} & API & \na & \na & \na & \na & \na\\
-Google & Gemini 3.5 Flash / \nolinkurl{gemini-3.5-flash} & API & \na & \na & \na & \na & \na\\
+\multirow{2}{*}{Qwen} & Qwen2.5-VL-7B-Instruct
+& \na & \na & \na & \na & \na & \na & \na\\
+& Qwen2.5-VL-72B-Instruct
+& \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\multirow{2}{*}{OpenAI} & GPT-5.5 / \nolinkurl{gpt-5.5-2026-04-23}
+& \na & \na & \na & \na & \na & \na & \na\\
+& GPT-5.6 Luna / \nolinkurl{gpt-5.6-luna}
+& \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\multirow{2}{*}{Google} & Gemini 3.1 Pro / \nolinkurl{gemini-3.1-pro-preview}
+& \na & \na & \na & \na & \na & \na & \na\\
+& Gemini 3.5 Flash / \nolinkurl{gemini-3.5-flash}
+& \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\multicolumn{2}{r}{\textbf{Average gain}} &
+& & & & & & \na\\
 \bottomrule
 \end{tabular}
 }
 \end{table}
 
-This experiment tests interface portability, not which foundation model is
-universally strongest. Following recent zero-shot embodied evaluations that span
-proprietary and open-weight VLMs \citep{qiao2025navbench}, we evaluate four
-OpenAI controllers from GPT-4o through GPT-5.6 Luna
-\citep{hurst2024gpt4o,openai2025gpt41}, two open-weight Qwen2.5-VL scales
-\citep{bai2025qwen25vl}, and four Gemini controllers spanning the 2.5, 3.1, and
-3.5 generations \citep{google2025gemini25}. This separates family-level
-portability, model-generation effects, and the accuracy--latency trade-off
-within each family. Tool-valid rate measures compliance
-with the structured action contract; Task SR and SPL use the common navigation
-episodes, EQA accuracy uses the same question set, and latency is mean wall-clock
-seconds per controller decision. All controllers receive identical tools,
-evidence, prompts, and budgets, leaving the predictive memory and navigation
-backend unchanged.
+This experiment isolates the contribution of predictive memory from
+foundation-model capacity. Following embodied evaluations that span proprietary and
+open-weight VLMs \citep{qiao2025navbench}, we select two Qwen2.5-VL scales
+\citep{bai2025qwen25vl}, two OpenAI controllers
+\citep{openai2026gpt55,openai2026gpt56luna}, and two Gemini controllers
+\citep{google2026gemini31,google2026gemini35}. For every controller, the
+last-seen baseline and \dragentos{} run the same episodes with identical
+perception, candidate locations, tools, prompts, action budgets, and low-level
+navigator. The baseline replaces predictive 4D belief with the last supported
+target state; \dragentos{} keeps the VLM fixed and changes only the memory,
+prediction, and evidence-update pathway.
+
+The decisive statistic is therefore the paired within-controller gain rather
+than the absolute ranking of VLMs. We report mean $\pm$ standard deviation over
+five seeds and compute $\Delta$ Search SR between matched configurations. Consistently positive
+gains across open-weight, high-capacity, and cost-oriented controllers would
+show that the navigation advantage persists across backbone families instead
+of arising from a particular proprietary VLM. Together with the VLM-independent
+prediction results in \cref{tab:predictors}, this separates the quality of the
+world-state belief from the general reasoning strength of the controller.
 
 \FloatBarrier
 
