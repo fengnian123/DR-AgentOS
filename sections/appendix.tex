@@ -1,15 +1,117 @@
-\section{Supplementary Material}
+\section{Additional Method Details}
+\label{app:method-details}
 
-\subsection{Main-Paper Tables Moved to the Appendix}
+This section gives the formal episode interface, memory representation, baseline
+specification, and implementation details that support the method described in
+the main paper.
+
+\subsection{Formal Episode Interface}
+\label{app:episode}
+
+Each navigation episode references one causal prediction query. Public fields include schema version, episode and query identifiers, split, task type, scene and household identifiers, world variant, target description, query time, agent start pose, candidate-state identifiers, budgets, and success criteria. Evaluation-private fields include the current state, target pose, valid goal viewpoints, hidden transition class, oracle path, mobility label, and query-time activity. Train and validation releases may expose analysis labels in metadata; the formal test release replaces them with null values and computes grouped metrics in a private evaluator.
+
+The high-level track exposes
+\begin{center}
+\texttt{NAVIGATE\_TO(state)}, \texttt{INSPECT(state)}, \texttt{STOP}, \texttt{NOT\_FOUND},
+\end{center}
+with a fixed navigation backend. The low-level track exposes Habitat-style forward, turn, look, and stop actions. The main paper uses the high-level track to isolate predictive state selection; low-level results measure sensitivity to control and perception.
+
+\subsection{Detailed 4D Memory Construction}
+\label{app:memory-details}
+
+\Cref{fig:memory} illustrates how observations are converted into persistent
+entity versions. Each observation contributes spatial evidence and temporal
+validity, allowing the memory to preserve both previous and current states.
+For image coordinate
+$\widetilde{\mathbf u}=[u,v,1]^\top$ with depth $D_t(u,v)$, the corresponding
+world point is
+\begin{equation}
+\mathbf x^w=\operatorname{proj}_3\!\left(
+\mathbf T_{w\leftarrow c,t}
+\begin{bmatrix}D_t(u,v)\mathbf K^{-1}\widetilde{\mathbf u}\\1\end{bmatrix}
+\right),
+\label{eq:backprojection}
+\end{equation}
+where $\mathbf K$ is the camera intrinsic matrix and $\mathbf T_{w\leftarrow c,t}$ is the camera-to-world transform. Cross-view association uses semantic compatibility, 3D overlap, temporal consistency, and source confidence. The $m$-th version of entity $o$ is
+\begin{equation}
+h_o^m=([t_{o,s}^m,t_{o,e}^m),s_o^m,c_o^m,f_o^m,\mathcal P_o^m),
+\end{equation}
+containing a validity interval, candidate state, confidence, visual feature, and evidence handles. A state change appends a version without erasing the earlier trajectory, preserving both causal history and observation provenance.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/EvolvingWorldNav.pdf}
+    \caption{Temporally versioned 4D memory construction.}
+    \label{fig:memory}
+\end{figure}
+
+\subsection{Full Baseline Specification}
+\label{app:baselines}
+
+Last Seen assigns all mass to the latest positive state. Frequency Prior estimates $P(s\mid o)$ from training data. Markov Transition estimates $P(s_{k+1}\mid s_k,o)$; Time-Conditioned Prior additionally conditions on public hour and weekday bins. Instance Hotspot uses only the target instance's training trajectory. GRU Direct and Transformer Direct receive the same event tokens and candidate encoder as \pfdnav{} but directly normalize candidate logits without the persistence factorization. P4D-Belief Prior uses \cref{eq:prior} once at episode start. Full \pfdnav{} applies \cref{eq:bayes} and \cref{eq:planner} after each inspection.
+
+The Oracle Activity diagnostic may use the hidden activity and source location but is excluded from fair rankings. Oracle Current State receives the private target state and measures remaining perception and navigation error. External predictive methods are adapted only through their public inputs; any use of privileged simulator state must be identified and excluded from the main comparison.
+
+\subsection{Implementation Details}
+\label{app:implementation}
+
+Unless otherwise noted, the history encoder has three Transformer layers, hidden width $128$, four attention heads, and at most 64 events. The predictive model contains approximately \na million trainable parameters and is optimized with AdamW using validation NLL for checkpoint selection. Candidate encoders are shared across scenes. The main high-level track fixes candidate viewpoints and low-level planning; a Habitat low-level action track evaluates the complete embodied stack. Final learning rate, batch size, epoch count, hardware, simulator version, detector, visibility thresholds, and repeated-run protocol will be frozen before test evaluation.
+
+\section{Benchmark Construction and Evaluation Protocol}
+\label{app:benchmark-protocol}
+
+This section documents episode validity, leakage controls, mobility assignment,
+and the metrics used for all reported comparisons.
+
+\subsection{Episode Validity and Leakage Audit}
+\label{app:audit}
+
+An episode is retained only if: (i) the target has at least one positive pre-query observation; (ii) the target state is known to the private evaluator and physically instantiated without collision; (iii) at least one valid viewpoint lies on the NavMesh; (iv) the start is on the NavMesh, at least $3$ meters from the target, and does not reveal it; and (v) all public histories terminate at or before the query. A successful stop must be within $1$ meter geodesic distance of a valid viewpoint, observe the target above a frozen visible-fraction threshold, and identify the correct instance or category.
+
+We audit serialized examples for future timestamps, hidden event fields, filenames or indices correlated with answers, duplicate event groups across splits, and inconsistent paired variants. Static, routine, and random members of a pair must have identical public query fields. Invalid simulator episodes are reported separately and are not counted as ordinary failures.
+
+\subsection{Mobility-Type Assignment}
+\label{app:mobility}
+
+The frozen rule is
+\begin{equation}
+\operatorname{type}(o)=
+\begin{cases}
+\mathrm{stable}, & r_{\mathrm{move}}(o)<\tau_{\mathrm{move}},\\
+\mathrm{activity}, & G_{\mathrm{act}}(o)\geq\tau_{\mathrm{act}},\\
+\mathrm{personal}, & C_{\mathrm{habit}}(o)\geq\tau_{\mathrm{habit}},\\
+\mathrm{irregular}, & \text{otherwise}.
+\end{cases}
+\end{equation}
+All thresholds are selected on training data before navigation evaluation. When the generator specifies a mobility profile, the same statistics are used to verify that realized trajectories exhibit the intended behavior. Every group must cover several categories, instances, and scenes, and no category may uniquely reveal one mobility type.
+
+\subsection{Metric Definitions}
+\label{app:metrics}
+
+Let $S_i$ be episode success, $L_i$ the executed path, and $L_i^*$ the oracle shortest path to the query-time goal under the same start. Standard SPL is
+\begin{equation}
+\mathrm{SPL}=\frac{1}{N}\sum_{i=1}^{N}S_i\frac{L_i^*}{\max(L_i,L_i^*)}.
+\end{equation}
+First-Go SR counts success when only the initial predicted candidate may be inspected. Recovery SR conditions on an incorrect first candidate and measures whether the target is subsequently found. Excess path is $L_i-L_i^*$ for static-after-query episodes. For online-dynamic episodes, the oracle is trajectory aware and may intercept the target; we therefore report both success within the common budget and $L_i-L_{i,\mathrm{dyn}}^*$.
+
+Calibration metrics operate on the full candidate belief before navigation and after each update. ECE bins maximum confidence, Brier score evaluates all candidates, and true-state rank avoids hiding useful changes below Top-1. Search-cost curves plot success against allowed inspections and travelled distance rather than reporting one arbitrary budget.
+
+\section{Additional Experimental Results}
+\label{app:experimental-results}
+
+This section provides extended quantitative results omitted from the main paper
+for space constraints.
+
+\subsection{P4D-Bench Detailed Results}
 \label{app:moved-tables}
 
-The following tables contain the complete navigation and backbone-adaptation
-records referenced in the main text. They are placed here to keep the main
-results narrative compact while retaining every protocol column and baseline.
+Table~\ref{tab:mainnav} expands the routine-world navigation comparison with
+inspection count, travel distance, and recovery success; lower is better for
+the two cost columns. Table~\ref{tab:foundation_models} tests backbone
+robustness under matched tools, prompts, episodes, and action budgets.
 
 \begin{table}[!htbp]
-\caption{P4D-Bench navigation results on routine-world N1--N3 episodes
-(moved from the main paper); lower is better for inspections and distance.}
+\caption{Detailed P4D-Bench navigation results on routine worlds.}
 \label{tab:mainnav}
 \centering
 \scriptsize
@@ -43,8 +145,7 @@ Oracle Current State & \na & \na & \na & \na & \na & \na\\
 \end{table}
 
 \begin{table}[!htbp]
-\caption{Backbone robustness on \pfdbench{} under matched tools, prompts,
-episodes, and action budgets (moved from the main paper).}
+\caption{Backbone robustness on P4D-Bench under matched evaluation conditions.}
 \label{tab:foundation_models}
 \centering
 \scriptsize
@@ -84,95 +185,16 @@ SPL $\uparrow$ & \makecell{First-Go\\SR $\uparrow$} &
 }
 \end{table}
 
-\subsection{Formal Episode Interface}
-\label{app:episode}
-
-Each navigation episode references one causal prediction query. Public fields include schema version, episode and query identifiers, split, task type, scene and household identifiers, world variant, target description, query time, agent start pose, candidate-state identifiers, budgets, and success criteria. Evaluation-private fields include the current state, target pose, valid goal viewpoints, hidden transition class, oracle path, mobility label, and query-time activity. Train and validation releases may expose analysis labels in metadata; the formal test release replaces them with null values and computes grouped metrics in a private evaluator.
-
-The high-level track exposes
-\begin{center}
-\texttt{NAVIGATE\_TO(state)}, \texttt{INSPECT(state)}, \texttt{STOP}, \texttt{NOT\_FOUND},
-\end{center}
-with a fixed navigation backend. The low-level track exposes Habitat-style forward, turn, look, and stop actions. The main paper uses the high-level track to isolate predictive state selection; low-level results measure sensitivity to control and perception.
-
-\subsection{Detailed 4D Memory Construction}
-\label{app:memory-details}
-
-\Cref{fig:memory} expands the memory-construction stage summarized in the main
-architecture. For image coordinate
-$\widetilde{\mathbf u}=[u,v,1]^\top$ with depth $D_t(u,v)$, the corresponding
-world point is
-\begin{equation}
-\mathbf x^w=\operatorname{proj}_3\!\left(
-\mathbf T_{w\leftarrow c,t}
-\begin{bmatrix}D_t(u,v)\mathbf K^{-1}\widetilde{\mathbf u}\\1\end{bmatrix}
-\right),
-\label{eq:backprojection}
-\end{equation}
-where $\mathbf K$ is the camera intrinsic matrix and
-$\mathbf T_{w\leftarrow c,t}$ is the camera-to-world transform. Cross-view
-association uses semantic compatibility, 3D overlap, temporal consistency, and
-source confidence. The $m$-th version of entity $o$ is
-\begin{equation}
-h_o^m=([t_{o,s}^m,t_{o,e}^m),s_o^m,c_o^m,f_o^m,\mathcal P_o^m),
-\end{equation}
-containing a validity interval, candidate state, confidence, visual feature, and
-evidence handles. A state change appends a version without erasing the earlier
-trajectory, preserving both causal history and observation provenance.
-
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{figures/EvolvingWorldNav.pdf}
-    \caption{Evidence-grounded construction of the temporally versioned 4D memory.}
-    \label{fig:memory}
-\end{figure}
-
-\subsection{Episode Validity and Leakage Audit}
-\label{app:audit}
-
-An episode is retained only if: (i) the target has at least one positive pre-query observation; (ii) the target state is known to the private evaluator and physically instantiated without collision; (iii) at least one valid viewpoint lies on the NavMesh; (iv) the start is on the NavMesh, at least $3$ meters from the target, and does not reveal it; and (v) all public histories terminate at or before the query. A successful stop must be within $1$ meter geodesic distance of a valid viewpoint, observe the target above a frozen visible-fraction threshold, and identify the correct instance or category.
-
-We audit serialized examples for future timestamps, hidden event fields, filenames or indices correlated with answers, duplicate event groups across splits, and inconsistent paired variants. Static, routine, and random members of a pair must have identical public query fields. Invalid simulator episodes are reported separately and are not counted as ordinary failures.
-
-\subsection{Mobility-Type Assignment}
-\label{app:mobility}
-
-The frozen rule is
-\begin{equation}
-\operatorname{type}(o)=
-\begin{cases}
-\mathrm{stable}, & r_{\mathrm{move}}(o)<\tau_{\mathrm{move}},\\
-\mathrm{activity}, & G_{\mathrm{act}}(o)\geq\tau_{\mathrm{act}},\\
-\mathrm{personal}, & C_{\mathrm{habit}}(o)\geq\tau_{\mathrm{habit}},\\
-\mathrm{irregular}, & \text{otherwise}.
-\end{cases}
-\end{equation}
-All thresholds are selected on training data before navigation evaluation. When the generator specifies a mobility profile, the same statistics are used to verify that realized trajectories exhibit the intended behavior. Every group must cover several categories, instances, and scenes, and no category may uniquely reveal one mobility type.
-
-\subsection{Metric Definitions}
-\label{app:metrics}
-
-Let $S_i$ be episode success, $L_i$ the executed path, and $L_i^*$ the oracle shortest path to the query-time goal under the same start. Standard SPL is
-\begin{equation}
-\mathrm{SPL}=\frac{1}{N}\sum_{i=1}^{N}S_i\frac{L_i^*}{\max(L_i,L_i^*)}.
-\end{equation}
-First-Go SR counts success when only the initial predicted candidate may be inspected. Recovery SR conditions on an incorrect first candidate and measures whether the target is subsequently found. Excess path is $L_i-L_i^*$ for static-after-query episodes. For online-dynamic episodes, the oracle is trajectory aware and may intercept the target; we therefore report both success within the common budget and $L_i-L_{i,\mathrm{dyn}}^*$.
-
-Calibration metrics operate on the full candidate belief before navigation and after each update. ECE bins maximum confidence, Brier score evaluates all candidates, and true-state rank avoids hiding useful changes below Top-1. Search-cost curves plot success against allowed inspections and travelled distance rather than reporting one arbitrary budget.
-
-\subsection{Full Baseline Specification}
-\label{app:baselines}
-
-Last Seen assigns all mass to the latest positive state. Frequency Prior estimates $P(s\mid o)$ from training data. Markov Transition estimates $P(s_{k+1}\mid s_k,o)$; Time-Conditioned Prior additionally conditions on public hour and weekday bins. Instance Hotspot uses only the target instance's training trajectory. GRU Direct and Transformer Direct receive the same event tokens and candidate encoder as \pfdnav{} but directly normalize candidate logits without the persistence factorization. P4D-Belief Prior uses \cref{eq:prior} once at episode start. Full \pfdnav{} applies \cref{eq:bayes} and \cref{eq:planner} after each inspection.
-
-The Oracle Activity diagnostic may use the hidden activity and source location but is excluded from fair rankings. Oracle Current State receives the private target state and measures remaining perception and navigation error. External predictive methods are adapted only through their public inputs; any use of privileged simulator state must be identified and excluded from the main comparison.
-
-\subsection{Disaggregated Result Templates}
+\subsection{Cross-Benchmark Results}
+\label{app:cross-benchmark}
 \label{app:prediction-evidence}
 
+The native FindingDory control-track metrics are expanded in
+Table~\ref{tab:findingdory_full}, while Table~\ref{tab:goat_modalities}
+reports GOAT-Bench results by goal modality.
+
 \begin{table}[!htbp]
-\caption{FindingDory results using its native high- and low-level metrics. The
-main paper reports HL-SR and HL-SPL for compactness.}
+\caption{FindingDory results by control track.}
 \label{tab:findingdory_full}
 \centering
 \scriptsize
@@ -191,8 +213,7 @@ DynaMem & \na & \na & \na & \na\\
 \end{table}
 
 \begin{table}[!htbp]
-\caption{GOAT-Bench modality-wise results on the official evaluation split.
-The main paper reports aggregate SR, SPL, and the Repeat-SR memory diagnostic.}
+\caption{GOAT-Bench results by goal modality.}
 \label{tab:goat_modalities}
 \centering
 \scriptsize
@@ -216,8 +237,15 @@ LagMemo GLUE & \na & \na & \na & \na & \na & \na\\
 \end{tabular}
 \end{table}
 
+\subsection{Evolution-Aware Diagnostics}
+\label{app:evolution-diagnostics}
+
+Table~\ref{tab:mobility} breaks search success down by hidden mobility type,
+and Table~\ref{tab:worlds} compares paired static, routine, and random worlds.
+These matched variants isolate evolution from scene-frequency shortcuts.
+
 \begin{table}[!htbp]
-\caption{Search SR by hidden mobility type. Types are determined from training history and withheld from the agent. Macro average weights the four groups equally.}
+\caption{Search SR by hidden mobility type.}
 \label{tab:mobility}
 \centering
 \scriptsize
@@ -236,7 +264,7 @@ Transformer Direct & \na & \na & \na & \na & \na\\
 \end{table}
 
 \begin{table}[!htbp]
-\caption{Paired-world navigation results. Variants share all observed setup variables and differ only in hidden transitions.}
+\caption{Paired-world navigation results.}
 \label{tab:worlds}
 \centering
 \small
@@ -252,52 +280,67 @@ Transformer Direct & \na & \na & \na & \na\\
 \end{tabular}
 \end{table}
 
-\subsection{Implementation Details}
-\label{app:implementation}
+\paragraph{Effect of memory staleness and inspection budget.}
+\Cref{fig:predictive-memory} complements these aggregate tables by showing
+how performance changes with temporal staleness, inspection budget, and hidden
+mobility type. These episode-level diagnostics are not inferred from aggregate
+success rates.
 
-Unless otherwise noted, the history encoder has three Transformer layers, hidden width $128$, four attention heads, and at most 64 events. The predictive model contains approximately \na million trainable parameters and is optimized with AdamW using validation NLL for checkpoint selection. Candidate encoders are shared across scenes. The main high-level track fixes candidate viewpoints and low-level planning; a Habitat low-level action track evaluates the complete embodied stack. Final learning rate, batch size, epoch count, hardware, simulator version, detector, visibility thresholds, and repeated-run protocol will be frozen before test evaluation.
+% Keep the established figure identifiers: the real-world cases remain Figures
+% 6--7 while this diagnostic retains its original Figure 8 number.
+\setcounter{figure}{7}
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/predictive-memory.pdf}
+\caption{Predictive diagnostics under memory staleness and search budgets.}
+\label{fig:predictive-memory}
+\end{figure}
+\setcounter{figure}{5}
 
-\subsection{Reproducibility Checklist}
-\label{app:protocol}
+\FloatBarrier
 
-The completed release will report:
-\begin{itemize}[leftmargin=5mm,itemsep=0.4mm]
-    \item source dataset versions, licenses, mappings, filters, and canonical-record statistics;
-    \item HSSD and Habitat versions, scene identifiers, object assets, placement checks, and NavMesh settings;
-    \item split manifests, paired-example identifiers, checksums, and leakage-audit output;
-    \item model width, layers, attention heads, time features, history length, optimizer, learning rate, epochs, seeds, and checkpoint rule;
-    \item detector and depth inputs, visibility computation, candidate and action budgets, evidence likelihoods, and planner hyperparameters;
-    \item hardware, wall-clock latency, memory growth, repeated-run aggregation, and confidence intervals; and
-    \item reproduced versus quoted baseline values, grouped results, failure labels, and all component-aligned ablations.
-\end{itemize}
+\section{Real-World Evaluation}
+\label{app:real-world-eval}
 
-\subsection{Submission Compliance Notes}
+This section reports the physical evaluation, first describing the robot
+platforms and then disaggregating the measured M20 results by environment,
+temporal condition, and qualitative case.
 
-This source is configured for anonymous ICLR 2027 submission: \verb|\iclrfinalcopy| remains disabled, author identities and affiliations are absent, and references precede the appendix. Before submission, authors should remove all result placeholders, keep the main text within the conference page limit, and scan figure metadata, linked repositories, PDF properties, acknowledgements, and supplementary files for identifying information.
+\subsection{Robot Platforms}
+\label{app:robot-platforms}
 
-\subsection{Ethics, Reproducibility, and AI Use}
+We conduct the real-world evaluation using three commercial robotic platforms
+from DEEP Robotics: LYNX M20, X30, and Lite3. Table~\ref{tab:robot-platforms}
+summarizes the platforms used in the physical evaluation. Platform-specific
+perception and low-level navigation are abstracted behind a common interface,
+while the \evolvingworldnav{} memory, prediction, belief-update, and high-level
+search components remain unchanged.
 
-\paragraph{Ethics.}
-Persistent visual memory may capture people or private spaces, while an incorrect belief may induce unnecessary motion or unsafe behavior. Deployments should obtain consent, enforce retention and access controls, preserve provenance, and retain platform-specific collision avoidance and emergency stops outside the learned model. Our benchmark compiles existing records into simulated HSSD episodes and introduces no new human-subject study.
+\begin{table}[!htbp]
+\centering
+\small
+\setlength{\tabcolsep}{8pt}
+\caption{Robot platforms used in real-world evaluation.}
+\label{tab:robot-platforms}
+\begin{tabular}{lllll}
+\toprule
+Platform & Morphology & Standing size & Mass & Endurance / range \\
+\midrule
+LYNX M20 & Wheel-legged & $820\times430\times570$ mm & $\sim$35 kg & 3 h / 15 km unloaded \\
+X30 & Quadruped & $1000\times695\times470$ mm & 56 kg & 2.5--4 h / $\geq$10 km \\
+Lite3 (LiDAR) & Quadruped & $610\times370\times496$ mm & 13.5 kg & 1.5--2 h / 2.7 km \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\paragraph{Reproducibility.}
-\Cref{sec:method} specifies the task, memory, predictor, evidence update, and agent policy. \Cref{sec:benchmark} defines episode construction and leakage controls, while \cref{sec:experiments} specifies baselines and metrics. An anonymized code and data snapshot will accompany the review submission.
+The reported endurance and range values are manufacturer laboratory specifications and may differ from those obtained under the indoor and outdoor conditions used in our evaluation. We therefore do not use manufacturer-rated mobility or endurance as experimental outcomes. Absolute completion time is compared only between methods executed on the same robot platform. The M20 uses dual 96-line LiDARs and wide-angle cameras; X30 provides integrated perception and autonomous navigation; and the Lite3 LiDAR configuration exposes obstacle avoidance and autonomous navigation through its platform interface.
 
-\paragraph{AI use.}
-Generative AI tools assisted manuscript editing, LaTeX checks, and local engineering. They did not generate benchmark observations, ground-truth labels, or reported scores. The authors reviewed all assisted material and remain responsible for the content and artifacts.
-
-\subsection{Extended Real-World Analysis}
+\subsection{Environment Breakdown}
 \label{app:real-world}
 
-The main paper reports the primary LYNX M20 comparison. Here we disaggregate
-the measured robot results by environment and temporal condition, describe
-recovery after an incorrect first inspection, and report a small
-cross-platform transfer subset.
-
-\paragraph{Environment breakdown.}
-\Cref{tab:real-domain} separates indoor and outdoor trials. The outdoor setting
-has longer routes and lower success for all methods, while the direction of the
-\evolvingworldnav{} gain is consistent across both environments.
+Table~\ref{tab:real-domain} separates indoor and outdoor trials. The outdoor
+setting has longer routes and lower success for all methods, while the direction
+of the \evolvingworldnav{} gain is consistent across both environments.
 
 \begin{table}[!htbp]
 \centering
@@ -320,10 +363,12 @@ Retrieval + Reasoning & 31.3 & 40.6 & 25.1 & 21.9 & 34.4 & 75.5 \\
 \end{tabular}
 \end{table}
 
-\paragraph{Temporal-condition breakdown.}
-\Cref{tab:real-condition} shows that predictive memory is most useful when
-recurring changes provide a usable historical signal. Last Seen remains strong
-when nothing changes, whereas all methods degrade as regularity weakens.
+\subsection{Temporal Condition Analysis}
+\label{app:temporal-analysis}
+
+Table~\ref{tab:real-condition} shows that predictive memory is most useful
+when recurring changes provide a usable historical signal. Last Seen remains
+strong when nothing changes, whereas all methods degrade as regularity weakens.
 
 \begin{table}[!htbp]
 \centering
@@ -345,12 +390,7 @@ Retrieval + Reasoning & 62.5 & 43.8 & 25.0 & 18.8 \\
 \end{table}
 
 \paragraph{Recovery and cross-platform transfer.}
-Among the 37 M20 episodes in which \evolvingworldnav{} completed an unsuccessful first
-inspection, nine later succeeded, giving the 24.3\% conditional Recovery SR in
-the main table. The matched no-update ablation is required to isolate Bayesian
-updating from additional search. \Cref{tab:real-transfer} further shows the same
-direction of improvement on a 16-block subset executed by all three platforms;
-the small sample does not establish equal performance across robots.
+Among the 37 M20 episodes in which \evolvingworldnav{} completed an unsuccessful first inspection, nine later succeeded, giving the 24.3\% conditional Recovery SR in the main table. The matched no-update ablation is required to isolate Bayesian updating from additional search. Table~\ref{tab:real-transfer} further shows the same direction of improvement on a 16-block subset executed by all three platforms; the small sample does not establish equal performance across robots.
 
 \begin{table}[!htbp]
 \centering
@@ -374,99 +414,53 @@ Platform & Method & First-Go SR & Search SR & Dist. (m) \\
 \end{tabular}
 \end{table}
 
-
-\subsection{Qualitative Real-World Cases}
+\subsection{Qualitative Cases}
 \label{app:real-world-cases}
 
-\Cref{fig:real-world-case-indoor,fig:real-world-case-outdoor} illustrate
-indoor and outdoor task execution, complementing the analysis in
-\cref{app:real-world}. The indoor sequence shows person verification and
-navigation to a meeting room; the outdoor sequence shows route replanning
-after encountering an obstacle while searching for shared bikes. These
-qualitative examples illustrate the observed task sequences and do not
-provide additional aggregate success-rate measurements.
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\linewidth]{figures/Real_World_Case_1.pdf}
-\caption{Indoor real-world case: finding a person, collecting documents, and
-bringing them to a meeting room. (a) The robot leaves the starting room and
-searches the office area (steps 1--4). (b) An identity mismatch is followed by
-target confirmation and document collection (steps 5--8). (c) The robot
-returns to the corridor and reaches the meeting room (steps 9--12).
-Arrows indicate motion; red and green annotations mark a mismatch and
-confirmed task milestones, respectively.}
-\label{fig:real-world-case-indoor}
-\end{figure}
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\linewidth]{figures/Real_World_Case_2.pdf}
-\caption{Outdoor real-world case: finding shared bikes usually parked near
-an intersection at the requested time of day. (a) The robot follows the
-preferred route, encounters a blockage, and replans (steps 1--4).
-(b) It takes a detour along the sidewalk and locates the shared bikes
-(steps 5--8). Arrows indicate motion; the red annotation marks the blocked
-route and the green annotation marks the located bikes.}
-\label{fig:real-world-case-outdoor}
-\end{figure}
-
-
-\subsection{Additional Predictive Diagnostics}
-\label{app:predictive-diagnostics}
-
-The following diagnostics complement the prediction and paired-world tables by
-showing how performance changes with memory staleness, inspection budget, and
-hidden mobility type.
+\Cref{fig:real-world-case-indoor,fig:real-world-case-outdoor} show the two
+physical task sequences. The indoor sequence covers person verification,
+document collection, and navigation to a meeting room; the outdoor sequence
+shows obstacle-triggered replanning while searching for shared bikes. The
+figures illustrate execution traces and do not add aggregate success-rate
+measurements.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{figures/predictive-memory.pdf}
-\caption{Predictive-memory diagnostics across temporal staleness, inspection
-budgets, and hidden mobility types.}
-\label{fig:predictive-memory}
+\includegraphics[width=\linewidth]{figures/Real_World_Case_1.pdf}
+\caption{Indoor real-world execution case.}
+\label{fig:real-world-case-indoor}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/Real_World_Case_2.pdf}
+\caption{Outdoor real-world execution case.}
+\label{fig:real-world-case-outdoor}
 \end{figure}
 
 \FloatBarrier
 
-\subsection{Real-World Robot Platforms}
-\label{app:robot-platforms}
+\section{Reproducibility and Responsible AI}
+\label{app:reproducibility}
 
-We conduct the real-world evaluation using three commercial robotic platforms
-from DEEP Robotics: LYNX M20, X30, and Lite3. Table~\ref{tab:robot-platforms}
-summarizes manufacturer-reported specifications relevant to the physical
-evaluation. These specifications characterize the platforms rather than the
-experimental operating conditions; all quantitative results are measured from
-the executed trials. Platform-specific perception and low-level navigation are
-abstracted behind a common interface, while the \evolvingworldnav{} memory, prediction,
-belief-update, and high-level search components remain unchanged.
+\subsection{Reproducibility Checklist}
+\label{app:protocol}
 
-\begin{table}[!htbp]
-\centering
-\small
-\setlength{\tabcolsep}{8pt}
-\caption{Manufacturer-reported specifications of the three robot platforms.}
-\label{tab:robot-platforms}
-\begin{tabular}{lllll}
-\toprule
-Platform &
-Morphology &
-Standing size &
-Mass &
-Endurance / range \\
-\midrule
-LYNX M20 & Wheel-legged & $820\times430\times570$ mm & $\sim$35 kg & 3 h / 15 km unloaded \\
-X30 & Quadruped & $1000\times695\times470$ mm & 56 kg & 2.5--4 h / $\geq$10 km \\
-Lite3 (LiDAR) & Quadruped & $610\times370\times496$ mm & 13.5 kg & 1.5--2 h / 2.7 km \\
-\bottomrule
-\end{tabular}
-\end{table}
+The completed release will report:
+\begin{itemize}[leftmargin=5mm,itemsep=0.4mm]
+    \item source dataset versions, licenses, mappings, filters, and canonical-record statistics;
+    \item HSSD and Habitat versions, scene identifiers, object assets, placement checks, and NavMesh settings;
+    \item split manifests, paired-example identifiers, checksums, and leakage-audit output;
+    \item model width, layers, attention heads, time features, history length, optimizer, learning rate, epochs, seeds, and checkpoint rule;
+    \item detector and depth inputs, visibility computation, candidate and action budgets, evidence likelihoods, and planner hyperparameters;
+    \item hardware, wall-clock latency, memory growth, repeated-run aggregation, and confidence intervals; and
+    \item reproduced versus quoted baseline values, grouped results, failure labels, and all component-aligned ablations.
+\end{itemize}
 
-The reported endurance and range values are manufacturer laboratory
-specifications and may differ from those obtained under the indoor and outdoor
-conditions used in our evaluation. We therefore do not use manufacturer-rated
-mobility or endurance as experimental outcomes. Absolute completion time is
-compared only between methods executed on the same robot platform.
-The M20 uses dual 96-line LiDARs and wide-angle cameras; X30 provides integrated
-perception and autonomous navigation; and the Lite3 LiDAR configuration exposes
-obstacle avoidance and autonomous navigation through its platform interface.
+\subsection{Ethics}
+
+Persistent visual memory may capture people or private spaces, while an incorrect belief may induce unnecessary motion or unsafe behavior. Deployments should obtain consent, enforce retention and access controls, preserve provenance, and retain platform-specific collision avoidance and emergency stops outside the learned model. Our benchmark compiles existing records into simulated HSSD episodes and introduces no new human-subject study.
+
+\subsection{AI Use}
+
+Generative AI tools assisted manuscript editing, LaTeX checks, and local engineering. They did not generate benchmark observations, ground-truth labels, or reported scores. The authors reviewed all assisted material and remain responsible for the content and artifacts.
