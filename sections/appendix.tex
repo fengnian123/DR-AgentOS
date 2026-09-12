@@ -150,32 +150,29 @@ Oracle Current State & \na & \na & \na & \na & \na & \na\\
 \label{tab:foundation_models}
 \centering
 \scriptsize
-\begin{tabularx}{0.78\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}Xrrr@{}}
+\setlength{\tabcolsep}{3pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccccc@{}}
 \toprule
-\textbf{Different VLMs} & \textbf{Configuration} &
-\makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
-\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} &
-\textbf{SPL $\uparrow$}\\
+\multirow{2}{*}{\textbf{Different VLMs}} &
+\multicolumn{3}{c}{\textbf{Last-seen Agent}} &
+\multicolumn{3}{c}{\textbf{\evolvingworldnav{}}} &
+\multirow{2}{*}{\makecell{\textbf{$\Delta$ Search}\\\textbf{SR $\uparrow$}}}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+& \makecell{First-Go\\SR $\uparrow$} & \makecell{Search\\SR $\uparrow$} &
+SPL $\uparrow$ & \makecell{First-Go\\SR $\uparrow$} &
+\makecell{Search\\SR $\uparrow$} & SPL $\uparrow$ & \\
 \midrule
-\multirow{2}{*}{GPT-4o} & Last Seen & 31.88 & 48.94 & 0.3215\\
-\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{59.72} & \textbf{71.86} & \textbf{0.6027}\\
-\cmidrule(lr){1-5}
-\multirow{2}{*}{GPT-5.5} & Last Seen & 42.36 & 51.31 & 0.3732\\
-\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{63.48} & \textbf{73.57} & \textbf{0.6531}\\
-\cmidrule(lr){1-5}
-\multirow{2}{*}{GPT-5.6-Luna} & Last Seen & 46.92 & 57.43 & 0.3970\\
-\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{63.87} & \textbf{83.36} & \textbf{0.6639}\\
-\cmidrule(lr){1-5}
-\multirow{2}{*}{Qwen2.5-VL-3B} & Last Seen & 16.26 & 26.55 & 0.1502\\
-\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{38.27} & \textbf{45.02} & \textbf{0.3727}\\
-\cmidrule(lr){1-5}
-\multirow{2}{*}{Qwen2.5-VL-32B} & Last Seen & 18.84 & 31.30 & 0.1591\\
-\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{42.44} & \textbf{46.21} & \textbf{0.3713}\\
+GPT-4o & 31.88 & 48.94 & 0.3215 & \textbf{59.72} & \textbf{71.86} & \textbf{0.6027} & \textbf{+22.92}\\
+GPT-5.5 & 42.36 & 51.31 & 0.3732 & \textbf{63.48} & \textbf{73.57} & \textbf{0.6531} & \textbf{+22.26}\\
+GPT-5.6-Luna & 46.92 & 57.43 & 0.3970 & \textbf{63.87} & \textbf{83.36} & \textbf{0.6639} & \textbf{+25.93}\\
+Qwen2.5-VL-3B & 16.26 & 26.55 & 0.1502 & \textbf{38.27} & \textbf{45.02} & \textbf{0.3727} & \textbf{+18.47}\\
+Qwen2.5-VL-32B & 18.84 & 31.30 & 0.1591 & \textbf{42.44} & \textbf{46.21} & \textbf{0.3713} & \textbf{+14.91}\\
 \midrule
-\multicolumn{2}{l}{\textbf{Mean paired gain}} & \textbf{+22.30} &
-\textbf{+20.90} & \textbf{+0.2525}\\
+\multicolumn{7}{r}{\textbf{Average gain}} & \textbf{+20.90}\\
 \bottomrule
-\end{tabularx}
+\end{tabular}
+}
 \end{table}
 
 \subsection{Cross-Benchmark Results}
