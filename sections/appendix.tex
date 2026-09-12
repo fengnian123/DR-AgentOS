@@ -179,17 +179,23 @@ Qwen2.5-VL-32B & 18.84 & 31.30 & 0.1591 & \textbf{42.44} & \textbf{46.21} & \tex
 \label{app:cross-benchmark}
 \label{app:prediction-evidence}
 
-The native FindingDory control-track metrics are expanded in
-Table~\ref{tab:findingdory_full}, while Table~\ref{tab:goat_modalities}
-reports GOAT-Bench results by goal modality.
-
-\begin{table}[!htbp]
-\caption{FindingDory results by control track.}
-\label{tab:findingdory_full}
+\noindent
+\begin{minipage}[t]{0.34\linewidth}
+\vspace{0pt}
+\raggedright
+\paragraph{FindingDory control tracks.}
+\Cref{tab:findingdory_full} separates high-level decision quality from
+low-level execution. Reporting both tracks prevents controller failures from
+being attributed to long-term memory and vice versa.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.63\linewidth}
+\vspace{0pt}
 \centering
+\captionof{table}{FindingDory results by control track.}
+\label{tab:findingdory_full}
 \scriptsize
-\setlength{\tabcolsep}{4.0pt}
-\begin{tabular}{lcccc}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
 \textbf{Method} & \textbf{HL-SR} & \textbf{HL-SPL} & \textbf{LL-SR} & \textbf{LL-SPL}\\
 \midrule
@@ -200,15 +206,26 @@ DynaMem & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{\evolvingworldnav{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{minipage}
 
-\begin{table}[!t]
-\caption{GOAT-Bench results by goal modality.}
-\label{tab:goat_modalities}
+\par\medskip
+\noindent
+\begin{minipage}[t]{0.34\linewidth}
+\vspace{0pt}
+\raggedright
+\paragraph{GOAT goal modalities.}
+\Cref{tab:goat_modalities} disaggregates category, language, and image goals.
+The matched breakdown tests whether the same memory interface transfers across
+goal specifications rather than benefiting only one query format.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.63\linewidth}
+\vspace{0pt}
 \centering
+\captionof{table}{GOAT-Bench results by goal modality.}
+\label{tab:goat_modalities}
 \scriptsize
-\setlength{\tabcolsep}{4.0pt}
-\begin{tabular}{lcccccc}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}lcccccc@{}}
 \toprule
 & \multicolumn{2}{c}{\textbf{Category goal}} &
 \multicolumn{2}{c}{\textbf{Language goal}} &
@@ -225,22 +242,28 @@ LagMemo GLUE & \na & \na & \na & \na & \na & \na\\
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{minipage}
 
 \subsection{Evolution-Aware Diagnostics}
 \label{app:evolution-diagnostics}
 
-Table~\ref{tab:mobility} breaks search success down by hidden mobility type,
-and Table~\ref{tab:worlds} compares paired static, routine, and random worlds.
-These matched variants isolate evolution from scene-frequency shortcuts.
-
-\begin{table}[!t]
-\caption{Search SR by hidden mobility type.}
-\label{tab:mobility}
+\noindent
+\begin{minipage}[t]{0.34\linewidth}
+\vspace{0pt}
+\raggedright
+\paragraph{Mobility-specific behavior.}
+\Cref{tab:mobility} breaks search success down by hidden mobility type. The
+macro average prevents frequently observed stable objects from masking failures
+on activity-driven, personal, or irregular changes.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.63\linewidth}
+\vspace{0pt}
 \centering
+\captionof{table}{Search SR by hidden mobility type.}
+\label{tab:mobility}
 \scriptsize
-\setlength{\tabcolsep}{3.0pt}
-\begin{tabular}{lccccc}
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}lccccc@{}}
 \toprule
 \textbf{Method} & \textbf{Stable} & \makecell{\textbf{Activity}\\\textbf{routine}} & \makecell{\textbf{Personal}\\\textbf{habit}} & \textbf{Irregular} & \textbf{Macro}\\
 \midrule
@@ -251,14 +274,26 @@ Transformer Direct & \na & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{\pfdnav{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{minipage}
 
-\begin{table}[!t]
-\caption{Paired-world navigation results.}
-\label{tab:worlds}
+\par\medskip
+\noindent
+\begin{minipage}[t]{0.34\linewidth}
+\vspace{0pt}
+\raggedright
+\paragraph{Paired-world control.}
+\Cref{tab:worlds} holds scenes and queries fixed while changing only the world
+transition mechanism. A routine-specific gain therefore indicates learned
+temporal structure rather than a scene-frequency shortcut.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.63\linewidth}
+\vspace{0pt}
 \centering
-\small
-\begin{tabular}{lcccc}
+\captionof{table}{Paired-world navigation results.}
+\label{tab:worlds}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
 \textbf{Method} & \textbf{Static SR} & \textbf{Routine SR} & \textbf{Random SR} & \makecell{\textbf{Routine gain}\\\textbf{over Last Seen}}\\
 \midrule
@@ -268,7 +303,7 @@ Transformer Direct & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{\pfdnav{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{minipage}
 
 \paragraph{Effect of memory staleness and inspection budget.}
 \Cref{fig:predictive-memory} complements these aggregate tables by showing
@@ -303,11 +338,11 @@ while the \evolvingworldnav{} memory, prediction, belief-update, and high-level
 search components remain unchanged.
 
 \begin{table}[!t]
-\centering
-\small
-\setlength{\tabcolsep}{8pt}
 \caption{Robot platforms used in real-world evaluation.}
 \label{tab:robot-platforms}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{8pt}
 \begin{tabular}{lllll}
 \toprule
 Platform & Morphology & Standing size & Mass & Endurance / range \\
@@ -329,11 +364,11 @@ setting has longer routes and lower success for all methods, while the direction
 of the \evolvingworldnav{} gain is consistent across both environments.
 
 \begin{table}[!t]
-\centering
-\small
-\setlength{\tabcolsep}{5pt}
 \caption{M20 results by environment.}
 \label{tab:real-domain}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{5pt}
 \begin{tabular}{lrrrrrr}
 \toprule
 & \multicolumn{3}{c}{Indoor} & \multicolumn{3}{c}{Outdoor} \\
@@ -352,17 +387,23 @@ Retrieval + Reasoning & 31.3 & 40.6 & 25.1 & 21.9 & 34.4 & 75.5 \\
 \subsection{Temporal Condition Analysis}
 \label{app:temporal-analysis}
 
-Table~\ref{tab:real-condition} shows that predictive memory is most useful
-when recurring changes provide a usable historical signal. Last Seen remains
-strong when nothing changes, whereas all methods degrade as regularity weakens.
-
-\begin{table}[!htbp]
+\noindent
+\begin{minipage}[t]{0.34\linewidth}
+\vspace{0pt}
+\raggedright
+\paragraph{Temporal conditions.}
+\Cref{tab:real-condition} shows that predictive memory is most useful when
+recurring changes provide a usable historical signal. Last Seen remains strong
+when nothing changes, whereas all methods degrade as regularity weakens.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.63\linewidth}
+\vspace{0pt}
 \centering
-\small
-\setlength{\tabcolsep}{5pt}
-\caption{M20 Search SR (\%) by temporal condition.}
+\captionof{table}{M20 Search SR (\%) by temporal condition.}
 \label{tab:real-condition}
-\begin{tabular}{lrrrr}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
 Method & Unchanged & \makecell{Routine-\\consistent} &
 \makecell{Weak-\\routine} & \makecell{Broken-\\routine} \\
@@ -373,18 +414,28 @@ Retrieval + Reasoning & 62.5 & 43.8 & 25.0 & 18.8 \\
 \textbf{\evolvingworldnav{}} & 62.5 & \textbf{68.8} & \textbf{37.5} & \textbf{25.0} \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{minipage}
 
+\par\medskip
+\noindent
+\begin{minipage}[t]{0.34\linewidth}
+\vspace{0pt}
+\raggedright
 \paragraph{Recovery and cross-platform transfer.}
-Among the 37 M20 episodes in which \evolvingworldnav{} completed an unsuccessful first inspection, nine later succeeded, giving the 24.3\% conditional Recovery SR in the main table. The matched no-update ablation is required to isolate Bayesian updating from additional search. Table~\ref{tab:real-transfer} further shows the same direction of improvement on a 16-block subset executed by all three platforms; the small sample does not establish equal performance across robots.
-
-\begin{table}[!t]
+Across 37 M20 episodes with an unsuccessful first inspection,
+\evolvingworldnav{} recovered in nine (24.3\%). A matched no-update ablation
+separates Bayesian updating from additional search. \Cref{tab:real-transfer}
+shows consistent improvements on a 16-block subset shared across all three
+platforms; this small sample tests transfer, not platform parity.
+\end{minipage}\hfill
+\begin{minipage}[t]{0.63\linewidth}
+\vspace{0pt}
 \centering
-\small
-\setlength{\tabcolsep}{5pt}
-\caption{Cross-platform transfer results.}
+\captionof{table}{Cross-platform transfer results.}
 \label{tab:real-transfer}
-\begin{tabular}{llrrr}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}llrrr@{}}
 \toprule
 Platform & Method & First-Go SR & Search SR & Dist. (m) \\
 \midrule
@@ -398,7 +449,7 @@ Platform & Method & First-Go SR & Search SR & Dist. (m) \\
 & \textbf{\evolvingworldnav{}} & \textbf{25.0} & \textbf{43.8} & \textbf{45.9} \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{minipage}
 
 \subsection{Qualitative Cases}
 \label{app:real-world-cases}
