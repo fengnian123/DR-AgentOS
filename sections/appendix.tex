@@ -38,7 +38,7 @@ h_o^m=([t_{o,s}^m,t_{o,e}^m),s_o^m,c_o^m,f_o^m,\mathcal P_o^m),
 \end{equation}
 containing a validity interval, candidate state, confidence, visual feature, and evidence handles. A state change appends a version without erasing the earlier trajectory, preserving both causal history and observation provenance.
 
-\begin{figure}[t]
+\begin{figure}[!t]
     \centering
     \includegraphics[width=\linewidth]{figures/EvolvingWorldNav.pdf}
     \caption{Temporally versioned 4D memory construction.}
@@ -111,7 +111,7 @@ the two cost columns. Table~\ref{tab:foundation_models} tests whether paired
 navigation gains persist across different VLMs under matched tools, prompts,
 episodes, and action budgets.
 
-\begin{table}[!htbp]
+\begin{table}[!t]
 \caption{Detailed P4D-Bench navigation results on routine worlds.}
 \label{tab:mainnav}
 \centering
@@ -145,7 +145,7 @@ Oracle Current State & \na & \na & \na & \na & \na & \na\\
 \end{tabular}
 \end{table}
 
-\begin{table}[!htbp]
+\begin{table}[!t]
 \caption{VLM robustness on P4D-Bench; SR is in percent and SPL is unscaled.}
 \label{tab:foundation_models}
 \centering
@@ -202,7 +202,7 @@ DynaMem & \na & \na & \na & \na\\
 \end{tabular}
 \end{table}
 
-\begin{table}[!htbp]
+\begin{table}[!t]
 \caption{GOAT-Bench results by goal modality.}
 \label{tab:goat_modalities}
 \centering
@@ -234,7 +234,7 @@ Table~\ref{tab:mobility} breaks search success down by hidden mobility type,
 and Table~\ref{tab:worlds} compares paired static, routine, and random worlds.
 These matched variants isolate evolution from scene-frequency shortcuts.
 
-\begin{table}[!htbp]
+\begin{table}[!t]
 \caption{Search SR by hidden mobility type.}
 \label{tab:mobility}
 \centering
@@ -253,7 +253,7 @@ Transformer Direct & \na & \na & \na & \na & \na\\
 \end{tabular}
 \end{table}
 
-\begin{table}[!htbp]
+\begin{table}[!t]
 \caption{Paired-world navigation results.}
 \label{tab:worlds}
 \centering
@@ -276,7 +276,7 @@ how performance changes with temporal staleness, inspection budget, and hidden
 mobility type. These episode-level diagnostics are not inferred from aggregate
 success rates.
 
-\begin{figure}[!htbp]
+\begin{figure}[!t]
 \centering
 \includegraphics[width=\linewidth]{figures/predictive-memory.pdf}
 \caption{Predictive diagnostics under memory staleness and search budgets.}
@@ -302,7 +302,7 @@ perception and low-level navigation are abstracted behind a common interface,
 while the \evolvingworldnav{} memory, prediction, belief-update, and high-level
 search components remain unchanged.
 
-\begin{table}[!htbp]
+\begin{table}[!t]
 \centering
 \small
 \setlength{\tabcolsep}{8pt}
@@ -328,7 +328,7 @@ Table~\ref{tab:real-domain} separates indoor and outdoor trials. The outdoor
 setting has longer routes and lower success for all methods, while the direction
 of the \evolvingworldnav{} gain is consistent across both environments.
 
-\begin{table}[!htbp]
+\begin{table}[!t]
 \centering
 \small
 \setlength{\tabcolsep}{5pt}
@@ -378,7 +378,7 @@ Retrieval + Reasoning & 62.5 & 43.8 & 25.0 & 18.8 \\
 \paragraph{Recovery and cross-platform transfer.}
 Among the 37 M20 episodes in which \evolvingworldnav{} completed an unsuccessful first inspection, nine later succeeded, giving the 24.3\% conditional Recovery SR in the main table. The matched no-update ablation is required to isolate Bayesian updating from additional search. Table~\ref{tab:real-transfer} further shows the same direction of improvement on a 16-block subset executed by all three platforms; the small sample does not establish equal performance across robots.
 
-\begin{table}[!htbp]
+\begin{table}[!t]
 \centering
 \small
 \setlength{\tabcolsep}{5pt}
@@ -410,14 +410,14 @@ shows obstacle-triggered replanning while searching for shared bikes. The
 figures illustrate execution traces and do not add aggregate success-rate
 measurements.
 
-\begin{figure}[H]
+\begin{figure}[!t]
 \centering
 \includegraphics[width=\linewidth]{figures/Real_World_Case_1.pdf}
 \caption{Indoor real-world execution case.}
 \label{fig:real-world-case-indoor}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!t]
 \centering
 \includegraphics[width=\linewidth]{figures/Real_World_Case_2.pdf}
 \caption{Outdoor real-world execution case.}
