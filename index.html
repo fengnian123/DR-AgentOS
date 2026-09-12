@@ -42,7 +42,7 @@
       <div class="hero-visual reveal reveal-delay">
         <div class="orbital orbital-one"></div><div class="orbital orbital-two"></div>
         <div class="hero-image-wrap">
-          <img src="figures/p4d_nav_overview.png" alt="EvolvingWorldNav system overview" />
+          <img src="figures/overview_web.png" alt="EvolvingWorldNav system overview from the latest paper" />
           <div class="image-caption"><span class="caption-dot"></span> history → belief → action → evidence</div>
         </div>
         <div class="floating-note note-top"><span class="note-label">STATE</span><strong>now</strong><small>not just last seen</small></div>
@@ -79,8 +79,8 @@
           <a class="text-link" href="figures/method.pdf" target="_blank" rel="noreferrer">Open architecture figure <span>↗</span></a>
         </article>
         <article class="method-card method-card-image">
-          <img src="figures/predictive-memory.png" alt="Predictive memory visualization" />
-          <div class="image-card-footer"><span>4D Predictive Memory</span><a href="figures/predictive-memory.pdf" target="_blank" rel="noreferrer">PDF ↗</a></div>
+          <img src="figures/memory_web.png" alt="Temporally versioned 4D memory construction" />
+          <div class="image-card-footer"><span>Temporally versioned 4D memory</span><a href="figures/EvolvingWorldNav.pdf" target="_blank" rel="noreferrer">PDF ↗</a></div>
         </article>
         <article class="method-card method-card-dark">
           <div class="card-top"><span class="card-index">B</span><span class="card-tag">STRUCTURED BELIEF</span></div>
@@ -97,13 +97,13 @@
 
     <section class="section-shell benchmark-section" id="benchmark">
       <div class="section-kicker">03 / P4D-Bench</div>
-      <div class="benchmark-intro"><div><h2>Stress-testing<br /><em>time, not snapshots.</em></h2></div><p>P4D-Bench couples continuous world evolution with executable embodied episodes. Complete release: <strong>54 scenes</strong> and <strong>803.68k task instances</strong> across state prediction, ObjectNav, VLN, and EQA.</p></div>
-      <div class="benchmark-visual"><img src="figures/benchmark.jpg" alt="P4D-Bench benchmark visualization" /><div class="bench-overlay"><span>LONGITUDINAL</span><strong>hidden state changes</strong><small>static · routine · random controls</small></div></div>
+      <div class="benchmark-intro"><div><h2>Stress-testing<br /><em>time, not snapshots.</em></h2></div><p>P4D-Bench couples continuous world evolution with executable embodied episodes. The latest release contains <strong>54 scenes</strong>, <strong>90 days per scene</strong>, and <strong>803.68K task episodes</strong> over longitudinal hidden state changes.</p></div>
+      <div class="benchmark-visual"><img src="figures/benchmark_web.png" alt="Latest P4D-Bench task distribution and temporal split" /><div class="bench-overlay"><span>LONGITUDINAL</span><strong>hidden state changes</strong><small>stable · activity-routine · personal-habit · irregular</small></div></div>
       <div class="track-grid">
-        <div class="track"><span class="track-no">01</span><strong>State prediction</strong><span>current object state under stale history</span></div>
-        <div class="track"><span class="track-no">02</span><strong>Object navigation</strong><span>search with fixed action budgets</span></div>
-        <div class="track"><span class="track-no">03</span><strong>Vision-language navigation</strong><span>language-grounded evolving scenes</span></div>
-        <div class="track"><span class="track-no">04</span><strong>Embodied QA</strong><span>answers grounded in versioned worlds</span></div>
+        <div class="track"><span class="track-no">P</span><strong>Current-state prediction</strong><span>calibrated belief · R@k / NLL</span></div>
+        <div class="track"><span class="track-no">N1</span><strong>Predictive navigation</strong><span>Top-1 belief · First-Go SR</span></div>
+        <div class="track"><span class="track-no">N2</span><strong>Belief-guided search</strong><span>full belief + cost · Search SR</span></div>
+        <div class="track"><span class="track-no">N3–N5</span><strong>Evidence &amp; generalization</strong><span>replanning · online dynamics · held-out scenes</span></div>
       </div>
     </section>
 
@@ -124,7 +124,7 @@
 
     <section class="section-shell case-section">
       <div class="section-kicker">05 / Qualitative case study</div>
-      <div class="case-grid"><div><h2>When memory<br /><em>goes stale.</em></h2><p>The target bowl was last observed in a cabinet 14.77 hours before the query. A dinner-cleanup transition moved it to the kitchen sink. Predictive belief ranks the sink first and verifies it in one inspection.</p><a class="text-link" href="figures/P4D_CaseStudy.pdf" target="_blank" rel="noreferrer">Open full case study <span>↗</span></a></div><div class="case-image"><object data="figures/P4D_CaseStudy.pdf" type="application/pdf" aria-label="P4D-Bench case study"><a href="figures/P4D_CaseStudy.pdf" target="_blank" rel="noreferrer">Open the case study PDF</a></object><div class="pdf-fallback">PDF figure · click to open full resolution</div></div></div>
+      <div class="case-grid"><div><h2>When memory<br /><em>goes stale.</em></h2><p>The target bowl was last observed in a cabinet 14.77 hours before the query. A dinner-cleanup transition moved it to the kitchen sink. Predictive belief ranks the sink first and verifies it in one inspection.</p><a class="text-link" href="figures/P4D_CaseStudy.pdf" target="_blank" rel="noreferrer">Open full case study <span>↗</span></a></div><div class="case-image"><img src="figures/case_web.png" alt="P4D-Bench case study comparing predictive, last-seen, and nearest-first search" /><div class="pdf-fallback">Latest paper figure · click to open PDF</div></div></div>
     </section>
 
     <section class="section-shell resources-section">
