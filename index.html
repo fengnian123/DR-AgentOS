@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#08111f" />
+  <meta name="description" content="EvolvingWorldNav: Predictive 4D Belief for Persistent Navigation in Evolving Worlds" />
+  <title>EvolvingWorldNav — Predictive 4D Belief</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="enhancements.css" />
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <nav class="nav" id="top">
+    <a class="brand" href="#top"><span class="brand-mark">E</span><span>EvolvingWorldNav</span></a>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#method">Method</a>
+      <a href="#benchmark">Benchmark</a>
+      <a href="#results">Results</a>
+    </div>
+    <a class="nav-cta" href="main.pdf" target="_blank" rel="noreferrer">Read paper <span>↗</span></a>
+  </nav>
+
+  <main>
+    <section class="hero section-shell">
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span class="pulse"></span> ICLR 2027 · Anonymous submission</div>
+        <h1>Evolving<br /><em>Worlds.</em><br />Predictive Belief.</h1>
+        <p class="hero-lead">Persistent navigation for agents that return to a world that has changed while they were away.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="main.pdf" target="_blank" rel="noreferrer">Read the paper <span>↗</span></a>
+          <a class="button button-ghost" href="https://github.com/fengnian123/DR-AgentOS" target="_blank" rel="noreferrer">View code <span>↗</span></a>
+        </div>
+        <div class="hero-meta">
+          <span>54 scenes</span><i></i><span>803.68k tasks</span><i></i><span>4D predictive memory</span>
+        </div>
+      </div>
+      <div class="hero-visual reveal reveal-delay">
+        <div class="orbital orbital-one"></div><div class="orbital orbital-two"></div>
+        <div class="hero-image-wrap">
+          <img src="figures/p4d_nav_overview.png" alt="EvolvingWorldNav system overview" />
+          <div class="image-caption"><span class="caption-dot"></span> history → belief → action → evidence</div>
+        </div>
+        <div class="floating-note note-top"><span class="note-label">STATE</span><strong>now</strong><small>not just last seen</small></div>
+        <div class="floating-note note-bottom"><span class="note-label">MEMORY</span><strong>4D</strong><small>causal + time-valid</small></div>
+      </div>
+    </section>
+
+    <section class="signal-strip section-shell reveal">
+      <div><span class="signal-number">01</span><span>Persistent navigation<br /><b>in evolving worlds</b></span></div>
+      <div><span class="signal-number">02</span><span>Evidence-grounded<br /><b>4D predictive memory</b></span></div>
+      <div><span class="signal-number">03</span><span>Closed-loop<br /><b>belief &amp; replanning</b></span></div>
+    </section>
+
+    <section class="section-shell narrative" id="overview">
+      <div class="section-kicker">01 / The problem</div>
+      <div class="two-col">
+        <h2>A map can be correct<br /><em>and still be wrong.</em></h2>
+        <div class="body-copy">
+          <p>Most embodied navigation systems treat memory as a snapshot of the world. Long-lived agents cannot. Homes, offices, and campuses evolve while unobserved: objects move, rooms are rearranged, and accessibility changes.</p>
+          <p>EvolvingWorldNav asks a more realistic question: <strong>what task-relevant state is most likely true now?</strong> The agent turns timestamped history into a calibrated belief, acts to test that belief, and writes new evidence back into memory.</p>
+        </div>
+      </div>
+      <div class="quote-card"><span class="quote-mark">“</span><p>Our work shifts embodied navigation from acting on remembered past observations toward maintaining, testing, and acting on beliefs about the world as it is now.</p><span class="quote-rule"></span><span class="quote-label">EvolvingWorldNav · research thesis</span></div>
+    </section>
+
+    <section class="section-shell method-section" id="method">
+      <div class="section-kicker">02 / The method</div>
+      <div class="section-heading-row"><h2>From causal history<br /><em>to current-state belief.</em></h2><p>A compact action-facing interface for long-term embodied agents.</p></div>
+      <div class="method-grid">
+        <article class="method-card method-card-wide">
+          <div class="card-top"><span class="card-index">A</span><span class="card-tag">SYSTEM OVERVIEW</span></div>
+          <h3>Predict, act, observe,<br />update.</h3>
+          <p>Timestamped RGB-D experience is consolidated into persistent entity histories, transformed into a task-conditioned belief, and exposed to an embodied agent through typed memory and action skills.</p>
+          <a class="text-link" href="figures/method.pdf" target="_blank" rel="noreferrer">Open architecture figure <span>↗</span></a>
+        </article>
+        <article class="method-card method-card-image">
+          <img src="figures/predictive-memory.png" alt="Predictive memory visualization" />
+          <div class="image-card-footer"><span>4D Predictive Memory</span><a href="figures/predictive-memory.pdf" target="_blank" rel="noreferrer">PDF ↗</a></div>
+        </article>
+        <article class="method-card method-card-dark">
+          <div class="card-top"><span class="card-index">B</span><span class="card-tag">STRUCTURED BELIEF</span></div>
+          <div class="equation"><span>belief</span><b>=</b><span class="eq-pill">persistence</span><span>+</span><span class="eq-pill eq-pill-warm">relocation</span></div>
+          <p>The model separates whether the last state persists from where an object may relocate, matching the physical alternatives available to the navigator.</p>
+        </article>
+        <article class="method-card method-card-dark method-card-loop">
+          <div class="card-top"><span class="card-index">C</span><span class="card-tag">EVIDENCE LOOP</span></div>
+          <div class="loop"><span>belief</span><i>→</i><span>inspect</span><i>→</i><span>observe</span><i>→</i><span>replan</span></div>
+          <p>Visibility-aware Bayesian updates suppress a hypothesis only when the target should have been observable there.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell benchmark-section" id="benchmark">
+      <div class="section-kicker">03 / P4D-Bench</div>
+      <div class="benchmark-intro"><div><h2>Stress-testing<br /><em>time, not snapshots.</em></h2></div><p>P4D-Bench couples continuous world evolution with executable embodied episodes. Complete release: <strong>54 scenes</strong> and <strong>803.68k task instances</strong> across state prediction, ObjectNav, VLN, and EQA.</p></div>
+      <div class="benchmark-visual"><img src="figures/benchmark.jpg" alt="P4D-Bench benchmark visualization" /><div class="bench-overlay"><span>LONGITUDINAL</span><strong>hidden state changes</strong><small>static · routine · random controls</small></div></div>
+      <div class="track-grid">
+        <div class="track"><span class="track-no">01</span><strong>State prediction</strong><span>current object state under stale history</span></div>
+        <div class="track"><span class="track-no">02</span><strong>Object navigation</strong><span>search with fixed action budgets</span></div>
+        <div class="track"><span class="track-no">03</span><strong>Vision-language navigation</strong><span>language-grounded evolving scenes</span></div>
+        <div class="track"><span class="track-no">04</span><strong>Embodied QA</strong><span>answers grounded in versioned worlds</span></div>
+      </div>
+    </section>
+
+    <section class="section-shell results-section" id="results">
+      <div class="section-kicker">04 / Results</div>
+      <div class="results-head"><h2>Belief that<br /><em>travels.</em></h2><p>The predictive interface transfers across benchmarks, controllers, and real-world search.</p></div>
+      <div class="metric-grid">
+        <article class="metric-card metric-card-accent"><span class="metric-label">FindingDory · HL-SR</span><strong>63.22<span>%</span></strong><small>+10.78 pts vs. strongest baseline</small></article>
+        <article class="metric-card"><span class="metric-label">GOAT-Bench · SR</span><strong>35.43<span>%</span></strong><small>+5.79 pts vs. strongest baseline</small></article>
+        <article class="metric-card"><span class="metric-label">P4D-Bench · Search SR</span><strong>86.18<span>%</span></strong><small>70.15% SPL · five seeds</small></article>
+        <article class="metric-card metric-card-warm"><span class="metric-label">Real-world · Search SR</span><strong>48.4<span>%</span></strong><small>LYNX M20 · 64 episodes / method</small></article>
+      </div>
+      <div class="results-table-wrap">
+        <div class="table-title"><span>Headline comparison</span><span class="table-note">mean ± std · five seeds</span></div>
+        <table><thead><tr><th>Method</th><th>FindingDory<br />HL-SR ↑</th><th>GOAT-Bench<br />SR ↑</th><th>P4D-Bench<br />Search SR ↑</th><th>P4D-Bench<br />SPL ↑</th></tr></thead><tbody><tr><td>Last Seen / baselines</td><td>52.44</td><td>29.64</td><td>81.00</td><td>66.83</td></tr><tr class="ours"><td>EvolvingWorldNav <span>ours</span></td><td>63.22 ± 3.87</td><td>35.43 ± 2.16</td><td>86.18 ± 2.07</td><td>70.15 ± 1.74</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section class="section-shell case-section">
+      <div class="section-kicker">05 / Qualitative case study</div>
+      <div class="case-grid"><div><h2>When memory<br /><em>goes stale.</em></h2><p>The target bowl was last observed in a cabinet 14.77 hours before the query. A dinner-cleanup transition moved it to the kitchen sink. Predictive belief ranks the sink first and verifies it in one inspection.</p><a class="text-link" href="figures/P4D_CaseStudy.pdf" target="_blank" rel="noreferrer">Open full case study <span>↗</span></a></div><div class="case-image"><object data="figures/P4D_CaseStudy.pdf" type="application/pdf" aria-label="P4D-Bench case study"><a href="figures/P4D_CaseStudy.pdf" target="_blank" rel="noreferrer">Open the case study PDF</a></object><div class="pdf-fallback">PDF figure · click to open full resolution</div></div></div>
+    </section>
+
+    <section class="section-shell resources-section">
+      <div class="section-kicker">06 / Resources</div>
+      <div class="resource-grid">
+        <a class="resource-card" href="main.pdf" target="_blank" rel="noreferrer"><span class="resource-icon">↗</span><span><strong>Paper</strong><small>Full manuscript PDF</small></span></a>
+        <a class="resource-card" href="https://github.com/fengnian123/DR-AgentOS" target="_blank" rel="noreferrer"><span class="resource-icon">⌘</span><span><strong>Code</strong><small>GitHub repository</small></span></a>
+        <a class="resource-card" href="figures/P4D_Benchmark.pdf" target="_blank" rel="noreferrer"><span class="resource-icon">▦</span><span><strong>Benchmark</strong><small>P4D-Bench overview</small></span></a>
+        <a class="resource-card" href="figures/Real_World_Case_1.pdf" target="_blank" rel="noreferrer"><span class="resource-icon">◎</span><span><strong>Real-world panel</strong><small>Deployment examples</small></span></a>
+      </div>
+      <div class="editable-note"><span>✦</span><p><strong>Ready for the next pass.</strong> Author names, affiliations, project links, video, demos, and additional result figures can be added directly in this page as they become available.</p></div>
+    </section>
+  </main>
+
+  <footer class="footer section-shell"><div class="footer-brand"><span class="brand-mark">E</span><span>EvolvingWorldNav</span></div><p>Predictive 4D belief for persistent navigation in evolving worlds.</p><a href="#top">Back to top ↑</a></footer>
+  <script src="script.js"></script>
+</body>
+</html>
