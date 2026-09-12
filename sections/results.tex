@@ -117,13 +117,23 @@ visualizes these complementary staleness, budget, and mobility diagnostics.
 
 \subsection{Generalization across Simulation Fidelity}
 
-\begin{table}[!htbp]
-\caption{Generalization across standard, photorealistic, and evolving simulation worlds.}
+\Cref{tab:domains} assigns one established task to each simulator rather than
+pooling incompatible goal definitions: R2R-CE on MP3D, HM3D-OVON on HM3D,
+PointNav on Habitat-GS, SAGE-Bench on InteriorGS, and \pfdbench{} on HSSD
+\citep{krantz2020beyond,yokoyama2024hm3dovon,xia2026habitatgs,miao2025sage3d}.
+The first group uses navigation trajectories, task-specific fine-tuning, or
+reinforcement learning. The second performs zero-shot evaluation without
+training a navigation policy on the target benchmark. This distinction is
+important for \evolvingworldnav{}, whose controller and foundation model remain
+frozen even though its world-state predictor is trained on causal histories.
+
+\begin{table*}[!b]
+\caption{Cross-environment navigation on one canonical task per simulator.}
 \label{tab:domains}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.2pt}
-\resizebox{\linewidth}{!}{%
+\setlength{\tabcolsep}{3.6pt}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccccccc}
 \toprule
 & \multicolumn{4}{c}{\hdr{\textbf{Standard Simulation Worlds}}} &
@@ -134,34 +144,47 @@ visualizes these complementary staleness, budget, and mobility diagnostics.
 \multicolumn{2}{c}{\textbf{Habitat-GS}} & \multicolumn{2}{c}{\textbf{Interior-GS}} &
 \multicolumn{2}{c}{\textbf{HSSD}}\\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
+& \multicolumn{2}{c}{\textbf{R2R-CE}} &
+\multicolumn{2}{c}{\textbf{HM3D-OVON}} &
+\multicolumn{2}{c}{\textbf{PointNav}} &
+\multicolumn{2}{c}{\textbf{SAGE-Bench}} &
+\multicolumn{2}{c}{\textbf{\pfdbench{}}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
 \textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
 \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
 \midrule
-\rowcolor{tblnav}\multicolumn{11}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
-VLFM & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-ZSON & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-LagMemo GLUE & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Navigation-trained or task-adapted}}\\
+CMA\textsuperscript{$\dagger$} \citep{krantz2020beyond} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+DD-PPO\textsuperscript{$\dagger$} \citep{wijmans2020ddppo} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+DUET\textsuperscript{$\dagger$} \citep{chen2022duet} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+Uni-NaVid\textsuperscript{$\dagger$} \citep{zhang2024uninavid} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+NaVILA\textsuperscript{$\dagger$} \citep{cheng2024navila} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+D3D-VLP \citep{wang2026d3dvlp} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
-\rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Structured spatio-temporal memory}}\\
-HOV-SG & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-DynaMem & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-\midrule
-\rowcolor{tblpredict}\multicolumn{11}{c}{\emph{Predictive world and state modeling}}\\
-FlowMaps & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-Perpetua & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-\midrule
+\rowcolor{tblnav}\multicolumn{11}{c}{\emph{Zero-shot navigation without target-benchmark policy training}}\\
+VLFM\textsuperscript{$\dagger$} \citep{yokoyama2024vlfm} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+AO-Planner\textsuperscript{$\dagger$} \citep{chen2025aoplanner} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+TANGO\textsuperscript{$\dagger$} \citep{ziliotto2025tango} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+MSGNav\textsuperscript{$\dagger$} \citep{huang2026msgnav} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+Uni-LaViRA\textsuperscript{$\dagger$} \citep{ding2026unilavira} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{\evolvingworldnav{} (ours)} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
 }
-\end{table}
+\end{table*}
+\FloatBarrier
 
-The principal comparison is not only average SR but the degradation from
-standard mesh-based simulation to photorealistic rendering and evolving HSSD
-worlds. A breakdown into belief, grounding, detection, and navigation errors
-distinguishes temporal-prediction shifts from changes in visual evidence.
+We include methods only when the exact benchmark has published results or a
+released implementation supports a matched rerun; \textsuperscript{$\dagger$}
+marks the latter. Published values are transferred only when the split, sensor,
+action, and success protocols match. Otherwise, we rerun the released
+checkpoint and report the result as a reproduction rather than silently mixing
+protocols. Comparisons are therefore made vertically within each benchmark,
+not horizontally across tasks. Beyond average SR, the mesh-to-Gaussian and
+static-to-evolving changes reveal whether failures arise from visual transfer,
+goal grounding, or stale world state.
 
 \FloatBarrier
 

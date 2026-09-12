@@ -50,12 +50,15 @@ neural inputs tests whether its advantages survive stronger controls.
 
 \paragraph{Cross-domain simulation.}
 To distinguish temporal reasoning from renderer- or dataset-specific fitting,
-we evaluate the same system in conventional mesh-based environments (MP3D and
-HM3D) and high-fidelity Gaussian-splatting environments (Habitat-GS and
-Interior-GS). Scene-specific candidate sets and navigable viewpoints are
-constructed with the same rules, while perception and control configurations
-are held fixed wherever simulator interfaces permit. We report both in-domain
-performance and transfer from the P4D-HSSD training distribution.
+we evaluate one canonical task in each environment: R2R-CE on MP3D,
+HM3D-OVON on HM3D, the native PointNav protocol on Habitat-GS, SAGE-Bench on
+InteriorGS, and \pfdbench{} on dynamic HSSD scenes. Each column keeps its
+official split, goal specification, and success rule; scores are not pooled
+across tasks. We hold perception and low-level control fixed within a column
+and report either exact-protocol published results or matched runs from
+released checkpoints. This design covers standard meshes, Gaussian-splatting
+simulators, and evolving worlds without treating heterogeneous tasks as a
+single metric.
 
 
 
@@ -122,6 +125,17 @@ detector or controller from being mistaken for better temporal reasoning.
 Last Seen, Frequency, Markov, and Random Forest remain lightweight diagnostic
 baselines in the dedicated \pfdbench{} and predictor tables rather than the
 headline cross-benchmark comparison.
+
+For the cross-environment evaluation in \cref{tab:domains}, baselines are
+additionally stratified by training regime. CMA, DD-PPO, DUET, Uni-NaVid,
+NaVILA, and D3D-VLP represent navigation-trained or task-adapted policies
+\citep{krantz2020beyond,wijmans2020ddppo,chen2022duet,zhang2024uninavid,
+cheng2024navila,wang2026d3dvlp}. VLFM, AO-Planner, TANGO, MSGNav, and
+Uni-LaViRA represent training-free or target-benchmark zero-shot agents
+\citep{yokoyama2024vlfm,chen2025aoplanner,ziliotto2025tango,
+huang2026msgnav,ding2026unilavira}. This selection spans classical policies and
+recent generalist agents while retaining only methods with reported scores on
+the selected task or sufficient released code and checkpoints for reproduction.
 
 N4 additionally compares against Transit-Aware Planning under its required
 online target-path input \citep{dorbala2026portable}. Oracle Current State
