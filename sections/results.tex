@@ -127,7 +127,7 @@ training a navigation policy on the target benchmark. This distinction is
 important for \evolvingworldnav{}, whose controller and foundation model remain
 frozen even though its world-state predictor is trained on causal histories.
 
-\begin{table*}[!b]
+\begin{table*}[!t]
 \caption{Cross-environment navigation on one canonical task per simulator.}
 \label{tab:domains}
 \centering
@@ -140,10 +140,6 @@ frozen even though its world-state predictor is trained on causal histories.
 \multicolumn{4}{c}{\hdr{\textbf{Photorealistic Simulation}}} &
 \multicolumn{2}{c}{\hdr{\textbf{Evolving Simulation Worlds}}}\\
 \cmidrule(lr){2-5}\cmidrule(lr){6-9}\cmidrule(lr){10-11}
-& \multicolumn{2}{c}{\textbf{MP3D}} & \multicolumn{2}{c}{\textbf{HM3D}} &
-\multicolumn{2}{c}{\textbf{Habitat-GS}} & \multicolumn{2}{c}{\textbf{Interior-GS}} &
-\multicolumn{2}{c}{\textbf{HSSD}}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}
 & \multicolumn{2}{c}{\textbf{R2R-CE}} &
 \multicolumn{2}{c}{\textbf{HM3D-OVON}} &
 \multicolumn{2}{c}{\textbf{PointNav}} &
@@ -154,8 +150,8 @@ frozen even though its world-state predictor is trained on causal histories.
 \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
 \midrule
 \rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Navigation-trained or task-adapted}}\\
-CMA\textsuperscript{$\dagger$} \citep{krantz2020beyond} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
-DD-PPO\textsuperscript{$\dagger$} \citep{wijmans2020ddppo} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+MTU3D\textsuperscript{$\dagger$} \citep{zhu2025mtu3d} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+SoftNav \citep{wu2026softnav} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 DUET\textsuperscript{$\dagger$} \citep{chen2022duet} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 Uni-NaVid\textsuperscript{$\dagger$} \citep{zhang2024uninavid} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 NaVILA\textsuperscript{$\dagger$} \citep{cheng2024navila} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
@@ -381,6 +377,21 @@ Top-1 by 1.71 percentage points and reduces NLL from 1.0448 to 0.9778.
 These results suggest that structured long-term memory contributes information
 beyond shared semantic regularities and improves the transfer of current-state
 beliefs to unseen scenes.
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/calibration_current_state_belief_2panel.pdf}
+    \caption{Calibration of current-state beliefs before and after evidence updates.}
+    \label{fig:belief-calibration}
+\end{figure*}
+
+\Cref{fig:belief-calibration} complements the ranking metrics with probability
+quality. The structured prior follows empirical accuracy more closely than the
+direct Transformer, while evidence updating maintains this reliability and
+concentrates more predictions in the high-confidence bins. Thus, the update
+mechanism improves an action-facing belief rather than merely sharpening an
+uncalibrated score, which is essential when confidence determines the next
+inspection target.
 
 Because this table evaluates prediction independently of embodied execution,
 it does not by itself establish a navigation advantage.
