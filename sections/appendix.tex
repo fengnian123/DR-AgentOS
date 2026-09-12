@@ -107,8 +107,9 @@ for space constraints.
 
 Table~\ref{tab:mainnav} expands the routine-world navigation comparison with
 inspection count, travel distance, and recovery success; lower is better for
-the two cost columns. Table~\ref{tab:foundation_models} tests backbone
-robustness under matched tools, prompts, episodes, and action budgets.
+the two cost columns. Table~\ref{tab:foundation_models} tests whether paired
+navigation gains persist across different VLMs under matched tools, prompts,
+episodes, and action budgets.
 
 \begin{table}[!htbp]
 \caption{Detailed P4D-Bench navigation results on routine worlds.}
@@ -145,44 +146,36 @@ Oracle Current State & \na & \na & \na & \na & \na & \na\\
 \end{table}
 
 \begin{table}[!htbp]
-\caption{Backbone robustness on P4D-Bench under matched evaluation conditions.}
+\caption{VLM robustness on P4D-Bench; SR is in percent and SPL is unscaled.}
 \label{tab:foundation_models}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}llccccccc@{}}
+\begin{tabularx}{0.78\linewidth}{@{}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}Xrrr@{}}
 \toprule
-\multirow{2}{*}{\textbf{Family}} &
-\multirow{2}{*}{\textbf{Fixed controller endpoint}} &
-\multicolumn{3}{c}{\textbf{Last-seen Agent}} &
-\multicolumn{3}{c}{\textbf{\evolvingworldnav{}}} &
-\multirow{2}{*}{\makecell{\textbf{$\Delta$ Search}\\\textbf{SR $\uparrow$}}}\\
-\cmidrule(lr){3-5}\cmidrule(lr){6-8}
-& & \makecell{First-Go\\SR $\uparrow$} & \makecell{Search\\SR $\uparrow$} &
-SPL $\uparrow$ & \makecell{First-Go\\SR $\uparrow$} &
-\makecell{Search\\SR $\uparrow$} & SPL $\uparrow$ & \\
+\textbf{Different VLMs} & \textbf{Configuration} &
+\makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
+\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} &
+\textbf{SPL $\uparrow$}\\
 \midrule
-\multirow{2}{*}{Qwen} & Qwen2.5-VL-7B-Instruct
-& \na & \na & \na & \na & \na & \na & \na\\
-& Qwen2.5-VL-72B-Instruct
-& \na & \na & \na & \na & \na & \na & \na\\
+\multirow{2}{*}{GPT-4o} & Last Seen & 31.88 & 48.94 & 0.3215\\
+\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{59.72} & \textbf{71.86} & \textbf{0.6027}\\
+\cmidrule(lr){1-5}
+\multirow{2}{*}{GPT-5.5} & Last Seen & 42.36 & 51.31 & 0.3732\\
+\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{63.48} & \textbf{73.57} & \textbf{0.6531}\\
+\cmidrule(lr){1-5}
+\multirow{2}{*}{GPT-5.6-Luna} & Last Seen & 46.92 & 57.43 & 0.3970\\
+\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{63.87} & \textbf{83.36} & \textbf{0.6639}\\
+\cmidrule(lr){1-5}
+\multirow{2}{*}{Qwen2.5-VL-3B} & Last Seen & 16.26 & 26.55 & 0.1502\\
+\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{38.27} & \textbf{45.02} & \textbf{0.3727}\\
+\cmidrule(lr){1-5}
+\multirow{2}{*}{Qwen2.5-VL-32B} & Last Seen & 18.84 & 31.30 & 0.1591\\
+\rowcolor{tblours} & \textbf{\evolvingworldnav{}} & \textbf{42.44} & \textbf{46.21} & \textbf{0.3713}\\
 \midrule
-\multirow{2}{*}{OpenAI} & GPT-5.5 / \nolinkurl{gpt-5.5-2026-04-23}
-& \na & \na & \na & \na & \na & \na & \na\\
-& GPT-5.6 Luna / \nolinkurl{gpt-5.6-luna}
-& \na & \na & \na & \na & \na & \na & \na\\
-\midrule
-\multirow{2}{*}{Google} & Gemini 3.1 Pro / \nolinkurl{gemini-3.1-pro-preview}
-& \na & \na & \na & \na & \na & \na & \na\\
-& Gemini 3.5 Flash / \nolinkurl{gemini-3.5-flash}
-& \na & \na & \na & \na & \na & \na & \na\\
-\midrule
-\multicolumn{2}{r}{\textbf{Average gain}} &
-& & & & & & \na\\
+\multicolumn{2}{l}{\textbf{Mean paired gain}} & \textbf{+22.30} &
+\textbf{+20.90} & \textbf{+0.2525}\\
 \bottomrule
-\end{tabular}
-}
+\end{tabularx}
 \end{table}
 
 \subsection{Cross-Benchmark Results}

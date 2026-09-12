@@ -408,24 +408,28 @@ The full paired backbone matrix is moved to Appendix \cref{tab:foundation_models
 
 This experiment isolates the contribution of predictive memory from
 foundation-model capacity. Following embodied evaluations that span proprietary and
-open-weight VLMs \citep{qiao2025navbench}, we select two Qwen2.5-VL scales
-\citep{bai2025qwen25vl}, two OpenAI controllers
-\citep{openai2026gpt55,openai2026gpt56luna}, and two Gemini controllers
-\citep{google2026gemini31,google2026gemini35}. For every controller, the
+open-weight VLMs \citep{qiao2025navbench}, we evaluate GPT-4o, GPT-5.5, and
+GPT-5.6-Luna \citep{hurst2024gpt4o,openai2026gpt55,openai2026gpt56luna},
+together with the open-weight Qwen2.5-VL-3B and Qwen2.5-VL-32B
+\citep{bai2025qwen25vl}. For every controller, the
 last-seen baseline and \evolvingworldnav{} run the same episodes with identical
 perception, candidate locations, tools, prompts, action budgets, and low-level
 navigator. The baseline replaces predictive 4D belief with the last supported
 target state; \evolvingworldnav{} keeps the VLM fixed and changes only the memory,
 prediction, and evidence-update pathway.
 
-The decisive statistic is therefore the paired within-controller gain rather
-than the absolute ranking of VLMs. We report mean $\pm$ standard deviation over
-five seeds and compute $\Delta$ Search SR between matched configurations. Consistently positive
-gains across open-weight, high-capacity, and cost-oriented controllers would
-show that the navigation advantage persists across backbone families instead
-of arising from a particular proprietary VLM. Together with the VLM-independent
-prediction results in \cref{tab:predictors}, this separates the quality of the
-world-state belief from the general reasoning strength of the controller.
+The decisive statistic is the paired within-controller gain rather than the
+absolute ranking of VLMs. Across all five controllers, \evolvingworldnav{}
+improves First-Go SR by 22.30 points, Search SR by 20.90 points, and SPL by
+0.2525 on average. Search-SR gains remain positive for every VLM, ranging from
+14.91 points on Qwen2.5-VL-32B to 25.93 points on GPT-5.6-Luna. The latter
+reaches the strongest absolute result (63.87 First-Go SR, 83.36 Search SR, and
+0.6639 SPL), while even Qwen2.5-VL-3B gains 22.01 First-Go points, 18.47 Search
+points, and 0.2225 SPL. This consistency across model scale and provider argues
+that the advantage comes from predictive memory and evidence updating rather
+than a particular VLM. Together with the VLM-independent prediction results in
+\cref{tab:predictors}, it separates world-state belief quality from the general
+reasoning strength of the controller.
 
 \FloatBarrier
 
