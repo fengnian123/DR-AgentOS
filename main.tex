@@ -5,6 +5,7 @@
 \usepackage{wrapfig}
 \usepackage{amsmath,amssymb,amsfonts,mathtools,amsthm}
 \usepackage{booktabs,graphicx,multirow,makecell,tabularx}
+\usepackage{capt-of}
 \usepackage{float}
 \usepackage{xcolor}
 \usepackage{microtype}
@@ -28,7 +29,7 @@
 
 \newcommand{\pfdnav}{\textsc{P4D-Nav}}
 \newcommand{\pfdbench}{\textsc{P4D-Bench}}
-\newcommand{\dragentos}{\textsc{DR-AgentOS}}
+\newcommand{\evolvingworldnav}{\textsc{EvolvingWorldNav}}
 \newcommand{\na}{--}
 \definecolor{tblheader}{RGB}{233,238,245}
 \definecolor{tblours}{RGB}{238,240,242}
@@ -38,7 +39,7 @@
 \definecolor{tblpredict}{RGB}{242,237,248}
 \newcommand{\hdr}[1]{\colorbox{tblheader}{\strut #1}}
 
-\title{DR-AgentOS: Predictive 4D Belief for Navigation in Evolving Worlds}
+\title{EvolvingWorldNav: Predictive 4D Belief for Navigation in Evolving Worlds}
 
 % ICLR 2027 is double blind. Author identities must not appear in either the
 % paper or supplementary material until the camera-ready stage.
@@ -49,14 +50,14 @@
 
 \begin{abstract}
 Embodied navigation is predominantly defined against a stationary world snapshot: maps and memories are treated as descriptions of the state in which the agent will act.
-This premise fails for long-lived agents because the world continues to evolve while it is unobserved. We identify and formulate \emph{persistent navigation in evolving worlds}, a new problem in which an agent must infer the current task-relevant state from partial, irregular, and temporally stale experience, navigate under that uncertainty, and revise its decisions as physical evidence arrives. Unlike dynamic mapping that reacts to observed changes or navigation that tracks an already moving target, this setting centers on \emph{hidden evolution between visits}: the memory can be historically correct yet operationally obsolete. We introduce \dragentos{}, a predictive embodied-agent architecture whose \pfdnav{} core converts an evidence-grounded 4D memory into an actionable belief over the present world. A continuous-time Transformer models irregular histories, and a structured persistence--relocation pointer head predicts whether the last supported state still holds and where the state likely transitioned otherwise. The agent uses the resulting distribution to choose between direct navigation and cost-aware inspection, then applies a visibility-aware Bayesian update to positive and negative observations before replanning. We also introduce \pfdbench{}, a 54-scene benchmark comprising 803.68k tasks across state prediction, object navigation, vision-and-language navigation, and embodied question answering. Paired static, routine, and random worlds test whether an agent learns evolution rather than exploiting scene-frequency shortcuts. Together, our formulation shifts embodied navigation from acting on a remembered past to maintaining, testing, and acting on beliefs about the world as it is now.
+This premise fails for long-lived agents because the world continues to evolve while it is unobserved. We identify and formulate \emph{persistent navigation in evolving worlds}, a new problem in which an agent must infer the current task-relevant state from partial, irregular, and temporally stale experience, navigate under that uncertainty, and revise its decisions as physical evidence arrives. Unlike dynamic mapping that reacts to observed changes or navigation that tracks an already moving target, this setting centers on \emph{hidden evolution between visits}: the memory can be historically correct yet operationally obsolete. We introduce \evolvingworldnav{}, a predictive embodied-agent architecture whose \pfdnav{} core converts an evidence-grounded 4D memory into an actionable belief over the present world. A continuous-time Transformer models irregular histories, and a structured persistence--relocation pointer head predicts whether the last supported state still holds and where the state likely transitioned otherwise. The agent uses the resulting distribution to choose between direct navigation and cost-aware inspection, then applies a visibility-aware Bayesian update to positive and negative observations before replanning. We also introduce \pfdbench{}, a \textbf{54}-scene benchmark comprising \textbf{803.68k} tasks across state prediction, object navigation, vision-and-language navigation, and embodied question answering. Across the reported benchmarks, EvolvingWorldNav reaches \textbf{63.22\%} HL-SR and \textbf{48.83\%} HL-SPL on FindingDory, \textbf{35.43\%} SR on GOAT-Bench, and \textbf{86.18\%} Search SR with \textbf{70.15\%} SPL on P4D-Bench. Paired static, routine, and random worlds test whether an agent learns evolution rather than exploiting scene-frequency shortcuts. Together, our formulation shifts embodied navigation from acting on a remembered past to maintaining, testing, and acting on beliefs about the world as it is now.
 \end{abstract}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figures/overview.pdf}
-    \caption{Overview of \dragentos{} for predictive embodied reasoning and action in evolving worlds.}
-    \label{fig:dr_agentos_overview}
+    \caption{Overview of \evolvingworldnav{} for predictive embodied reasoning and action in evolving worlds.}
+    \label{fig:evolvingworldnav_overview}
 \end{figure}
 
 \input{sections/introduction}

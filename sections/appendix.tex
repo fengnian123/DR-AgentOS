@@ -1,5 +1,89 @@
 \section{Supplementary Material}
 
+\subsection{Main-Paper Tables Moved to the Appendix}
+\label{app:moved-tables}
+
+The following tables contain the complete navigation and backbone-adaptation
+records referenced in the main text. They are placed here to keep the main
+results narrative compact while retaining every protocol column and baseline.
+
+\begin{table}[!htbp]
+\caption{P4D-Bench navigation results on routine-world N1--N3 episodes
+(moved from the main paper); lower is better for inspections and distance.}
+\label{tab:mainnav}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.0pt}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Method} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
+\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} &
+\makecell{\textbf{Inspect.}\\\textbf{$\downarrow$}} &
+\makecell{\textbf{Distance}\\\textbf{$\downarrow$}} &
+\makecell{\textbf{Recovery}\\\textbf{SR $\uparrow$}}\\
+\midrule
+\rowcolor{tblnav}\multicolumn{7}{c}{\emph{Navigation and persistent memory}}\\
+VLFM \citep{yokoyama2024vlfm} & \na & \na & \na & \na & \na & \na\\
+FindingDory Agent \citep{yadav2025findingdory} & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE \citep{zhou2025lagmemo} & \na & \na & \na & \na & \na & \na\\
+HOV-SG \citep{werby2024hovsg} & \na & \na & \na & \na & \na & \na\\
+DynaMem \citep{liu2024dynamem} & \na & \na & \na & \na & \na & \na\\
+\midrule
+\rowcolor{tblpredict}\multicolumn{7}{c}{\emph{Predictive world and state modeling}}\\
+SLaTe-PRO \citep{patel2023routine} & \na & \na & \na & \na & \na & \na\\
+SGM+NEP \citep{kurenkov2023dynamic} & \na & \na & \na & \na & \na & \na\\
+FlowMaps \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na\\
+Perpetua \citep{saavedraruiz2026predictivegraphs} & \na & \na & \na & \na & \na & \na\\
+\midrule
+\rowcolor{tblours}\textbf{\pfdnav{} (ours)} & \textbf{\na} & \textbf{\na} &
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+Oracle Current State & \na & \na & \na & \na & \na & \na\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[!htbp]
+\caption{Backbone robustness on \pfdbench{} under matched tools, prompts,
+episodes, and action budgets (moved from the main paper).}
+\label{tab:foundation_models}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llccccccc@{}}
+\toprule
+\multirow{2}{*}{\textbf{Family}} &
+\multirow{2}{*}{\textbf{Fixed controller endpoint}} &
+\multicolumn{3}{c}{\textbf{Last-seen Agent}} &
+\multicolumn{3}{c}{\textbf{\evolvingworldnav{}}} &
+\multirow{2}{*}{\makecell{\textbf{$\Delta$ Search}\\\textbf{SR $\uparrow$}}}\\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+& & \makecell{First-Go\\SR $\uparrow$} & \makecell{Search\\SR $\uparrow$} &
+SPL $\uparrow$ & \makecell{First-Go\\SR $\uparrow$} &
+\makecell{Search\\SR $\uparrow$} & SPL $\uparrow$ & \\
+\midrule
+\multirow{2}{*}{Qwen} & Qwen2.5-VL-7B-Instruct
+& \na & \na & \na & \na & \na & \na & \na\\
+& Qwen2.5-VL-72B-Instruct
+& \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\multirow{2}{*}{OpenAI} & GPT-5.5 / \nolinkurl{gpt-5.5-2026-04-23}
+& \na & \na & \na & \na & \na & \na & \na\\
+& GPT-5.6 Luna / \nolinkurl{gpt-5.6-luna}
+& \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\multirow{2}{*}{Google} & Gemini 3.1 Pro / \nolinkurl{gemini-3.1-pro-preview}
+& \na & \na & \na & \na & \na & \na & \na\\
+& Gemini 3.5 Flash / \nolinkurl{gemini-3.5-flash}
+& \na & \na & \na & \na & \na & \na & \na\\
+\midrule
+\multicolumn{2}{r}{\textbf{Average gain}} &
+& & & & & & \na\\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
 \subsection{Formal Episode Interface}
 \label{app:episode}
 
@@ -38,7 +122,7 @@ trajectory, preserving both causal history and observation provenance.
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\linewidth]{figures/DR-AgentOS.pdf}
+    \includegraphics[width=\linewidth]{figures/EvolvingWorldNav.pdf}
     \caption{Evidence-grounded construction of the temporally versioned 4D memory.}
     \label{fig:memory}
 \end{figure}
@@ -101,7 +185,7 @@ FindingDory Agent & \na & \na & \na & \na\\
 LagMemo GLUE & \na & \na & \na & \na\\
 HOV-SG & \na & \na & \na & \na\\
 DynaMem & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{\dragentos{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\rowcolor{tblours}\textbf{\evolvingworldnav{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -126,7 +210,7 @@ VLFM & \na & \na & \na & \na & \na & \na\\
 ZSON & \na & \na & \na & \na & \na & \na\\
 FindingDory Agent & \na & \na & \na & \na & \na & \na\\
 LagMemo GLUE & \na & \na & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{\dragentos{}} & \textbf{\na} & \textbf{\na} &
+\rowcolor{tblours}\textbf{\evolvingworldnav{}} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
@@ -213,7 +297,7 @@ cross-platform transfer subset.
 \paragraph{Environment breakdown.}
 \Cref{tab:real-domain} separates indoor and outdoor trials. The outdoor setting
 has longer routes and lower success for all methods, while the direction of the
-\dragentos{} gain is consistent across both environments.
+\evolvingworldnav{} gain is consistent across both environments.
 
 \begin{table}[!htbp]
 \centering
@@ -230,7 +314,7 @@ Method & First-Go & Search SR & Dist. & First-Go & Search SR & Dist. \\
 Last Seen + Search & 18.8 & 31.3 & 28.6 & 15.6 & 21.9 & 83.8 \\
 Time Frequency & 25.0 & 34.4 & 27.2 & 18.8 & 28.1 & 78.6 \\
 Retrieval + Reasoning & 31.3 & 40.6 & 25.1 & 21.9 & 34.4 & 75.5 \\
-\textbf{\dragentos{}} & \textbf{40.6} & \textbf{53.1} & \textbf{22.4}
+\textbf{\evolvingworldnav{}} & \textbf{40.6} & \textbf{53.1} & \textbf{22.4}
 & \textbf{28.1} & \textbf{43.8} & \textbf{65.2} \\
 \bottomrule
 \end{tabular}
@@ -255,13 +339,13 @@ Method & Unchanged & \makecell{Routine-\\consistent} &
 Last Seen + Search & \textbf{68.8} & 18.8 & 12.5 & 6.3 \\
 Time Frequency & 50.0 & 50.0 & 18.8 & 6.3 \\
 Retrieval + Reasoning & 62.5 & 43.8 & 25.0 & 18.8 \\
-\textbf{\dragentos{}} & 62.5 & \textbf{68.8} & \textbf{37.5} & \textbf{25.0} \\
+\textbf{\evolvingworldnav{}} & 62.5 & \textbf{68.8} & \textbf{37.5} & \textbf{25.0} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Recovery and cross-platform transfer.}
-Among the 37 M20 episodes in which \dragentos{} completed an unsuccessful first
+Among the 37 M20 episodes in which \evolvingworldnav{} completed an unsuccessful first
 inspection, nine later succeeded, giving the 24.3\% conditional Recovery SR in
 the main table. The matched no-update ablation is required to isolate Bayesian
 updating from additional search. \Cref{tab:real-transfer} further shows the same
@@ -279,13 +363,13 @@ the small sample does not establish equal performance across robots.
 Platform & Method & First-Go SR & Search SR & Dist. (m) \\
 \midrule
 \multirow{2}{*}{LYNX M20} & Last Seen + Search & 18.8 & 25.0 & 55.4 \\
-& \textbf{\dragentos{}} & \textbf{37.5} & \textbf{50.0} & \textbf{44.6} \\
+& \textbf{\evolvingworldnav{}} & \textbf{37.5} & \textbf{50.0} & \textbf{44.6} \\
 \midrule
 \multirow{2}{*}{X30} & Last Seen + Search & 18.8 & 25.0 & 54.1 \\
-& \textbf{\dragentos{}} & \textbf{31.3} & \textbf{43.8} & \textbf{46.8} \\
+& \textbf{\evolvingworldnav{}} & \textbf{31.3} & \textbf{43.8} & \textbf{46.8} \\
 \midrule
 \multirow{2}{*}{Lite3} & Last Seen + Search & 18.8 & 31.3 & 51.8 \\
-& \textbf{\dragentos{}} & \textbf{25.0} & \textbf{43.8} & \textbf{45.9} \\
+& \textbf{\evolvingworldnav{}} & \textbf{25.0} & \textbf{43.8} & \textbf{45.9} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -303,29 +387,29 @@ after encountering an obstacle while searching for shared bikes. These
 qualitative examples illustrate the observed task sequences and do not
 provide additional aggregate success-rate measurements.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.49\linewidth}
 \centering
 \includegraphics[width=\linewidth]{figures/Real_World_Case_1.pdf}
-\caption{Indoor real-world case: finding a person, collecting documents, and
-bringing them to a meeting room. (a) The robot leaves the starting room and
-searches the office area (steps 1--4). (b) An identity mismatch is followed by
-target confirmation and document collection (steps 5--8). (c) The robot
-returns to the corridor and reaches the meeting room (steps 9--12).
-Arrows indicate motion; red and green annotations mark a mismatch and
-confirmed task milestones, respectively.}
+\captionof{figure}{Indoor real-world case: finding a person, collecting
+documents, and bringing them to a meeting room. (a) The robot leaves the
+starting room and searches the office area (steps 1--4). (b) An identity
+mismatch is followed by target confirmation and document collection (steps
+5--8). (c) The robot returns to the corridor and reaches the meeting room
+(steps 9--12).}
 \label{fig:real-world-case-indoor}
-\end{figure}
-
-\begin{figure}[!htbp]
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\linewidth}
 \centering
 \includegraphics[width=\linewidth]{figures/Real_World_Case_2.pdf}
-\caption{Outdoor real-world case: finding shared bikes usually parked near
-an intersection at the requested time of day. (a) The robot follows the
-preferred route, encounters a blockage, and replans (steps 1--4).
-(b) It takes a detour along the sidewalk and locates the shared bikes
-(steps 5--8). Arrows indicate motion; the red annotation marks the blocked
-route and the green annotation marks the located bikes.}
+\captionof{figure}{Outdoor real-world case: finding shared bikes usually
+parked near an intersection at the requested time of day. (a) The robot
+follows the preferred route, encounters a blockage, and replans (steps 1--4).
+(b) It takes a detour along the sidewalk and locates the shared bikes (steps
+5--8).}
 \label{fig:real-world-case-outdoor}
+\end{minipage}
 \end{figure}
 
 \FloatBarrier
@@ -339,7 +423,7 @@ summarizes manufacturer-reported specifications relevant to the physical
 evaluation. These specifications characterize the platforms rather than the
 experimental operating conditions; all quantitative results are measured from
 the executed trials. Platform-specific perception and low-level navigation are
-abstracted behind a common interface, while the AgentOS memory, prediction,
+abstracted behind a common interface, while the \evolvingworldnav{} memory, prediction,
 belief-update, and high-level search components remain unchanged.
 
 \begin{table}[!htbp]
@@ -375,5 +459,7 @@ obstacle avoidance and autonomous navigation through its platform interface.
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/predictive-memory.pdf}
+\caption{Predictive-memory diagnostics across temporal staleness and
+inspection budgets.}
 \label{fig:predictive-memory}
 \end{figure}

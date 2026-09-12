@@ -47,7 +47,7 @@ belief updating and replanning.
 \begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{figures/method.pdf}
-    \caption{Architecture of \dragentos{}, coupling persistent 4D memory,
+    \caption{Architecture of \evolvingworldnav{}, coupling persistent 4D memory,
     predictive 4D belief, and an evidence-updating embodied agent.}
     \label{fig:p4dnav_method}
 \end{figure*}
@@ -140,7 +140,7 @@ uncertainty to the downstream agent.
 \subsection{Predictive Embodied Agent}
 \label{sec:agent}
 
-\dragentos{} treats the belief model as a tool inside an embodied decision loop,
+\evolvingworldnav{} treats the belief model as a tool inside an embodied decision loop,
 not as an open-loop destination predictor. Given a navigation or language goal,
 the agent (i) resolves the referenced entity and task constraints, (ii) queries
 the causal 4D memory, (iii) invokes \pfdnav{} at the decision time, (iv) selects a

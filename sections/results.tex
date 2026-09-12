@@ -12,7 +12,7 @@ individual components, controller dependence, and indoor/outdoor object search.
 \subsection{Comparison across Embodied Benchmarks}
 
 \begin{table*}[!htbp]
-\caption{Cross-benchmark comparison (\%). \dragentos{} reports mean $\pm$
+\caption{Cross-benchmark comparison (\%). \evolvingworldnav{} reports mean $\pm$
 standard deviation over five seeds.}
 \label{tab:crossbench}
 \centering
@@ -49,7 +49,7 @@ Perpetua \citep{saavedraruiz2026predictivegraphs} & 24.24 & 13.50 & 10.27 & 1.80
 \rowcolor{tblours} & \textbf{63.22} & \textbf{48.83} &
 \textbf{35.43} & \textbf{12.98} & \textbf{19.31} & \textbf{61.32} &
 \textbf{86.18} & \textbf{70.15}\\
-\rowcolor{tblours}\multirow{-2}{*}{\textbf{\dragentos{} (ours)}} & $\pm 3.87$ & $\pm 2.43$ & $\pm 2.16$ &
+\rowcolor{tblours}\multirow{-2}{*}{\textbf{\evolvingworldnav{} (ours)}} & $\pm 3.87$ & $\pm 2.43$ & $\pm 2.16$ &
 $\pm 0.92$ & $\pm 0.68$ & $\pm 3.235$ & $\pm 2.07$ & $\pm 1.74$\\
 \bottomrule
 \end{tabular}
@@ -57,7 +57,7 @@ $\pm 0.92$ & $\pm 0.68$ & $\pm 3.235$ & $\pm 2.07$ & $\pm 1.74$\\
 \end{table*}
 
 The groups mirror the source of each method's advantage rather than suggesting
-that benchmark scores are interchangeable. \dragentos{} leads every reported
+that benchmark scores are interchangeable. \evolvingworldnav{} leads every reported
 headline metric. On FindingDory, it reaches 63.22 HL-SR and 48.83 HL-SPL,
 improving over the strongest competing result by 10.78 and 25.58 points. On
 GOAT-Bench, its 35.43 SR, 12.98 SPL, and 19.31 Repeat-SR exceed the best baseline
@@ -82,41 +82,11 @@ prediction so that easy first-attempt successes do not mask poor evidence use.
 The relevant estimands are paired episode-level differences with confidence
 intervals that retain the pairing.
 
-\begin{table}[!htbp]
-\caption{P4D-Bench navigation results on routine-world N1--N3 episodes;
-lower is better for inspections and distance.}
-\label{tab:mainnav}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3.0pt}
-\begin{tabular}{lcccccc}
-\toprule
-\textbf{Method} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
-\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} &
-\makecell{\textbf{Inspect.}\\\textbf{$\downarrow$}} &
-\makecell{\textbf{Distance}\\\textbf{$\downarrow$}} &
-\makecell{\textbf{Recovery}\\\textbf{SR $\uparrow$}}\\
-\midrule
-\rowcolor{tblnav}\multicolumn{7}{c}{\emph{Navigation and persistent memory}}\\
-VLFM \citep{yokoyama2024vlfm} & \na & \na & \na & \na & \na & \na\\
-FindingDory Agent \citep{yadav2025findingdory} & \na & \na & \na & \na & \na & \na\\
-LagMemo GLUE \citep{zhou2025lagmemo} & \na & \na & \na & \na & \na & \na\\
-HOV-SG \citep{werby2024hovsg} & \na & \na & \na & \na & \na & \na\\
-DynaMem \citep{liu2024dynamem} & \na & \na & \na & \na & \na & \na\\
-\midrule
-\rowcolor{tblpredict}\multicolumn{7}{c}{\emph{Predictive world and state modeling}}\\
-SLaTe-PRO \citep{patel2023routine} & \na & \na & \na & \na & \na & \na\\
-SGM+NEP \citep{kurenkov2023dynamic} & \na & \na & \na & \na & \na & \na\\
-FlowMaps \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na\\
-Perpetua \citep{saavedraruiz2026predictivegraphs} & \na & \na & \na & \na & \na & \na\\
-\midrule
-\rowcolor{tblours}\textbf{\pfdnav{} (ours)} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
-Oracle Current State & \na & \na & \na & \na & \na & \na\\
-\bottomrule
-\end{tabular}
-\end{table}
-\FloatBarrier
+The complete N1--N3 comparison, including inspection, distance, and recovery
+columns, is provided in Appendix \cref{tab:mainnav}. Keeping the detailed
+protocol table with the supplementary diagnostics leaves this section focused
+on the estimands and qualitative behavior while preserving the full evaluation
+record.
 
 \paragraph{Qualitative case study.}
 \Cref{fig:p4d_case_study} traces one routine-world episode from stale memory to
@@ -180,7 +150,7 @@ DynaMem & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 FlowMaps & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 Perpetua & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
 \midrule
-\rowcolor{tblours}\textbf{\dragentos{} (ours)} & \textbf{\na} & \textbf{\na} &
+\rowcolor{tblours}\textbf{\evolvingworldnav{} (ours)} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
@@ -216,7 +186,7 @@ w/o continuous-time encoding & \na & \na & \na & \na & \na\\
 w/o persistence--relocation head & \na & \na & \na & \na & \na\\
 w/o visibility calibration & \na & \na & \na & \na & \na\\
 w/o Bayesian evidence update & \na & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{Full \dragentos{}} & \textbf{\na} & \textbf{\na} &
+\rowcolor{tblours}\textbf{Full \evolvingworldnav{}} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabular}
@@ -404,47 +374,7 @@ diagnostics are reported in \cref{app:prediction-evidence}.
 
 \subsection{Foundation-Model Adaptation}
 
-\begin{table}[!htbp]
-\caption{Backbone robustness on \pfdbench{} under matched tools, prompts,
-episodes, and action budgets.}
-\label{tab:foundation_models}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}llccccccc@{}}
-\toprule
-\multirow{2}{*}{\textbf{Family}} &
-\multirow{2}{*}{\textbf{Fixed controller endpoint}} &
-\multicolumn{3}{c}{\textbf{Last-seen Agent}} &
-\multicolumn{3}{c}{\textbf{\dragentos{}}} &
-\multirow{2}{*}{\makecell{\textbf{$\Delta$ Search}\\\textbf{SR $\uparrow$}}}\\
-\cmidrule(lr){3-5}\cmidrule(lr){6-8}
-& & \makecell{First-Go\\SR $\uparrow$} & \makecell{Search\\SR $\uparrow$} &
-SPL $\uparrow$ & \makecell{First-Go\\SR $\uparrow$} &
-\makecell{Search\\SR $\uparrow$} & SPL $\uparrow$ & \\
-\midrule
-\multirow{2}{*}{Qwen} & Qwen2.5-VL-7B-Instruct
-& \na & \na & \na & \na & \na & \na & \na\\
-& Qwen2.5-VL-72B-Instruct
-& \na & \na & \na & \na & \na & \na & \na\\
-\midrule
-\multirow{2}{*}{OpenAI} & GPT-5.5 / \nolinkurl{gpt-5.5-2026-04-23}
-& \na & \na & \na & \na & \na & \na & \na\\
-& GPT-5.6 Luna / \nolinkurl{gpt-5.6-luna}
-& \na & \na & \na & \na & \na & \na & \na\\
-\midrule
-\multirow{2}{*}{Google} & Gemini 3.1 Pro / \nolinkurl{gemini-3.1-pro-preview}
-& \na & \na & \na & \na & \na & \na & \na\\
-& Gemini 3.5 Flash / \nolinkurl{gemini-3.5-flash}
-& \na & \na & \na & \na & \na & \na & \na\\
-\midrule
-\multicolumn{2}{r}{\textbf{Average gain}} &
-& & & & & & \na\\
-\bottomrule
-\end{tabular}
-}
-\end{table}
+The full paired backbone matrix is moved to Appendix \cref{tab:foundation_models}.
 
 This experiment isolates the contribution of predictive memory from
 foundation-model capacity. Following embodied evaluations that span proprietary and
@@ -452,10 +382,10 @@ open-weight VLMs \citep{qiao2025navbench}, we select two Qwen2.5-VL scales
 \citep{bai2025qwen25vl}, two OpenAI controllers
 \citep{openai2026gpt55,openai2026gpt56luna}, and two Gemini controllers
 \citep{google2026gemini31,google2026gemini35}. For every controller, the
-last-seen baseline and \dragentos{} run the same episodes with identical
+last-seen baseline and \evolvingworldnav{} run the same episodes with identical
 perception, candidate locations, tools, prompts, action budgets, and low-level
 navigator. The baseline replaces predictive 4D belief with the last supported
-target state; \dragentos{} keeps the VLM fixed and changes only the memory,
+target state; \evolvingworldnav{} keeps the VLM fixed and changes only the memory,
 prediction, and evidence-update pathway.
 
 The decisive statistic is therefore the paired within-controller gain rather
@@ -505,14 +435,14 @@ Time Frequency
  & 21.9 & 31.3 & 14.0 & 52.9 & 277 & 2.05 \\
 Retrieval + Reasoning
  & 26.6 & 37.5 & 17.1 & 50.3 & 281 & 2.03 \\
-\textbf{\dragentos{}}
+\textbf{\evolvingworldnav{}}
  & \textbf{34.4} & \textbf{48.4} & \textbf{24.3}
  & \textbf{43.8} & \textbf{248} & \textbf{1.84} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-As shown in \cref{tab:real-main}, \dragentos{} raises Search SR from
+As shown in \cref{tab:real-main}, \evolvingworldnav{} raises Search SR from
 37.5\% for Retrieval + Reasoning to 48.4\% and First-Go SR from 26.6\% to
 34.4\%, while reducing mean travel from 50.3\,m to 43.8\,m. Recovery remains
 limited at 24.3\%, so predictive belief does not eliminate end-to-end failures.

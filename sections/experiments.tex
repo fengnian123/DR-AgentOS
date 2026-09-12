@@ -61,7 +61,7 @@ performance and transfer from the P4D-HSSD training distribution.
 
 \subsection{Real-World Evaluation}
 \label{sec:real-world}
-We further evaluate \dragentos{} on three commercial legged robotic platforms,
+We further evaluate \evolvingworldnav{} on three commercial legged robotic platforms,
 DEEP Robotics LYNX M20, X30, and Lite3, across both indoor and outdoor
 environments. M20 serves as the primary platform for quantitative evaluation,
 while X30 and Lite3 are used to examine cross-platform transfer. The memory
@@ -113,7 +113,7 @@ The \emph{predictive world-model} group contains SLaTe-PRO
 PredictiveGraphs \citep{saavedraruiz2026predictivegraphs}.
 
 Navigation systems are executed through their released policies or benchmark
-adapters. Memory-only methods replace \dragentos{}' memory backend while using
+adapters. Memory-only methods replace \evolvingworldnav{}' memory backend while using
 the same detector, goal interface, and low-level controller. Prediction-only
 methods receive the same causal history and candidate set; their state scores
 are passed to the same inspection planner. This component-aligned adaptation is
