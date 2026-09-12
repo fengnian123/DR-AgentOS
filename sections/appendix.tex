@@ -389,27 +389,44 @@ provide additional aggregate success-rate measurements.
 
 \begin{figure}[H]
 \centering
-\begin{minipage}[t]{0.49\linewidth}
-\centering
 \includegraphics[width=\linewidth]{figures/Real_World_Case_1.pdf}
-\captionof{figure}{Indoor real-world case: finding a person, collecting
-documents, and bringing them to a meeting room. (a) The robot leaves the
-starting room and searches the office area (steps 1--4). (b) An identity
-mismatch is followed by target confirmation and document collection (steps
-5--8). (c) The robot returns to the corridor and reaches the meeting room
-(steps 9--12).}
+\caption{Indoor real-world case: finding a person, collecting documents, and
+bringing them to a meeting room. (a) The robot leaves the starting room and
+searches the office area (steps 1--4). (b) An identity mismatch is followed by
+target confirmation and document collection (steps 5--8). (c) The robot
+returns to the corridor and reaches the meeting room (steps 9--12).
+Arrows indicate motion; red and green annotations mark a mismatch and
+confirmed task milestones, respectively.}
 \label{fig:real-world-case-indoor}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.49\linewidth}
+\end{figure}
+
+\begin{figure}[H]
 \centering
 \includegraphics[width=\linewidth]{figures/Real_World_Case_2.pdf}
-\captionof{figure}{Outdoor real-world case: finding shared bikes usually
-parked near an intersection at the requested time of day. (a) The robot
-follows the preferred route, encounters a blockage, and replans (steps 1--4).
-(b) It takes a detour along the sidewalk and locates the shared bikes (steps
-5--8).}
+\caption{Outdoor real-world case: finding shared bikes usually parked near
+an intersection at the requested time of day. (a) The robot follows the
+preferred route, encounters a blockage, and replans (steps 1--4).
+(b) It takes a detour along the sidewalk and locates the shared bikes
+(steps 5--8). Arrows indicate motion; the red annotation marks the blocked
+route and the green annotation marks the located bikes.}
 \label{fig:real-world-case-outdoor}
-\end{minipage}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Additional Predictive Diagnostics}
+\label{app:predictive-diagnostics}
+
+The following diagnostics complement the prediction and paired-world tables by
+showing how performance changes with memory staleness, inspection budget, and
+hidden mobility type.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{figures/predictive-memory.pdf}
+\caption{Predictive-memory diagnostics across temporal staleness, inspection
+budgets, and hidden mobility types.}
+\label{fig:predictive-memory}
 \end{figure}
 
 \FloatBarrier
@@ -455,11 +472,3 @@ compared only between methods executed on the same robot platform.
 The M20 uses dual 96-line LiDARs and wide-angle cameras; X30 provides integrated
 perception and autonomous navigation; and the Lite3 LiDAR configuration exposes
 obstacle avoidance and autonomous navigation through its platform interface.
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=\linewidth]{figures/predictive-memory.pdf}
-\caption{Predictive-memory diagnostics across temporal staleness and
-inspection budgets.}
-\label{fig:predictive-memory}
-\end{figure}

@@ -111,7 +111,8 @@ axes of analysis. SR as a function of staleness tests robustness to observation
 gaps; SR as a function of inspection budget tests the value of alternatives
 beyond Top-1; and paired routine gains separate learnable temporal structure
 from matched random transitions. These diagnostics require episode-level
-measurements and are not inferred from aggregate SR.
+measurements and are not inferred from aggregate SR. Appendix \cref{fig:predictive-memory}
+visualizes these complementary staleness, budget, and mobility diagnostics.
 
 \FloatBarrier
 
@@ -167,15 +168,13 @@ distinguishes temporal-prediction shifts from changes in visual evidence.
 
 \subsection{What Components Produce the Gain?}
 
-\begin{wraptable}{r}{0.60\linewidth}
-\vspace{-8pt}
+\begin{table}[!htbp]
 \caption{Module-level ablation of predictive belief and agent components.}
 \label{tab:module_ablation}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}lccccc@{}}
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{0.95\linewidth}{@{}>{\raggedright\arraybackslash}X *{5}{>{\centering\arraybackslash}p{0.075\linewidth}}@{}}
 \toprule
 \textbf{Variant} & \textbf{Top-1} & \textbf{NLL} & \textbf{SR} &
 \textbf{SPL} & \textbf{Inspect.}\\
@@ -189,10 +188,8 @@ w/o Bayesian evidence update & \na & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{Full \evolvingworldnav{}} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na}\\
 \bottomrule
-\end{tabular}
-}
-\vspace{-8pt}
-\end{wraptable}
+\end{tabularx}
+\end{table}
 
 The two top-level removals test the paper's central system claims: whether
 prediction adds value beyond retrospective memory, and whether temporally
