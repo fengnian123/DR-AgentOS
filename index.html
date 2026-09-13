@@ -6,6 +6,7 @@
   <meta name="description" content="EvolvingWorldNav: Predictive 4D Belief for Persistent Navigation in Evolving Worlds" />
   <title>EvolvingWorldNav | Project Page</title>
   <link rel="stylesheet" href="academic.css" />
+  <link rel="stylesheet" href="layout-fixes.css" />
 </head>
 <body>
   <header class="site-header">
@@ -58,7 +59,16 @@
       <table class="results-table"><thead><tr><th>Method</th><th>FindingDory<br />HL-SR ↑</th><th>GOAT-Bench<br />SR ↑</th><th>P4D-Bench<br />Search SR ↑</th><th>P4D-Bench<br />SPL ↑</th></tr></thead><tbody><tr><td>Best reported baseline</td><td>52.44</td><td>29.64</td><td>81.00</td><td>66.83</td></tr><tr class="ours"><td><b>EvolvingWorldNav (ours)</b></td><td><b>63.22 ± 3.87</b></td><td><b>35.43 ± 2.16</b></td><td><b>86.18 ± 2.07</b></td><td><b>70.15 ± 1.74</b></td></tr></tbody></table>
       <h3>Real-world evaluation</h3>
       <p>On 64 matched LYNX M20 search episodes, EvolvingWorldNav reaches 34.4% First-Go SR, 48.4% Search SR, and 24.3% Recovery SR, while reducing mean travel to 43.8 m.</p>
-      <div class="figure-grid real-world"><figure class="paper-figure"><img src="figures/real_indoor_web.png" alt="Indoor real-world execution case" /><figcaption>Indoor execution case.</figcaption></figure><figure class="paper-figure"><img src="figures/real_outdoor_web.png" alt="Outdoor real-world execution case" /><figcaption>Outdoor execution case.</figcaption></figure></div>
+      <div class="figure-grid real-world">
+        <figure class="paper-figure">
+          <div class="real-world-media"><img src="figures/real_indoor_web.png" alt="Indoor real-world execution case" /></div>
+          <figcaption>Indoor execution case.</figcaption>
+        </figure>
+        <figure class="paper-figure">
+          <div class="real-world-media"><img src="figures/real_outdoor_web.png" alt="Outdoor real-world execution case" /></div>
+          <figcaption>Outdoor execution case.</figcaption>
+        </figure>
+      </div>
     </section>
 
     <section class="paper-section resources"><h2>Resources</h2><div class="resource-links"><a href="main.pdf" target="_blank" rel="noreferrer">Paper PDF <span>↗</span></a><a href="https://github.com/fengnian123/DR-AgentOS" target="_blank" rel="noreferrer">GitHub repository <span>↗</span></a><a href="figures/P4D_Benchmark.pdf" target="_blank" rel="noreferrer">P4D-Bench figure <span>↗</span></a><a href="figures/predictive-memory.pdf" target="_blank" rel="noreferrer">Predictive diagnostics <span>↗</span></a></div></section>
