@@ -152,7 +152,7 @@ frozen even though its world-state predictor is trained on causal histories.
 \rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Navigation-trained or task-adapted}}\\
 MTU3D \citep{zhu2025mtu3d} & \na & \na & 40.8 & 12.1 & \na & \na & \na & \na & \na & \na\\
 SoftNav \citep{wu2026softnav} & \na & \na & \textbf{66.7} & 25.7 & \na & \na & \na & \na & \na & \na\\
-DUET\textsuperscript{$\dagger$} \citep{chen2022duet} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+NaVid \citep{zhang2024navid} & 37.4 & 35.9 & \na & \na & \na & \na & 15.0 & 15.0 & \na & \na\\
 Uni-NaVid \citep{zhang2024uninavid} & 47.0 & 42.7 & 39.5 & 19.8 & \na & \na & \na & \na & \na & \na\\
 NaVILA \citep{cheng2024navila} & 54.0 & 49.0 & \na & \na & \na & \na & \textbf{39.0} & \textbf{34.0} & \na & \na\\
 D3D-VLP \citep{wang2026d3dvlp} & \textbf{61.3} & \textbf{56.1} & 47.3 & 30.4 & \na & \na & \na & \na & \na & \na\\
@@ -161,7 +161,7 @@ D3D-VLP \citep{wang2026d3dvlp} & \textbf{61.3} & \textbf{56.1} & 47.3 & 30.4 & \
 VLFM \citep{yokoyama2024vlfm} & \na & \na & 35.2 & 19.6 & \na & \na & \na & \na & \na & \na\\
 AO-Planner \citep{chen2025aoplanner} & 25.5 & 16.6 & \na & \na & \na & \na & \na & \na & \na & \na\\
 TANGO \citep{ziliotto2025tango} & \na & \na & 35.5 & 19.5 & \na & \na & \na & \na & \na & \na\\
-MSGNav\textsuperscript{$\dagger$} \citep{huang2026msgnav} & \na & \na & \na & \na & \na & \na & \na & \na & \na & \na\\
+DRIVE-Nav \citep{gao2026drivenav} & \na & \na & 50.2 & 32.6 & \na & \na & \na & \na & \na & \na\\
 Uni-LaViRA \citep{ding2026unilavira} & 60.7 & 47.7 & 60.0 & \textbf{40.5} & \na & \na & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{\evolvingworldnav{} (ours)} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
@@ -172,12 +172,12 @@ Uni-LaViRA \citep{ding2026unilavira} & 60.7 & 47.7 & 60.0 & \textbf{40.5} & \na 
 \end{table*}
 \FloatBarrier
 
-We include methods only when the exact benchmark has published results or a
-released implementation supports a matched rerun; \textsuperscript{$\dagger$}
-marks the latter when no matched number is yet available. Reported R2R-CE and
-HM3D-OVON scores use the Val-Unseen split, and SAGE-Bench uses its high-level
-VLN protocol. Published values are transferred only when the split, sensor,
-action, and success protocols match. Habitat-GS releases PointNav episodes and
+We include a method only when the exact benchmark has published results.
+Reported R2R-CE and HM3D-OVON scores use the Val-Unseen split, and SAGE-Bench
+uses its high-level VLN protocol. NaVid provides matched trained-policy results
+on both R2R-CE and SAGE-Bench, while DRIVE-Nav supplies a recent training-free
+HM3D-OVON reference. Published values are transferred only when the split,
+sensor, action, and success protocols match. Habitat-GS releases PointNav episodes and
 an evaluator but does not report a paper-level baseline, so those cells remain
 open pending matched evaluation. Comparisons are therefore made vertically
 within each benchmark,
