@@ -491,11 +491,25 @@ Retrieval + Reasoning
 \end{tabular}
 \end{table}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/Real_World_Case_third_1.pdf}
+    \caption{Outdoor target search: Last Seen revisits the wrong car, while \evolvingworldnav{} reaches the current target.}
+    \label{fig:real-world-car-case}
+\end{figure}
+
 As shown in \cref{tab:real-main}, \evolvingworldnav{} raises Search SR from
 37.5\% for Retrieval + Reasoning to 48.4\% and First-Go SR from 26.6\% to
 34.4\%, while reducing mean travel from 50.3\,m to 43.8\,m. Recovery remains
 limited at 24.3\%, so predictive belief does not eliminate end-to-end failures.
 Indoor/outdoor, temporal-condition, recovery, and cross-platform breakdowns are
 reported in \cref{app:real-world}.
+
+\Cref{fig:real-world-car-case} illustrates the same failure mode behind the
+aggregate gains. Both policies start from the same query and historical
+observation, but Last Seen commits to the previous parking location and
+terminates at the wrong vehicle. The predictive belief instead prioritizes the
+time-conditioned current location, yielding a successful first destination
+without privileged access to the target state.
 
 \FloatBarrier

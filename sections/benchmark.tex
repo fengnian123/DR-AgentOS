@@ -45,8 +45,17 @@ annotations are included to support broader study of evolving-world agents.
 
 \subsection{Human-Trace-Grounded World Evolution}
 
+\begin{wrapfigure}{r}{0.58\textwidth}
+    \centering
+    \vspace{-8pt}
+    \includegraphics[width=\linewidth]{figures/dataset-generate.pdf}
+    \caption{Human-trace-grounded construction of \pfdbench{}.}
+    \label{fig:p4dbench-generation}
+\end{wrapfigure}
+
 \paragraph{Source alignment.}
-We derive complementary statistics from longitudinal smart-home records such as
+As summarized in \cref{fig:p4dbench-generation}, we derive complementary
+statistics from longitudinal smart-home records such as
 CASAS \citep{cook2013casas} and ARAS, and from the multi-week household activity
 and object-location sequences in HOMER+ \citep{patel2023routine}. Real
 action--object and placement evidence comes from HD-EPIC
@@ -67,7 +76,10 @@ orderliness, object ownership, and placement habits. We then jointly generate
 activities, resident region trajectories, and object transitions in chronological
 order. Frozen factors make earlier observations informative about later states,
 whereas stochastic events, delayed returns, and exceptions prevent the histories
-from becoming deterministic scripts. The audited configuration yields 42.6
+from becoming deterministic scripts. The unified schema is instantiated through
+household profiles, transition rules, and task templates to produce paired
+static, routine, and random worlds with executable N1--N5, VLN, and EQA episodes.
+The audited configuration yields 42.6
 region transitions per resident-day, 6.56 relocations per personal object-day,
 52.6\% within-region relocations, and zero terminal collisions.
 
