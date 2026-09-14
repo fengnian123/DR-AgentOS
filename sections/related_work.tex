@@ -22,4 +22,15 @@ Early work on dynamic mapping often filters moving content or updates a semantic
 Long-horizon benchmarks increasingly require agents to retain observations across exploration or interaction \citep{khanna2024goatbench,majumdar2024openeqa,yadav2025findingdory,zhang2026worldlines}. GOAT-Bench evaluates multi-modal lifelong navigation in persistent but static scenes, whereas FindingDory evaluates recall and action over long interaction histories. Open-vocabulary 3D memories support spatial retrieval \citep{gu2024conceptgraphs,werby2024hovsg}, while recent 4D representations index time-varying states or human-centered events \citep{sohn2025r4,bartoli2026gesto}. These systems motivate persistent identity, temporal validity, and provenance. We use these properties as infrastructure, but focus the learning problem on a navigation-relevant belief about hidden evolution: whether an entity's last state persists and, if not, which reachable state should be inspected next.
 
 \paragraph{Human routines and personalized object dynamics.}
-Household activities exhibit temporal and person-specific regularities. HOMER and SLaTe-PRO predict routine object usage for proactive assistance \citep{patel2023homer}; STREAK studies continual adaptation under household context drift \citep{bartoli2024streak}; and UcON evaluates navigation with a large user-habit knowledge base \citep{zhang2026ucon}. Existing dynamic-world generators commonly rely on hand-designed routines or language-model priors. \pfdbench{} instead normalizes complementary longitudinal activity, real object-interaction, and complete state-transition records into executable HSSD episodes. Its paired worlds preserve marginal scene and query factors while changing the transition mechanism, enabling controlled measurement of when routine learning helps navigation.
+Household activities exhibit temporal and person-specific regularities. HOMER
+and its routine-diverse HOMER+ extension support learning object-use patterns for
+proactive assistance \citep{patel2023homer,patel2023routine}; STREAK studies
+continual adaptation under household context drift \citep{bartoli2024streak};
+and UcON evaluates navigation with a large user-habit knowledge base
+\citep{zhang2026ucon}. Existing dynamic-world generators commonly rely on
+hand-designed routines or language-model priors. \pfdbench{} instead normalizes
+complementary longitudinal activity, real object-interaction, and complete
+state-transition records into executable HSSD episodes. Its paired worlds
+preserve marginal scene and query factors while changing the transition
+mechanism, enabling controlled measurement of when routine learning helps
+navigation.

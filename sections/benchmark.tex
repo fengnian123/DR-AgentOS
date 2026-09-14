@@ -47,14 +47,18 @@ annotations are included to support broader study of evolving-world agents.
 
 \paragraph{Source alignment.}
 We derive complementary statistics from longitudinal smart-home records such as
-CASAS \citep{cook2013casas} and ARAS, and action--object evidence from
-EPIC-KITCHENS-100 and OPPORTUNITY. These sources are normalized into a common
-event schema linking time, activity, actor context, object category, source
-state, destination state, and evidence provenance. They constrain schedules,
-activity--object associations, transition timing, and placement tendencies; no
-source trajectory is copied verbatim into simulation. Unsupported quantities
-are explicitly marked as benchmark-authored rather than presented as measured
-human behavior.
+CASAS \citep{cook2013casas} and ARAS, and from the multi-week household activity
+and object-location sequences in HOMER+ \citep{patel2023routine}. Real
+action--object and placement evidence comes from HD-EPIC
+\citep{perrett2025hdepic}, supplemented by OPPORTUNITY. HD-EPIC provides
+fine-grained actions and object-movement tracks grounded in reconstructed
+kitchens, whereas HOMER+ supplies longer-term variation in routine object use.
+These sources are normalized into a common event schema linking time, activity,
+actor context, object category, source state, destination state, and evidence
+provenance. They constrain schedules, activity--object associations, transition
+timing, and placement tendencies; no source trajectory is copied verbatim into
+simulation. Unsupported quantities are explicitly marked as benchmark-authored
+rather than presented as measured human behavior.
 
 \paragraph{Persistent household generation.}
 Across 54 HSSD scenes \citep{khanna2024hssd} and multi-day household histories, we
