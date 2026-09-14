@@ -127,7 +127,7 @@ training a navigation policy on the target benchmark. This distinction is
 important for \evolvingworldnav{}, whose controller and foundation model remain
 frozen even though its world-state predictor is trained on causal histories.
 
-\begin{table*}[!t]
+\begin{table}[!t]
 \caption{Cross-environment navigation; SR and SPL are percentages.}
 \label{tab:domains}
 \centering
@@ -169,8 +169,7 @@ Uni-LaViRA \citep{ding2026unilavira} & 60.7 & 47.7 & 60.0 & \textbf{40.5} & \na 
 \bottomrule
 \end{tabular}
 }
-\end{table*}
-\FloatBarrier
+\end{table}
 
 We include a method only when the exact benchmark has published results.
 Reported R2R-CE and HM3D-OVON scores use the Val-Unseen split, and SAGE-Bench
