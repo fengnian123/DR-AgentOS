@@ -11,6 +11,7 @@
 \usepackage{xcolor}
 \usepackage{microtype}
 \usepackage{enumitem}
+\usepackage{etoolbox}
 \usepackage{placeins}
 \usepackage{hyperref}
 \hypersetup{hidelinks}
@@ -23,6 +24,11 @@
 \setlength{\intextsep}{2pt}
 \setlength{\abovecaptionskip}{4pt}
 \setlength{\belowcaptionskip}{2pt}
+% Keep tables compact while preserving a small, consistent gap before the
+% following text.  The padding lives inside the float, so it follows the table
+% even when LaTeX moves the float to the top of another page.
+\AtEndEnvironment{table}{\vspace{3pt}}
+\AtEndEnvironment{table*}{\vspace{3pt}}
 
 % Submission mode: keep \iclrfinalcopy commented to preserve anonymity and
 % line numbers. Do not modify iclr2027_conference.sty.
