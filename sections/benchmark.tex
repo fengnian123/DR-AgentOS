@@ -35,7 +35,7 @@ frequency, route geometry, and privileged simulator access.
 
 The task pool comprises current-state prediction (16\%), object navigation
 (27\%), vision-and-language navigation (29\%), and embodied question answering
-(28\%). Prediction probes the belief independently of control. Navigation tests
+(28\%) \citep{majumdar2024openeqa,sakamoto2024map}. Prediction probes the belief independently of control. Navigation tests
 whether that belief produces useful destinations, search orders, and recovery.
 VLN supplies language-conditioned goals over the same evolving histories, while
 EQA probes whether memory preserves the evidence needed to reason about current
@@ -58,10 +58,11 @@ As summarized in \cref{fig:p4dbench-generation}, we derive complementary
 statistics from longitudinal smart-home records such as
 CASAS \citep{cook2013casas} and ARAS, and from the multi-week household activity
 and object-location sequences in HOMER+ \citep{patel2023routine}. Real
-action--object and placement evidence comes from HD-EPIC
-\citep{perrett2025hdepic}, supplemented by OPPORTUNITY. HD-EPIC provides
-fine-grained actions and object-movement tracks grounded in reconstructed
-kitchens, whereas HOMER+ supplies longer-term variation in routine object use.
+action--object and placement evidence comes from HD-EPIC and ParaHome
+\citep{perrett2025hdepic,kim2025parahome}, supplemented by OPPORTUNITY. HD-EPIC
+provides fine-grained egocentric action traces, ParaHome provides reconstructed
+human--object interactions, and HOMER+ supplies longer-term variation in routine
+object use.
 These sources are normalized into a common event schema linking time, activity,
 actor context, object category, source state, destination state, and evidence
 provenance. They constrain schedules, activity--object associations, transition

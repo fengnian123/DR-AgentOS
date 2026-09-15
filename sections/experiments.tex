@@ -52,7 +52,10 @@ neural inputs tests whether its advantages survive stronger controls.
 To distinguish temporal reasoning from renderer- or dataset-specific fitting,
 we evaluate one canonical task in each environment: R2R-CE on MP3D,
 HM3D-OVON on HM3D, the native PointNav protocol on Habitat-GS, SAGE-Bench on
-InteriorGS, and \pfdbench{} on dynamic HSSD scenes. Each column keeps its
+InteriorGS, and \pfdbench{} on dynamic HSSD scenes
+\citep{yokoyama2024hm3d,xia2026habitat,miao2026towards,khanna2024hssd}.
+Habitat-GS and InteriorGS instantiate photorealistic navigation with 3D Gaussian
+splatting \citep{kerbl20233d}. Each column keeps its
 official split, goal specification, and success rule; scores are not pooled
 across tasks. We hold perception and low-level control fixed within a column
 and report either exact-protocol published results or matched runs from
@@ -129,11 +132,11 @@ headline cross-benchmark comparison.
 For the cross-environment evaluation in \cref{tab:domains}, baselines are
 additionally stratified by training regime. MTU3D, SoftNav, NaVid, Uni-NaVid,
 NaVILA, and D3D-VLP represent navigation-trained or task-adapted policies
-\citep{zhu2025mtu3d,wu2026softnav,zhang2024navid,zhang2024uninavid,
-cheng2024navila,wang2026d3dvlp}. VLFM, AO-Planner, TANGO, DRIVE-Nav, and
+\citep{zhu2025move,wu2026softnav,zhang2024navid,zhang2024uninavid,
+cheng2024navila,wang2026d3d}. VLFM, AO-Planner, TANGO, DRIVE-Nav, and
 Uni-LaViRA represent training-free or target-benchmark zero-shot agents
-\citep{yokoyama2024vlfm,chen2025aoplanner,ziliotto2025tango,
-gao2026drivenav,ding2026unilavira}. This selection spans classical policies and
+\citep{yokoyama2024vlfm,chen2025affordances,ziliotto2025tango,
+gao2026drive,ding2026uni}. This selection spans classical policies and
 recent generalist agents while retaining only methods with reported scores on
 the selected task or sufficient released code and checkpoints for reproduction.
 

@@ -2,35 +2,88 @@
 \label{sec:related_work}
 
 \paragraph{Embodied navigation and active search.}
-Embodied navigation spans object-goal, language-conditioned, and exploratory tasks that couple semantic perception, spatial reasoning, and action \citep{anderson2018evaluation,savva2019habitat,chaplot2020objectnav,xin2026agentvln}. Semantic maps and open-vocabulary scene representations improve generalization by associating language with metric or graph-structured space \citep{huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg}. Probabilistic object-search methods use object--room or object--object correlations to order exploration and update a belief after observations \citep{zheng2021cos,ginting2024seek}. These formulations generally assume that the task-relevant world state remains consistent with the map during an episode. \pfdnav{} addresses a different source of uncertainty: historically valid observations can become decisionally stale because the environment evolves between visits.
+Embodied navigation spans object-goal, language-conditioned, and exploratory
+tasks that couple semantic perception, spatial reasoning, and action
+\citep{anderson2018evaluation,savva2019habitat,chaplot2020objectnav,
+xin2026agentvln}. Recent generalist models broaden the goal and action interfaces
+shared across tasks \citep{Zheng_2024_CVPR,ICLR2026_ceb45c48,Gao_2026_CVPR,
+ICLR2026_ad6363ef}. Semantic maps and open-vocabulary scene representations
+associate language with metric or graph-structured space
+\citep{huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg,
+NEURIPS2024_098491b3,kuang2024openfmnav,Huang_2026_CVPR}. Probabilistic and
+adaptive search methods use semantic relations, belief maps, or evidence to
+order exploration \citep{zheng2021cos,ginting2024seek,NEURIPS2025_77b277ef,
+zhang2025apexnav,liu2026aecnav}. These formulations generally assume that the
+task-relevant world state remains consistent with the map during an episode.
+\pfdnav{} addresses uncertainty created when historically valid observations
+become decisionally stale between visits.
 
 Training-free agents increasingly compose frozen foundation models, maps, and
 navigation primitives, whereas trained systems learn navigation actions from
 task trajectories or benchmark-specific adaptation
-\citep{yokoyama2024vlfm,chen2025aoplanner,ziliotto2025tango,
-zhu2025mtu3d,wu2026softnav,zhang2024uninavid,wang2026d3dvlp}. We evaluate both regimes rather
+\citep{yokoyama2024vlfm,long2024instructnav,ziliotto2025tango,
+li2026agenticnav,Yin_2025_CVPR,gao2026drive,zhu2025move,wu2026softnav,
+zhang2024uninavid,wei2025streamvln,wang2026d3d}. We evaluate both regimes rather
 than comparing only against methods with the same training recipe. The
 cross-environment study further separates standard mesh simulation,
 Gaussian-splatting simulation, and evolving worlds, using a canonical task for
 each environment so that visual fidelity and hidden state change are measured
 without conflating their protocols.
 
+\paragraph{Embodied agents and tool-mediated control.}
+Language-conditioned robots increasingly ground high-level decisions in
+affordances, multimodal observations, and callable skills
+\citep{ahn2022can,driess2023palm}. Recent systems extend this pattern with 3D
+spatial memory, lifelong multimodal memory, and reusable navigation harnesses
+\citep{zhou2026holoagent,tian2026abot,wang2026towards,li2026agenticnav}. These
+works provide broad agent interfaces. Our contribution concerns the state
+supplied to such an interface: \evolvingworldnav{} converts temporally stale
+experience into a calibrated present-state belief and revises it using physical
+evidence before the next tool call.
+
 \paragraph{Navigation in changing environments.}
-Early work on dynamic mapping often filters moving content or updates a semantic map after changes are observed \citep{bescos2018dynaslam,narayana2020lifelong}. Scene Graph Memory models a partially observable dynamic graph and predicts object--location links \citep{kurenkov2023dynamic}, while DynaMem continually reconstructs an actionable spatio-semantic memory for mobile manipulation \citep{liu2024dynamem}. Predictive spatio-temporal scene graphs attach persistence and emergence models to open-vocabulary relations \citep{saavedraruiz2026predictivegraphs}. FlowMaps learns multimodal continuous future object placements and uses ranked hypotheses for dynamic ObjectNav \citep{argenziano2026flowmaps}. Portable Object Navigation and Transit-Aware Planning model objects that move as the agent moves \citep{dorbala2026portable}. Our setting is complementary: dynamics are inferred from the agent's causal, intermittent history; object-specific regimes are hidden; and prediction is embedded in an observe--update--replan loop rather than consumed only as a fixed candidate ranking or known transition path.
+Early work on dynamic mapping often filters moving content or updates a semantic
+map after changes are observed \citep{bescos2018dynaslam,narayana2020lifelong}.
+Scene Graph Memory models a partially observable dynamic graph and predicts
+object--location links \citep{kurenkov2023dynamic}, while DynaMem continually
+reconstructs an actionable spatio-semantic memory for mobile manipulation
+\citep{liu2024dynamem}. Predictive spatio-temporal scene graphs attach
+persistence and emergence models to open-vocabulary relations
+\citep{saavedraruiz2026predictivegraphs}. FlowMaps learns multimodal continuous
+future object placements and uses ranked hypotheses for dynamic ObjectNav
+\citep{argenziano2026flowmaps}. Personalized object navigation, continual
+relocation learning, and unified space-time retrieval further model user habits
+or changing object states \citep{dorbala2026portable,bartoli2025streak,
+wang2026user,chen2025searching}. Our setting is complementary: dynamics are
+inferred from the agent's causal, intermittent history; object-specific regimes
+are hidden; and prediction is embedded in an observe--update--replan loop rather
+than consumed only as a fixed candidate ranking or known transition path.
 
 \paragraph{Long-term embodied memory.}
-Long-horizon benchmarks increasingly require agents to retain observations across exploration or interaction \citep{khanna2024goatbench,majumdar2024openeqa,yadav2025findingdory,zhang2026worldlines}. GOAT-Bench evaluates multi-modal lifelong navigation in persistent but static scenes, whereas FindingDory evaluates recall and action over long interaction histories. Open-vocabulary 3D memories support spatial retrieval \citep{gu2024conceptgraphs,werby2024hovsg}, while recent 4D representations index time-varying states or human-centered events \citep{sohn2025r4,bartoli2026gesto}. These systems motivate persistent identity, temporal validity, and provenance. We use these properties as infrastructure, but focus the learning problem on a navigation-relevant belief about hidden evolution: whether an entity's last state persists and, if not, which reachable state should be inspected next.
+Long-horizon benchmarks increasingly require agents to retain observations
+across exploration or interaction
+\citep{khanna2024goatbench,majumdar2024openeqa,yadav2025findingdory,
+zhang2026worldlines,wang2026explore}. Open-vocabulary 3D memories support
+spatial retrieval \citep{gu2024conceptgraphs,werby2024hovsg,he2026farm}, while
+recent 4D representations index time-varying states, arbitrary moments, or
+human-centered events \citep{sohn2025r4,gorlo2026describe,bartoli2026gesto}.
+These systems motivate persistent identity, temporal validity, and provenance.
+We use these properties as infrastructure, but focus the learning problem on a
+navigation-relevant belief about hidden evolution: whether an entity's last
+state persists and, if not, which reachable state should be inspected next.
 
 \paragraph{Human routines and personalized object dynamics.}
 Household activities exhibit temporal and person-specific regularities. HOMER
 and its routine-diverse HOMER+ extension support learning object-use patterns for
 proactive assistance \citep{patel2023homer,patel2023routine}; STREAK studies
-continual adaptation under household context drift \citep{bartoli2024streak};
+continual adaptation under household context drift \citep{bartoli2025streak};
 and UcON evaluates navigation with a large user-habit knowledge base
 \citep{zhang2026ucon}. Existing dynamic-world generators commonly rely on
-hand-designed routines or language-model priors. \pfdbench{} instead normalizes
-complementary longitudinal activity, real object-interaction, and complete
-state-transition records into executable HSSD episodes. Its paired worlds
+hand-designed routines or language-model priors. Large-scale egocentric and
+reconstructed-home datasets provide complementary evidence about object
+interaction and placement \citep{perrett2025hdepic,kim2025parahome}.
+\pfdbench{} normalizes longitudinal activity, real object-interaction, and
+complete state-transition records into executable HSSD episodes. Its paired worlds
 preserve marginal scene and query factors while changing the transition
 mechanism, enabling controlled measurement of when routine learning helps
 navigation.

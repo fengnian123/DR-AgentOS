@@ -120,7 +120,7 @@ visualizes these complementary staleness, budget, and mobility diagnostics.
 \Cref{tab:domains} assigns one established task to each simulator rather than
 pooling incompatible goal definitions: R2R-CE on MP3D, HM3D-OVON on HM3D,
 PointNav on Habitat-GS, SAGE-Bench on InteriorGS, and \pfdbench{} on HSSD
-\citep{krantz2020beyond,yokoyama2024hm3dovon,xia2026habitatgs,miao2025sage3d}.
+\citep{krantz2020beyond,yokoyama2024hm3d,xia2026habitat,miao2026towards}.
 The first group uses navigation trajectories, task-specific fine-tuning, or
 reinforcement learning. The second performs zero-shot evaluation without
 training a navigation policy on the target benchmark. This distinction is
@@ -150,19 +150,19 @@ frozen even though its world-state predictor is trained on causal histories.
 \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
 \midrule
 \rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Navigation-trained or task-adapted}}\\
-MTU3D \citep{zhu2025mtu3d} & \na & \na & 40.8 & 12.1 & \na & \na & \na & \na & \na & \na\\
+MTU3D \citep{zhu2025move} & \na & \na & 40.8 & 12.1 & \na & \na & \na & \na & \na & \na\\
 SoftNav \citep{wu2026softnav} & \na & \na & \textbf{66.7} & 25.7 & \na & \na & \na & \na & \na & \na\\
 NaVid \citep{zhang2024navid} & 37.4 & 35.9 & \na & \na & \na & \na & 15.0 & 15.0 & \na & \na\\
 Uni-NaVid \citep{zhang2024uninavid} & 47.0 & 42.7 & 39.5 & 19.8 & \na & \na & \na & \na & \na & \na\\
 NaVILA \citep{cheng2024navila} & 54.0 & 49.0 & \na & \na & \na & \na & \textbf{39.0} & \textbf{34.0} & \na & \na\\
-D3D-VLP \citep{wang2026d3dvlp} & \textbf{61.3} & \textbf{56.1} & 47.3 & 30.4 & \na & \na & \na & \na & \na & \na\\
+D3D-VLP \citep{wang2026d3d} & \textbf{61.3} & \textbf{56.1} & 47.3 & 30.4 & \na & \na & \na & \na & \na & \na\\
 \midrule
 \rowcolor{tblnav}\multicolumn{11}{c}{\emph{Zero-shot navigation without target-benchmark policy training}}\\
 VLFM \citep{yokoyama2024vlfm} & \na & \na & 35.2 & 19.6 & \na & \na & \na & \na & \na & \na\\
-AO-Planner \citep{chen2025aoplanner} & 25.5 & 16.6 & \na & \na & \na & \na & \na & \na & \na & \na\\
+AO-Planner \citep{chen2025affordances} & 25.5 & 16.6 & \na & \na & \na & \na & \na & \na & \na & \na\\
 TANGO \citep{ziliotto2025tango} & \na & \na & 35.5 & 19.5 & \na & \na & \na & \na & \na & \na\\
-DRIVE-Nav \citep{gao2026drivenav} & \na & \na & 50.2 & 32.6 & \na & \na & \na & \na & \na & \na\\
-Uni-LaViRA \citep{ding2026unilavira} & 60.7 & 47.7 & 60.0 & \textbf{40.5} & \na & \na & \na & \na & \na & \na\\
+DRIVE-Nav \citep{gao2026drive} & \na & \na & 50.2 & 32.6 & \na & \na & \na & \na & \na & \na\\
+Uni-LaViRA \citep{ding2026uni} & 60.7 & 47.7 & 60.0 & \textbf{40.5} & \na & \na & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{\evolvingworldnav{} (ours)} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na} &
 \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\

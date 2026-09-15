@@ -59,7 +59,10 @@ belief updating and replanning.
 The memory represents a persistent 3D semantic scene whose entity states evolve
 over time. Timestamped RGB-D observations are registered in a shared frame and
 associated across views using semantics, geometry, temporal consistency, and
-source confidence. Memory is materialized causally from versioned deltas:
+source confidence. Frozen open-vocabulary detection, segmentation, and
+vision-language features provide the semantic support
+\citep{liu2024grounding,ravi2025sam,radford2021learning}. Memory is materialized
+causally from versioned deltas:
 \begin{equation}
 \mathcal M_{\leq t}=\operatorname{Materialize}(\Delta\mathcal M_0,\ldots,\Delta\mathcal M_t)
 =(\mathcal G_t,\mathcal V_t,\mathcal B_t),

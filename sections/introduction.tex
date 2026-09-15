@@ -1,11 +1,29 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Embodied navigation requires an agent to ground a goal, maintain a world model, and select actions from egocentric observations. Most formulations nevertheless adopt a snapshot abstraction: the map or memory is assumed to describe the same world state in which navigation is executed \citep{chaplot2020objectnav,huang2023vlmaps,gu2024conceptgraphs}. Long-lived agents violate this assumption. Homes, offices, and campuses evolve while unobserved as objects are relocated, spaces are rearranged, and accessibility changes. The agent may therefore retain evidence that is historically correct yet decisionally stale, pointing to an obsolete goal or an inefficient route.
+Embodied navigation requires an agent to ground a goal, maintain a world model,
+and select actions from egocentric observations
+\citep{Zheng_2024_CVPR,ICLR2026_ceb45c48,Gao_2026_CVPR}. Most formulations
+nevertheless adopt a snapshot abstraction: the map or memory is assumed to
+describe the same world state in which navigation is executed
+\citep{chaplot2020objectnav,huang2023vlmaps,gu2024conceptgraphs}. Long-lived
+agents violate this assumption. Homes, offices, and campuses evolve while
+unobserved as objects are relocated, spaces are rearranged, and accessibility
+changes. The agent may therefore retain evidence that is historically correct
+yet decisionally stale, pointing to an obsolete goal or an inefficient route.
 
-Long-term deployment creates a dual tension. A persistent agent is not a persistent observer: as its \emph{4D history} grows, individual records become stale, yet repeated experience reveals environmental dynamics, routines, and personal habits. More history therefore does not automatically mean better knowledge of the present. Meanwhile, history grows without bound, whereas decision-time context and computation must remain controlled. Most embodied memories are retrospective, organizing or retrieving what was observed \citep{liu2024dynamem,kurenkov2023dynamic}; a predictive memory should instead infer \emph{what task-relevant state is most likely true now, how uncertain that belief is, and how navigation should adapt}. We seek a decision-preserving interface in which the episodic store retains grounded facts while the action policy consumes a compact, task-conditioned belief that preserves prediction and search utility.
+Long-term deployment creates a dual tension. A persistent agent is not a persistent observer: as its \emph{4D history} grows, individual records become stale, yet repeated experience reveals environmental dynamics, routines, and personal habits. More history therefore does not automatically mean better knowledge of the present. Meanwhile, history grows without bound, whereas decision-time context and computation must remain controlled. Recent embodied-agent frameworks expose persistent spatial memories and tool interfaces \citep{zhou2026holoagent,tian2026abot,wang2026towards}, while most embodied memories remain retrospective, organizing or retrieving what was observed \citep{liu2024dynamem,kurenkov2023dynamic}. A predictive memory should instead infer \emph{what task-relevant state is most likely true now, how uncertain that belief is, and how navigation should adapt}. We seek a decision-preserving interface in which the episodic store retains grounded facts while the action policy consumes a compact, task-conditioned belief that preserves prediction and search utility.
 
-Recent work models temporal persistence, future relations, household routines, and targets that move during navigation \citep{saavedraruiz2026predictivegraphs,patel2023homer,argenziano2026flowmaps,dorbala2026portable}. These approaches establish that dynamics matter, but leave a distinct problem insufficiently specified: navigation through changes that occur \emph{between} observations. In this regime, neither a freshly updated map nor the trajectory of a currently observed target is available. The agent must infer the latent present from its own incomplete past and decide which physical action will most efficiently confirm or refute that inference.
+Recent work models temporal persistence, future relations, household routines,
+continual relocation, and targets that move during navigation
+\citep{saavedraruiz2026predictivegraphs,patel2023homer,bartoli2025streak,
+argenziano2026flowmaps,dorbala2026portable}. These approaches establish that
+dynamics matter, but leave a distinct problem insufficiently specified:
+navigation through changes that occur \emph{between} observations. In this
+regime, neither a freshly updated map nor the trajectory of a currently observed
+target is available. The agent must infer the latent present from its own
+incomplete past and decide which physical action will most efficiently confirm
+or refute that inference.
 
 \paragraph{Positioning against prior work.}
 Our formulation separates four sources of difficulty that are often studied independently. Conventional ObjectNav and VLN primarily reason over an episode-level snapshot \citep{anderson2018evaluation,savva2019habitat,chaplot2020objectnav}; lifelong and dynamic mapping revise memory after a change is observed \citep{narayana2020lifelong,liu2024dynamem}; predictive scene models forecast future relations or placements, commonly as an open-loop prediction or ranked hypothesis set \citep{saavedraruiz2026predictivegraphs,argenziano2026flowmaps}; and moving-target navigation plans against motion during execution \citep{dorbala2026portable}. We instead study an agent that returns after an observation gap, faces a world whose task-relevant state may have changed unseen, and must close the loop between a calibrated current-state belief and evidence-seeking navigation. The key object is therefore not a more recent map or a single predicted destination, but an \emph{action-facing belief over the present} that is repeatedly tested and revised. This positioning defines persistent navigation in evolving worlds as a problem at the intersection of long-term memory, temporal prediction, active perception, and embodied planning.
