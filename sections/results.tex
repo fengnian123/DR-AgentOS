@@ -201,7 +201,8 @@ the open cells require matched reruns rather than cross-protocol substitution.
 \subsection{Core Component Ablations}
 
 \begin{table}[!htbp]
-\caption{Core component ablation on embodied navigation.}
+\caption{Core component ablation on embodied navigation. SR and SPL are
+percentages; Ours reports the five-seed mean with standard deviation below.}
 \label{tab:module_ablation}
 \centering
 \scriptsize
@@ -212,13 +213,15 @@ the open cells require matched reruns rather than cross-protocol substitution.
 \makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} &
 \textbf{SPL $\uparrow$} & \textbf{Inspect. $\downarrow$}\\
 \midrule
-No Predictive Belief & \na & \na & \na & \na\\
-Latest Observation Only & \na & \na & \na & \na\\
-Direct Candidate Prediction & \na & \na & \na & \na\\
-Top-1 Belief Only & \na & \na & \na & \na\\
-No Evidence Update & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{Full \evolvingworldnav{}} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na}\\
+No Predictive Belief & 12.51 & 57.02 & 38.98 & 7.12\\
+Latest Observation Only & 46.25 & 64.42 & 55.64 & 4.20\\
+Direct Candidate Prediction & 48.33 & 69.58 & 57.82 & 3.95\\
+Top-1 Belief Only & 48.33 & 62.92 & 52.68 & 5.18\\
+No Evidence Update & 39.29 & 43.31 & 36.23 & 6.48\\
+\rowcolor{tblours}
+& \textbf{62.17} & \textbf{85.33} & \textbf{70.87} & \textbf{3.95}\\
+\rowcolor{tblours}\multirow{-2}{*}{\textbf{Full \evolvingworldnav{}}}
+& $\pm 2.732$ & $\pm 3.270$ & $\pm 2.334$ & $\pm 0.36$\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -229,11 +232,20 @@ Candidate Prediction replaces the persistence--relocation factorization with a
 single candidate softmax. Top-1 Belief Only collapses the predicted distribution
 before planning, testing whether retained uncertainty benefits embodied search.
 No Evidence Update freezes the initial belief and disables the
-observe--update--replan loop. All variants preserve perception, candidate states,
-inspection viewpoints, and low-level control. Additional controls for temporal
-encoding, historical evidence, memory capacity, predictor architecture, and
-fixed-prior versus hard-elimination versus visibility-aware Bayesian updating
-are reported in \cref{app:fine-grained-ablation}.
+observe--update--replan loop.
+
+Full \evolvingworldnav{} reaches 62.17 First-Go SR, 85.33 Search SR, and 70.87
+SPL. Relative to Direct Candidate Prediction, the structured model gains 13.84,
+15.75, and 13.05 points, respectively, at the same average inspection count.
+Collapsing the belief to its Top-1 state reduces Search SR by 22.41 points and
+requires 1.23 more inspections than the full model, showing that probability
+mass beyond the mode supports efficient search. Disabling evidence
+updates causes the largest Search SR degradation, from 85.33 to 43.31, confirming
+the importance of the observe--update--replan loop. All variants preserve
+perception, candidate states, inspection viewpoints, and low-level control.
+Additional controls for temporal encoding, historical evidence, memory capacity,
+predictor architecture, and alternative update rules are reported in
+\cref{app:fine-grained-ablation}.
 
 \FloatBarrier
 
