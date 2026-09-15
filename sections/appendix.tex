@@ -173,75 +173,10 @@ Qwen2.5-VL-32B & 18.84 & 31.30 & 0.1591 & \textbf{42.44} & \textbf{46.21} & \tex
 \end{tabular}
 \end{table}
 
-\clearpage
-\subsection{Cross-Benchmark Results}
-\label{app:cross-benchmark}
-\label{app:prediction-evidence}
-
-\begin{wraptable}{r}{0.60\linewidth}
-\vspace{-0.7\baselineskip}
-\centering
-\caption{FindingDory results by control track.}
-\label{tab:findingdory_full}
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-\textbf{Method} & \textbf{HL-SR} & \textbf{HL-SPL} & \textbf{LL-SR} & \textbf{LL-SPL}\\
-\midrule
-FindingDory Agent & \na & \na & \na & \na\\
-LagMemo GLUE & \na & \na & \na & \na\\
-HOV-SG & \na & \na & \na & \na\\
-DynaMem & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{\evolvingworldnav{}} & \textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
-\bottomrule
-\end{tabular}
-\end{wraptable}
-
-\paragraph{FindingDory control tracks.}
-\Cref{tab:findingdory_full} separates high-level decision quality from
-low-level execution. HL-SR and HL-SPL measure semantic decision quality, while
-LL-SR and LL-SPL include embodied execution. Reporting both tracks prevents
-controller failures from being attributed to long-term memory and, conversely,
-prevents memory errors from being hidden by a strong low-level navigator.
-
-\par\medskip
-\begin{wraptable}{r}{0.60\linewidth}
-\vspace{-0.7\baselineskip}
-\centering
-\caption{GOAT-Bench results by goal modality.}
-\label{tab:goat_modalities}
-\scriptsize
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{}lcccccc@{}}
-\toprule
-& \multicolumn{2}{c}{\textbf{Category goal}} &
-\multicolumn{2}{c}{\textbf{Language goal}} &
-\multicolumn{2}{c}{\textbf{Image goal}}\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-\textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
-\textbf{SR} & \textbf{SPL}\\
-\midrule
-VLFM & \na & \na & \na & \na & \na & \na\\
-ZSON & \na & \na & \na & \na & \na & \na\\
-FindingDory Agent & \na & \na & \na & \na & \na & \na\\
-LagMemo GLUE & \na & \na & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{\evolvingworldnav{}} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
-\bottomrule
-\end{tabular}
-\end{wraptable}
-
-\paragraph{GOAT goal modalities.}
-\Cref{tab:goat_modalities} disaggregates category, language, and image goals.
-The matched breakdown tests whether the same memory and planning interface
-transfers across goal specifications, rather than benefiting only one query
-format. Reporting both SR and SPL further distinguishes successful transfer
-from gains obtained through substantially longer trajectories.
-
 \FloatBarrier
 \subsection{Fine-Grained Ablation Analysis}
 \label{app:fine-grained-ablation}
+\label{app:prediction-evidence}
 
 The main-paper ablation isolates the five decisions that define the complete
 agent. Here we decompose implementation choices within temporal memory,
@@ -289,6 +224,22 @@ needs target-specific trajectories and earlier negative observations, while the
 $K$ sweep measures whether gains saturate as longer histories are retained.
 
 \subsubsection{Evidence Update Ablations}
+
+\Cref{fig:agent-evidence-update} illustrates the update applied after an
+unsuccessful inspection. Causal memory initially assigns probability 0.62 to the
+last-seen coffee table. When a reliable detector ($c=0.95$) fails to observe the
+target from a high-coverage view ($v=0.98$), the likelihood at that state falls
+to 0.069. The posterior consequently shifts from $(0.62,0.25,0.13)$ to
+$(0.10,0.59,0.31)$ and the planner selects the kitchen island next. The inspected
+state retains nonzero mass, reflecting residual perceptual uncertainty rather
+than an irreversible deletion.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\linewidth]{figures/Agent_Evidence_Update.pdf}
+\caption{Evidence-aware belief updating and replanning after a negative inspection.}
+\label{fig:agent-evidence-update}
+\end{figure}
 
 \begin{table}[!htbp]
 \caption{Evidence-update ablations during embodied search.}
@@ -345,7 +296,6 @@ structured model separates persistence from relocation. This controlled view
 therefore isolates architectural factorization from memory content and action
 selection.
 
-\FloatBarrier
 \subsection{Evolution-Aware Diagnostics}
 \label{app:evolution-diagnostics}
 
