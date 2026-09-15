@@ -56,7 +56,31 @@
 \maketitle
 
 \begin{abstract}
-Embodied navigation is typically formulated assuming that maps and memories describe a stationary world. This assumption breaks for long-lived agents, where environments evolve during periods of absence and historical observations can become correct yet decisionally stale. We formulate \emph{persistent navigation in evolving worlds}, where an agent must infer the current task-relevant state from incomplete temporal experience, act under uncertainty, and update its beliefs through physical evidence. We introduce \evolvingworldnav{}, a predictive embodied-agent framework centered on \pfdnav{}, which transforms evidence-grounded 4D memory into an actionable belief over the present world. A continuous-time temporal model captures irregular histories, while a persistence--relocation formulation predicts whether previous states remain valid or where objects are likely to transition. The resulting belief guides cost-aware navigation and is refined through visibility-aware Bayesian updates during interaction. We further introduce \pfdbench{}, a \textbf{54}-scene benchmark with \textbf{803.68k} tasks spanning state prediction, object navigation, vision-and-language navigation, and embodied question answering. Across diverse benchmarks, EvolvingWorldNav achieves \textbf{63.22\%} HL-SR and \textbf{48.83\%} HL-SPL on FindingDory, \textbf{35.43\%} SR on GOAT-Bench, and \textbf{86.18\%} Search SR with \textbf{70.15\%} SPL on P4D-Bench. Controlled static, routine, and random worlds further show that the agent learns temporal evolution rather than exploiting scene-frequency shortcuts. Our work shifts embodied navigation from acting on remembered past observations toward maintaining, testing, and acting on beliefs about the world as it is now.
+Long-lived embodied agents must navigate worlds that continue to evolve while
+unobserved. Their memories can remain faithful to past observations yet provide
+obsolete guidance for present actions. We formulate \emph{persistent navigation
+in evolving worlds}: inferring the current task-relevant state from intermittent
+experience and gathering physical evidence to resolve the resulting uncertainty.
+We introduce \textsc{EvolvingWorldNav}, an embodied agent that converts 4D
+memory---persistent 3D entities with temporal state histories---into a belief
+over the present. A continuous-time Transformer encodes irregular observations,
+and a persistence--relocation head separates whether the last observed state
+remains valid from where it may have transitioned. The full belief guides
+cost-aware search; visibility-aware Bayesian updates distinguish an informative
+negative observation from an inconclusive inspection and trigger replanning.
+This loop operates with a frozen vision--language controller. To evaluate hidden
+world evolution, we introduce \pfdbench{}, a human-trace-grounded benchmark with
+\textbf{54} scenes and \textbf{803.68k} tasks spanning state prediction,
+navigation, and embodied question answering. On P4D-Bench, our agent achieves
+\textbf{61.32\%} first-attempt success, improving over the strongest baseline by
+\textbf{15.99} percentage points, and reaches \textbf{86.18\%} search success
+with \textbf{70.15\%} SPL. It also achieves \textbf{63.22\%} HL-SR on FindingDory
+and \textbf{35.43\%} SR on GOAT-Bench. Component ablations and paired controller
+comparisons support the contribution of predictive memory across VLMs, while
+paired static, routine, and random worlds show that gains reflect learnable
+temporal evolution rather than scene-frequency shortcuts. These results
+establish predictive memory as a basis for navigation when past observations
+no longer specify the present world.
 \end{abstract}
 
 \raggedbottom
