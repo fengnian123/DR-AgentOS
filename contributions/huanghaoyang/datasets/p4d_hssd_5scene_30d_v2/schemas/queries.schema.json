@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "candidate_state_ids": {
+      "items": {
+        "type": "integer"
+      },
+      "type": "array"
+    },
+    "context_history": {
+      "type": "array"
+    },
+    "labels": {
+      "type": "object"
+    },
+    "query_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "p4d_benchmark_v1.0"
+    },
+    "split": {
+      "enum": [
+        "train",
+        "validation",
+        "test"
+      ]
+    },
+    "target_history": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "query_id",
+    "split",
+    "dataset_id",
+    "scene_id",
+    "target",
+    "query",
+    "history_summary",
+    "target_history",
+    "context_history",
+    "candidate_state_ids",
+    "labels",
+    "provenance"
+  ],
+  "title": "P4D Query",
+  "type": "object"
+}
