@@ -75,12 +75,7 @@ navigation, and embodied question answering. On P4D-Bench, our agent achieves
 \textbf{61.32\%} first-attempt success, improving over the strongest baseline by
 \textbf{15.99} percentage points, and reaches \textbf{86.18\%} search success
 with \textbf{70.15\%} SPL. It also achieves \textbf{63.22\%} HL-SR on FindingDory
-and \textbf{35.43\%} SR on GOAT-Bench. Component ablations and paired controller
-comparisons support the contribution of predictive memory across VLMs, while
-paired static, routine, and random worlds show that gains reflect learnable
-temporal evolution rather than scene-frequency shortcuts. These results
-establish predictive memory as a basis for navigation when past observations
-no longer specify the present world.
+and \textbf{35.43\%} SR on GOAT-Bench. Ablation studies and controlled temporal evaluations further reveal that the improvement comes from learning how the world evolves over time, rather than exploiting static scene priors or object-frequency patterns. This establishes a new paradigm for embodied navigation: agents should not merely remember where objects were observed, but predict where the world has evolved to.
 \end{abstract}
 
 \raggedbottom
