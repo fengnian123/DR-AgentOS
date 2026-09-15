@@ -246,31 +246,34 @@ than an irreversible deletion.
 \end{figure}
 
 \begin{table}[!htbp]
-\caption{Evidence-update ablations during embodied search.}
+\caption{Belief quality after negative-evidence updates; Top-1 is a percentage.}
 \label{tab:evidence-update-ablation}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{5pt}
+\setlength{\tabcolsep}{8pt}
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Update rule} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
-\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} &
-\textbf{Inspect. $\downarrow$}\\
+\textbf{Update rule} & \textbf{Rank $\downarrow$} & \textbf{Top-1 $\uparrow$} &
+\textbf{NLL $\downarrow$} & \textbf{ECE $\downarrow$}\\
 \midrule
-No Update (Fixed Prior) & \na & \na & \na & \na\\
-Naive Hard Elimination & \na & \na & \na & \na\\
-Bayesian w/o Visibility Calibration & \na & \na & \na & \na\\
-\rowcolor{tblours}\textbf{Visibility-Aware Bayesian Update} &
-\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+No Update & 5.82 & 62.98 & 2.838 & 0.172\\
+Hard Removal & 10.09 & 42.69 & 11.514 & 0.204\\
+Bayesian Update & 5.25 & 64.71 & \textbf{1.497} & 0.151\\
+\rowcolor{tblours}\textbf{Bayesian + Visibility (Ours)} &
+\textbf{4.96} & \textbf{66.93} & 1.530 & \textbf{0.130}\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The fixed-prior controller never incorporates inspection evidence. Naive Hard
-Elimination assigns zero mass after any unsuccessful inspection, whereas the
-uncalibrated Bayesian variant updates without accounting for viewpoint coverage.
-Their comparison with the full update separates the value of belief revision
-from the value of visibility-aware evidence likelihoods.
+No Update leaves the prior unchanged, while Hard Removal assigns zero mass after
+every unsuccessful inspection. This irreversible rule performs worst across all
+four metrics, showing that an apparent miss is insufficient evidence when the
+view is partially occluded or perception is uncertain. Bayesian updating lowers
+NLL from 2.838 to 1.497 without discarding hypotheses outright. Adding
+visibility produces the best mean rank (4.96), Top-1 accuracy (66.93\%), and ECE
+(0.130), while its NLL remains within 0.033 of the uncalibrated Bayesian update.
+The result supports viewpoint-conditioned negative evidence as the most reliable
+input to the observe--update--replan loop.
 
 \subsubsection{Predictor Architecture}
 
