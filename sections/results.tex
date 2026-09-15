@@ -198,39 +198,42 @@ the open cells require matched reruns rather than cross-protocol substitution.
 
 \FloatBarrier
 
-\subsection{What Components Produce the Gain?}
+\subsection{Core Component Ablations}
 
 \begin{table}[!htbp]
-\caption{Module-level ablation of predictive belief and agent components.}
+\caption{Core component ablation on embodied navigation.}
 \label{tab:module_ablation}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{4pt}
-\begin{tabularx}{0.95\linewidth}{@{}>{\raggedright\arraybackslash}X *{5}{>{\centering\arraybackslash}p{0.075\linewidth}}@{}}
+\begin{tabularx}{0.90\linewidth}{@{}>{\raggedright\arraybackslash}X *{4}{>{\centering\arraybackslash}p{0.105\linewidth}}@{}}
 \toprule
-\textbf{Variant} & \textbf{Top-1} & \textbf{NLL} & \textbf{SR} &
-\textbf{SPL} & \textbf{Inspect.}\\
+\textbf{Variant} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
+\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} &
+\textbf{SPL $\uparrow$} & \textbf{Inspect. $\downarrow$}\\
 \midrule
-w/o predictive belief & \na & \na & \na & \na & \na\\
-w/o 4D memory (latest observation) & \na & \na & \na & \na & \na\\
-w/o continuous-time encoding & \na & \na & \na & \na & \na\\
-w/o persistence--relocation head & \na & \na & \na & \na & \na\\
-w/o visibility calibration & \na & \na & \na & \na & \na\\
-w/o Bayesian evidence update & \na & \na & \na & \na & \na\\
+No Predictive Belief & \na & \na & \na & \na\\
+Latest Observation Only & \na & \na & \na & \na\\
+Direct Candidate Prediction & \na & \na & \na & \na\\
+Top-1 Belief Only & \na & \na & \na & \na\\
+No Evidence Update & \na & \na & \na & \na\\
 \rowcolor{tblours}\textbf{Full \evolvingworldnav{}} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\textbf{\na} & \textbf{\na}\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-The two top-level removals test the paper's central system claims: whether
-prediction adds value beyond retrospective memory, and whether temporally
-versioned evidence adds value beyond the latest observation. The remaining rows
-localize gains within the predictor and agent loop. Joint interpretation of NLL
-and navigation cost distinguishes improved classification from improved
-decisions. In particular, the no-update and no-visibility variants separate the
-initial prediction from the agent's use of later physical evidence. All removals
-preserve perception, candidates, and low-level control.
+The first two variants test whether predictive belief and temporally persistent
+history improve over reactive search and the latest observation alone. Direct
+Candidate Prediction replaces the persistence--relocation factorization with a
+single candidate softmax. Top-1 Belief Only collapses the predicted distribution
+before planning, testing whether retained uncertainty benefits embodied search.
+No Evidence Update freezes the initial belief and disables the
+observe--update--replan loop. All variants preserve perception, candidate states,
+inspection viewpoints, and low-level control. Additional controls for temporal
+encoding, historical evidence, memory capacity, predictor architecture, and
+fixed-prior versus hard-elimination versus visibility-aware Bayesian updating
+are reported in \cref{app:fine-grained-ablation}.
 
 \FloatBarrier
 
@@ -345,7 +348,7 @@ Shared semantic prior
 
 \rowcolor{tblours}
 & \textbf{38.24}
-& 0.5871
+& \textbf{0.5971}
 & \textbf{1.4925}
 & \textbf{61.18}
 & \textbf{0.7523}

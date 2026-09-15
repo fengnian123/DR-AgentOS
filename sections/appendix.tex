@@ -239,6 +239,113 @@ transfers across goal specifications, rather than benefiting only one query
 format. Reporting both SR and SPL further distinguishes successful transfer
 from gains obtained through substantially longer trajectories.
 
+\FloatBarrier
+\subsection{Fine-Grained Ablation Analysis}
+\label{app:fine-grained-ablation}
+
+The main-paper ablation isolates the five decisions that define the complete
+agent. Here we decompose implementation choices within temporal memory,
+evidence updating, and the predictor while preserving the same perception,
+candidate set, inspection viewpoints, and low-level navigator.
+
+\subsubsection{Temporal and Memory Ablations}
+
+\begin{table}[!htbp]
+\caption{Temporal and memory ablations.}
+\label{tab:temporal-memory-ablation}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabularx}{0.88\linewidth}{@{}l>{\raggedright\arraybackslash}Xcccc@{}}
+\toprule
+\textbf{Group} & \textbf{Variant} & \textbf{Top-1 $\uparrow$} &
+\makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
+\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$}\\
+\midrule
+\multirow{3}{*}{Temporal encoding}
+& w/o elapsed-time encoding & \na & \na & \na & \na\\
+& w/o calendar context & \na & \na & \na & \na\\
+& w/o both temporal cues & \na & \na & \na & \na\\
+\midrule
+\multirow{2}{*}{Historical evidence}
+& w/o instance-specific history & \na & \na & \na & \na\\
+& w/o negative history & \na & \na & \na & \na\\
+\midrule
+\multirow{4}{*}{History capacity}
+& $K=8$ & \na & \na & \na & \na\\
+& $K=16$ & \na & \na & \na & \na\\
+& $K=32$ & \na & \na & \na & \na\\
+& $K=64$ & \na & \na & \na & \na\\
+\midrule
+\rowcolor{tblours}\multicolumn{2}{l}{\textbf{Full temporal memory ($K=64$)}} &
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Elapsed-time and calendar ablations distinguish irregular observation gaps from
+daily and weekly periodic context. The evidence rows test whether the predictor
+needs target-specific trajectories and earlier negative observations, while the
+$K$ sweep measures whether gains saturate as longer histories are retained.
+
+\subsubsection{Evidence Update Ablations}
+
+\begin{table}[!htbp]
+\caption{Evidence-update ablations during embodied search.}
+\label{tab:evidence-update-ablation}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Update rule} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
+\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} &
+\textbf{Inspect. $\downarrow$}\\
+\midrule
+No Update (Fixed Prior) & \na & \na & \na & \na\\
+Naive Hard Elimination & \na & \na & \na & \na\\
+Bayesian w/o Visibility Calibration & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{Visibility-Aware Bayesian Update} &
+\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The fixed-prior controller never incorporates inspection evidence. Naive Hard
+Elimination assigns zero mass after any unsuccessful inspection, whereas the
+uncalibrated Bayesian variant updates without accounting for viewpoint coverage.
+Their comparison with the full update separates the value of belief revision
+from the value of visibility-aware evidence likelihoods.
+
+\subsubsection{Predictor Architecture}
+
+\begin{table}[!htbp]
+\caption{Predictor architecture on temporal changed-only queries.}
+\label{tab:predictor-architecture-ablation}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{7pt}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Predictor} & \textbf{Top-1 $\uparrow$} & \textbf{MRR $\uparrow$} &
+\textbf{NLL $\downarrow$}\\
+\midrule
+GRU & 32.61 & 0.5471 & 1.8279\\
+Direct Transformer & 34.16 & 0.5586 & 1.7292\\
+\rowcolor{tblours}\textbf{Structured Transformer (ours)} &
+$\mathbf{38.24\pm1.42}$ & $\mathbf{0.5971\pm0.0291}$ &
+$\mathbf{1.4925\pm0.0867}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All three predictors use the same observation tokens and candidate encoder.
+The Direct Transformer normalizes candidate logits directly, whereas the
+structured model separates persistence from relocation. This controlled view
+therefore isolates architectural factorization from memory content and action
+selection.
+
+\FloatBarrier
 \subsection{Evolution-Aware Diagnostics}
 \label{app:evolution-diagnostics}
 
