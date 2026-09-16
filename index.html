@@ -7,21 +7,24 @@
   <title>EvolvingWorldNav | Project Page</title>
   <link rel="stylesheet" href="academic.css" />
   <link rel="stylesheet" href="layout-fixes.css" />
+  <link rel="stylesheet" href="world-explorer.css" />
+  <link rel="stylesheet" href="site-design.css" />
+  <script src="world-explorer.js" defer></script>
 </head>
 <body>
   <header class="site-header">
     <div class="page-width header-inner">
       <a href="#top" class="site-name">EvolvingWorldNav</a>
-      <nav aria-label="Page navigation"><a href="#abstract">Abstract</a><a href="#method">Method</a><a href="#benchmark">Benchmark</a><a href="#results">Results</a></nav>
+      <nav aria-label="Page navigation"><a href="#abstract">Abstract</a><a href="#method">Method</a><a href="#explorer">Explore</a><a href="#benchmark">Benchmark</a><a href="#results">Results</a></nav>
     </div>
   </header>
 
   <main id="top" class="page-width">
     <section class="paper-heading">
-      <h1>EvolvingWorldNav: Predictive 4D Belief for<br class="desktop" /> Persistent Navigation in Evolving Worlds</h1>
+      <h1><span class="title-project">EvolvingWorld<span class="title-nav">Nav</span><span class="title-colon">:</span></span> <span class="title-description">Predictive 4D Belief for<br class="desktop" /> Persistent Navigation in Evolving Worlds</span></h1>
       <p class="authors">Anonymous authors</p>
       <p class="affiliation">ICLR 2027 anonymous submission</p>
-      <div class="paper-links"><a href="main.pdf" target="_blank" rel="noreferrer">Paper</a><a href="https://github.com/fengnian123/DR-AgentOS" target="_blank" rel="noreferrer">Code</a><a href="#bibtex">BibTeX</a></div>
+      <div class="paper-links"><a href="main.pdf" target="_blank" rel="noreferrer">Paper</a><a href="https://github.com/fengnian123/DR-AgentOS" target="_blank" rel="noreferrer">Code</a><a href="#bibtex">BibTeX</a><a href="#explorer" class="explore-link">Explore the method <span>↓</span></a></div>
     </section>
 
     <figure class="main-figure">
@@ -43,6 +46,27 @@
         <figure class="paper-figure large"><img src="figures/case_web.png" alt="P4D-Bench qualitative case study" /><figcaption><b>Closed-loop navigation.</b> A predictive belief ranks a current candidate, gathers evidence, and replans when memory is stale.</figcaption></figure>
       </div>
       <p class="equation-note"><span>history</span> → <span>current-state belief</span> → <span>plan / act</span> → <span>evidence</span> → <span>memory update</span></p>
+    </section>
+
+    <section id="explorer" class="paper-section explorer-section" aria-labelledby="explorer-title">
+      <div class="ex-intro"><span class="ex-eyebrow">INTERACTIVE DEMONSTRATION</span><span class="ex-demo-label">Interactive illustration · simulated data</span></div>
+      <h2 id="explorer-title">Interactive 4D World Memory Explorer</h2>
+      <p class="ex-description">Explore 4D world memory. Follow an object through time, predict where it is now, and let new evidence change the agent’s belief.</p>
+      <div class="ex-shell" id="world-explorer" hidden>
+        <div class="ex-toolbar"><div class="ex-scenes" role="group" aria-label="Select a scene"><button type="button" data-scene="kitchen" aria-pressed="true">Kitchen</button><button type="button" data-scene="living" aria-pressed="false">Living room</button><button type="button" data-scene="office" aria-pressed="false">Office</button><button type="button" data-scene="bedroom" aria-pressed="false">Bedroom</button></div><div class="ex-controls"><button type="button" id="ex-play" class="ex-play">▶ Play story</button><button type="button" class="ex-reset" id="ex-reset">↺ <span>Reset</span></button></div></div>
+        <div class="ex-workspace">
+          <div class="ex-scene-panel"><div class="ex-panel-heading"><div><span class="ex-eyebrow">SPATIAL MEMORY</span><h3 id="ex-task">Find the mug</h3></div><span class="ex-pill" id="ex-phase">Current query</span></div>
+            <div class="ex-map-wrap"><div class="ex-map-meta"><span>AXONOMETRIC VIEW</span><span id="ex-map-clock">DAY 03 / 09:00</span></div><svg id="ex-map" viewBox="0 0 600 370" role="img" aria-labelledby="ex-map-title ex-map-desc"><title id="ex-map-title">Kitchen spatial belief map</title><desc id="ex-map-desc">An illustrative floor plan. Candidate locations display current belief probabilities.</desc><defs><pattern id="ex-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M 24 0 L 0 0 0 24" fill="none" stroke="#dce5e8" stroke-width=".7"/></pattern><radialGradient id="ex-glow"><stop stop-color="#1599ad" stop-opacity=".32"/><stop offset="1" stop-color="#1599ad" stop-opacity="0"/></radialGradient><filter id="ex-shadow" x="-30%" y="-40%" width="160%" height="200%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#193453" flood-opacity=".08"/></filter></defs><rect x="55" y="28" width="490" height="302" fill="#f5f8f9"/><path d="M265 330H55V28H545V330H370" fill="none" stroke="#bcccd4" stroke-width="5" stroke-linejoin="round"/><path d="M59 32H541V326H59Z" fill="url(#ex-grid)"/><path d="M270 330a95 95 0 0 1 95-95V330" fill="none" stroke="#d1dce1" stroke-width="1" stroke-dasharray="4 5"/><text x="75" y="309" class="ex-map-caption">SCHEMATIC FLOOR PLAN</text><g id="ex-furniture"></g><path id="ex-route" d="M315 300 L315 170 L433 170" fill="none" stroke="#1599ad" stroke-width="2" stroke-dasharray="5 6" opacity="0"/><g id="ex-object"><circle r="17" fill="white" stroke="#1599ad" stroke-width="2"/><path d="M-6-6H4V5Q-1 10-6 5Z M4-4H8V2H4" fill="none" stroke="#1599ad" stroke-width="2"/></g><g id="ex-agent" transform="translate(315 300)"><circle r="18" fill="#193453" stroke="white" stroke-width="4"/><path d="M0-7L6 5L0 2L-6 5Z" fill="white"/></g></svg></div>
+            <div class="ex-legend"><span><i class="ex-key ex-key-belief"></i>Location belief</span><span><i class="ex-key ex-key-agent"></i>Quadruped robot</span><button type="button" id="ex-inspect-memory">View object memory ↗</button></div>
+            <div class="ex-robot-dock"><svg viewBox="-55 -55 110 78" aria-hidden="true"><g id="ex-robot-preview"></g></svg><div><span class="ex-eyebrow">QUADRUPED EXPLORER</span><strong>Embodied inspection</strong><span class="ex-robot-caption">Illustrative robot · autonomous search</span></div><span class="ex-robot-state"><i></i><span id="ex-robot-status">Standing by</span></span></div><div class="ex-timeline"><div class="ex-timeline-heading"><label for="ex-time">TIME SINCE OBSERVATION</label><output id="ex-elapsed" for="ex-time">48 hours</output></div><input id="ex-time" type="range" min="0" max="48" value="48" step="1" aria-label="Hours since last observation"/><div class="ex-time-stops"><button type="button" data-time="0">Day 1 <span>Observed</span></button><button type="button" data-time="24">Day 2 <span>Unobserved</span></button><button type="button" data-time="48">Day 3 <span>Query now</span></button></div></div>
+          </div>
+          <div class="ex-belief-panel"><div class="ex-panel-heading"><div><span class="ex-eyebrow">PREDICTIVE BELIEF</span><h3>Where is it now?</h3></div><span class="ex-live-dot" aria-hidden="true"></span></div><p id="ex-context" class="ex-context"></p><div id="ex-distribution" class="ex-distribution"></div><div class="ex-reason"><span class="ex-eyebrow" id="ex-reason-title">WHY THIS PREDICTION?</span><p id="ex-explanation"></p></div><div class="ex-evidence-card"><div><span class="ex-eyebrow">LATEST EVIDENCE</span><span class="ex-evidence-icon" aria-hidden="true">⌖</span></div><strong id="ex-evidence-location">Table</strong><span id="ex-evidence-source">Historical observation</span><small id="ex-evidence-age">48h since observation</small></div><div class="ex-action-area"><button type="button" id="ex-action" class="ex-primary">Inspect cabinet <span>→</span></button><p id="ex-action-hint">Follow the belief. Gather new evidence.</p></div></div>
+        </div>
+        <div class="ex-bottom"><ol class="ex-steps" aria-label="Evidence loop"><li data-step="0">01 <span>Predict</span></li><li data-step="1">02 <span>Inspect</span></li><li data-step="2">03 <span>Update</span></li><li data-step="3">04 <span>Recover</span></li></ol><p id="ex-status" role="status" aria-live="polite" aria-atomic="true"></p></div>
+        <details class="ex-memory" id="ex-memory"><summary><span>Object memory <span id="ex-memory-name"></span></span><span class="ex-memory-toggle" aria-hidden="true">+</span></summary><div class="ex-memory-content" id="ex-memory-content"></div></details>
+      </div>
+      <noscript><p>This interactive illustration needs JavaScript. It demonstrates how historical observations become current beliefs, and how new inspection evidence updates those beliefs.</p></noscript>
+      <p class="ex-footnote">Illustrative scenarios, not model outputs or benchmark measurements. Negative evidence is weighted by inspection visibility; unseen locations remain possible.</p>
     </section>
 
     <section id="benchmark" class="paper-section">
