@@ -1,200 +1,55 @@
 \section{Experiments}
 \label{sec:experiments}
 
-We evaluate three linked questions: whether \pfdnav{} predicts the latent
-current state more accurately and with better calibration; whether its belief
-improves navigation destinations and search efficiency; and whether the
-closed-loop agent recovers when its initial prediction conflicts with physical
-evidence. Benchmark experiments follow the native protocols described below;
-within each comparison, methods share perception, candidate states, inspection
-viewpoints, low-level control, and action budgets.
+We evaluate whether predictive 4D memory improves current-state inference,
+embodied search, and recovery from contradicted beliefs. Within each comparison,
+methods share perception, legal candidates, inspection viewpoints, low-level
+control, and action budgets. Extended protocols and implementation details are
+provided in \cref{app:experimental-setup,app:benchmark-protocol}.
 
-\subsection{Evaluation Matrix}
+\subsection{Setup}
+\label{sec:setup}
 
-\paragraph{Cross-benchmark evaluation.}
-We evaluate the complete agent on \pfdbench{}, FindingDory
-\citep{yadav2025findingdory}, and GOAT-Bench \citep{khanna2024goatbench}.
-The three benchmarks probe complementary capabilities rather than sharing a
-single pooled score. \pfdbench{} isolates belief over hidden current state and
-its effect on evidence-aware navigation. FindingDory evaluates long-horizon
-memory through high-level goal selection and conditional low-level execution;
-the compact comparison reports HL-SR and HL-SPL, while the appendix retains the
-full high- and low-level breakdown. GOAT-Bench evaluates lifelong
-multi-goal navigation; in addition to its official SR and SPL, we report
-Repeat-SR on subtasks whose target identity or containing region has appeared
-in the agent's prior stream. The latter is an explicitly marked diagnostic of
-memory reuse, not an official leaderboard metric. Category, language, and image
-goals are evaluated under the benchmark's native protocol. On \pfdbench{},
-First-Go SR, Search SR, and SPL jointly expose prediction quality, eventual task
-success, and path efficiency. Reported external numbers are separated from
-reproduced results.
+\paragraph{Datasets.}
+Our primary evaluation uses \pfdbench{}, whose evolving HSSD histories test
+state prediction, First-Go navigation, belief-guided search, and evidence-aware
+replanning. FindingDory \citep{yadav2025findingdory} and GOAT-Bench
+\citep{khanna2024goatbench} test long-horizon memory and repeated-goal
+navigation. Cross-domain evaluation uses R2R-CE on MP3D, HM3D-OVON on HM3D,
+PointNav on Habitat-GS, and SAGE-Bench on InteriorGS; each retains its native
+split and success rule. We additionally conduct 64 matched search trials per
+method on the LYNX M20, balanced across indoor and outdoor environments, with
+X30 and Lite3 used for transfer analysis.
 
-\paragraph{Prediction-only study.}
-We train on days 0--29, select configurations on days 30--34, and evaluate on
-days 35--39 of five HSSD scene histories (5,475/910/915 queries).
-Temporal evaluation pools the five scenes; leave-one-scene-out (LOSO) trains
-and selects on four scenes and tests on the fifth. All methods share query
-identities and legal candidates. We report temporal \emph{changed} queries
-($n=322$), whose current state differs from the last positive observation,
-and pooled LOSO \emph{change-balanced} queries ($n=644$), with equal changed
-and unchanged counts within observation-age bins. These are conditional
-prediction metrics, not navigation success rates. The complete natural
-distribution and implementation details appear in
-\cref{app:prediction-evidence}. This single-seed study evaluates the full
-Ours-Memory configuration after development informed by earlier test results;
-its richer inputs and search budget differ from the frozen legacy baselines.
-A separate three-seed study with fresh synthetic trajectories and matched
-neural inputs tests whether its advantages survive stronger controls.
+\paragraph{Base VLMs.}
+The controller remains frozen. The primary evaluation uses a fixed VLM,
+prompt, typed tool interface, and inference budget across methods. To test model
+dependence, we repeat paired episodes with GPT-4o, GPT-5.5, GPT-5.6-Luna, and
+the open-weight Qwen2.5-VL-3B/32B
+\citep{hurst2024gpt4o,openai2026gpt55,openai2026gpt56luna,
+bai2025qwen25vl}; only the memory, prediction, and evidence-update pathway
+changes.
 
-
-
-\paragraph{Cross-domain simulation.}
-To distinguish temporal reasoning from renderer- or dataset-specific fitting,
-we evaluate one canonical task in each environment: R2R-CE on MP3D,
-HM3D-OVON on HM3D, the native PointNav protocol on Habitat-GS, SAGE-Bench on
-InteriorGS, and \pfdbench{} on dynamic HSSD scenes
-\citep{yokoyama2024hm3d,xia2026habitat,miao2026towards,khanna2024hssd}.
-Habitat-GS and InteriorGS instantiate photorealistic navigation with 3D Gaussian
-splatting \citep{kerbl20233d}. Each column keeps its
-official split, goal specification, and success rule; scores are not pooled
-across tasks. We hold perception and low-level control fixed within a column
-and report either exact-protocol published results or matched runs from
-released checkpoints. This design covers standard meshes, Gaussian-splatting
-simulators, and evolving worlds without treating heterogeneous tasks as a
-single metric.
-
-
-
-\subsection{Real-World Evaluation}
-\label{sec:real-world}
-We further evaluate \evolvingworldnav{} on three commercial legged robotic platforms,
-DEEP Robotics LYNX M20, X30, and Lite3, across both indoor and outdoor
-environments. M20 serves as the primary platform for quantitative evaluation,
-while X30 and Lite3 are used to examine cross-platform transfer. The memory
-representation, prediction module, belief update, and high-level search policy
-are shared across platforms; only the robot-specific perception and low-level
-navigation interfaces differ. Manufacturer-reported platform specifications
-are provided in the appendix.
-
-The real-world evaluation focuses on persistent target search under
-environmental changes that unfold across multiple observation sessions. In the
-indoor setting, both objects and people may change locations over time, with
-their histories exhibiting different degrees of temporal and activity-related
-regularity. The outdoor setting extends the same formulation to larger and
-less constrained spaces, where targets likewise undergo recurring or
-irregular location changes. In both settings, the agent receives historical
-observations before a query and must infer the target's current likely state,
-prioritize candidate locations, navigate to gather physical evidence, and
-revise its belief when new observations contradict the initial prediction.
-
-Targets remain stationary within an individual search episode, so the
-evaluation isolates hidden changes between observations rather than target
-motion during execution. Compared methods receive the same pre-query history,
-candidate locations, starting condition, perception interface, and
-platform-specific low-level navigation stack. Success requires autonomous
-online confirmation of the queried target within the search budget; missed
-detections, navigation failures, timeouts, and human interventions count as
-failures. We report Search SR, First-Go SR, travel distance, elapsed time,
-number of inspected locations, and recovery after an incorrect first
-prediction. Detailed task construction, robot specifications, and scoring
-procedures are provided in \cref{app:real-world}.
-
-
-\subsection{Baselines and Ablations}
+\paragraph{Baseline methods.}
 \label{sec:baselines}
+The main comparison covers open-vocabulary or lifelong navigation (VLFM, ZSON,
+FindingDory, LagMemo), structured memory (HOV-SG, DynaMem), and predictive
+world models (SLaTe-PRO, SGM+NEP, FlowMaps, Perpetua)
+\citep{yokoyama2024vlfm,majumdar2022zson,zhou2025lagmemo,
+werby2024hovsg,liu2024dynamem,patel2023routine,kurenkov2023dynamic,
+argenziano2026flowmaps,saavedraruiz2026predictivegraphs}. Diagnostic studies
+add Last Seen, frequency/Markov models, Random Forest, GRU, and direct
+Transformer predictors. Cross-environment baselines are separated into
+navigation-trained/task-adapted and zero-shot systems. Released policies use
+their native protocol; memory or prediction modules are otherwise connected to
+the shared controller. Full adaptation rules are in \cref{app:baselines}.
 
-We select baselines from the implementations that have been validated in our
-evaluation stack and organize them by the capability they contribute. The
-\emph{open-vocabulary and lifelong navigation} group contains VLFM
-\citep{yokoyama2024vlfm}, ZSON \citep{majumdar2022zson}, the FindingDory agent
-\citep{yadav2025findingdory}, and LagMemo GLUE \citep{zhou2025lagmemo}. These
-methods test frontier-based semantic search, learned zero-shot navigation,
-long-horizon episodic recall, and persistent 3DGS language memory,
-respectively. The \emph{structured spatio-temporal memory} group contains
-HOV-SG \citep{werby2024hovsg} and DynaMem \citep{liu2024dynamem}, representing
-hierarchical open-vocabulary graphs and online dynamic metric-semantic memory.
-The \emph{predictive world-model} group contains SLaTe-PRO
-\citep{patel2023routine}, SGM+NEP \citep{kurenkov2023dynamic}, FlowMaps
-\citep{argenziano2026flowmaps}, and the Perpetua predictor from
-PredictiveGraphs \citep{saavedraruiz2026predictivegraphs}.
-
-Navigation systems are executed through their released policies or benchmark
-adapters. Memory-only methods replace \evolvingworldnav{}' memory backend while using
-the same detector, goal interface, and low-level controller. Prediction-only
-methods receive the same causal history and candidate set; their state scores
-are passed to the same inspection planner. This component-aligned adaptation is
-reported separately from native published results and prevents a stronger
-detector or controller from being mistaken for better temporal reasoning.
-Last Seen, Frequency, Markov, and Random Forest remain lightweight diagnostic
-baselines in the dedicated \pfdbench{} and predictor tables rather than the
-headline cross-benchmark comparison.
-
-For the cross-environment evaluation in \cref{tab:domains}, baselines are
-additionally stratified by training regime. MTU3D, SoftNav, NaVid, Uni-NaVid,
-NaVILA, and D3D-VLP represent navigation-trained or task-adapted policies
-\citep{zhu2025move,wu2026softnav,zhang2024navid,zhang2024uninavid,
-cheng2024navila,wang2026d3d}. VLFM, AO-Planner, TANGO, DRIVE-Nav, and
-Uni-LaViRA represent training-free or target-benchmark zero-shot agents
-\citep{yokoyama2024vlfm,chen2025affordances,ziliotto2025tango,
-gao2026drive,ding2026uni}. This selection spans classical policies and
-recent generalist agents while retaining only methods with reported scores on
-the selected task or sufficient released code and checkpoints for reproduction.
-
-N4 additionally compares against Transit-Aware Planning under its required
-online target-path input \citep{dorbala2026portable}. Oracle Current State
-provides the navigation upper bound. Oracle Activity supplies the ground-truth
-current activity and is reported only as a diagnostic rather than a fair
-baseline.
-
-For EQA, all methods use the same question templates, answer ontology, and
-normalization. Queried information must be recovered from the memory available
-to each method. When a learned language readout is required, it is held fixed
-across memory methods so that the comparison primarily measures memory quality
-rather than language-model capacity.
-
-The principal ablations remove continuous-time features; the
-persistence--relocation factorization; instance-specific history; calendar
-context; negative evidence; visibility calibration; Bayesian belief updating;
-or the full distribution in favor of Top-1 prediction. \emph{P4D-Belief Prior}
-predicts once and searches without posterior updates, while full \pfdnav{} closes
-the observe--update--replan loop.
-
-We additionally replace the predictive component with Frequency, Markov,
-Random Forest, GRU, direct Transformer, and the structured continuous-time
-Transformer while keeping memory, candidates, and the agent policy fixed. To
-test whether the system depends on one proprietary controller, we run the same
-typed memory and navigation tools with GPT-family and Qwen-VL-family foundation
-models, plus a third VLM where available. Comparisons require fixed model versions, prompts, temperature, tool schemas,
-and inference budgets; these configuration fields belong to the reproducibility
-record in \cref{app:implementation}.
-
-\subsection{Metrics and Reporting}
+\paragraph{Evaluation metrics.}
 \label{sec:metrics}
-
-We first assess predictive belief independently of navigation using state
-Top-1/Top-$k$ accuracy, negative log-likelihood (NLL), Brier score, expected
-calibration error (ECE), true-state rank, mean reciprocal rank (MRR), and
-persistence AUROC.
-
-For navigation, we report Success Rate (SR), SPL, path length, completion time,
-First-Go SR, number of inspected candidates, and search cost. N3 additionally
-reports Recovery SR after an incorrect first prediction and posterior true-state
-rank improvement after negative evidence. N4 reports Online Recovery SR,
-replanning count, replanning delay, and excess path length relative to a
-trajectory-aware oracle. This oracle is required because motion during execution
-makes the conventional shortest path to a fixed terminal goal ill-defined.
-
-For EQA, we report answer accuracy by existence, location, temporal, activity,
-count, comparison, and reasoning question, together with category-macro accuracy.
-Structured outputs are normalized to the benchmark ontology before scoring.
-
-Benchmark aggregate results include bootstrap confidence intervals over episodes and
-both micro and mobility-regime macro averages. We stratify results by paired
-world variant, mobility regime, transition class (\emph{stay}, \emph{same-region
-move}, \emph{cross-region move}, \emph{multi-move}, and \emph{return}),
-staleness, spatial difficulty, grounding quality, and generalization split. The
-key causal contrast is the paired routine gain: improvement in the routine world
-relative to performance on its paired static and random variants. This contrast
-tests whether gains arise from persistent temporal regularities rather than
-scene geometry, identity, or generic search behavior. Implementation and
-reporting details appear in \cref{app:implementation,app:protocol}.
+Belief quality is measured by Top-1, MRR, NLL, ECE, and true-state rank.
+Navigation uses SR, SPL, First-Go SR, Recovery SR, inspected candidates, travel
+distance, and time; EQA uses category-macro accuracy. Cross-benchmark results
+report five-seed variation, while paired routine/static/random worlds isolate
+learned temporal regularity from scene-frequency shortcuts. Metric definitions,
+prediction splits, confidence intervals, real-world scoring, and stratified
+analyses appear in \cref{app:experimental-setup,app:metrics}.

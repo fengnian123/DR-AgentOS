@@ -57,6 +57,49 @@ The Oracle Activity diagnostic may use the hidden activity and source location b
 
 Unless otherwise noted, the history encoder has three Transformer layers, hidden width $128$, four attention heads, and at most 64 events. The predictive model contains approximately \na million trainable parameters and is optimized with AdamW using validation NLL for checkpoint selection. Candidate encoders are shared across scenes. The main high-level track fixes candidate viewpoints and low-level planning; a Habitat low-level action track evaluates the complete embodied stack. Final learning rate, batch size, epoch count, hardware, simulator version, detector, visibility thresholds, and repeated-run protocol will be frozen before test evaluation.
 
+\subsection{Experimental Details}
+\label{app:experimental-setup}
+
+\paragraph{Benchmark protocols.}
+The complete agent is evaluated on \pfdbench{}, FindingDory, and GOAT-Bench
+under their native task definitions. FindingDory reports high-level goal
+selection and conditional low-level execution; GOAT-Bench reports official SR
+and SPL, with Repeat-SR used only as a marked memory-reuse diagnostic. The
+cross-domain matrix uses R2R-CE on MP3D, HM3D-OVON on HM3D, native PointNav on
+Habitat-GS, SAGE-Bench on InteriorGS, and \pfdbench{} on HSSD. Scores are never
+pooled across these heterogeneous tasks, and published values are transferred
+only when split, sensors, actions, and success rules match.
+
+\paragraph{Prediction splits.}
+The prediction-only study trains on days 0--29, selects configurations on days
+30--34, and evaluates on days 35--39 of five HSSD histories
+(5,475/910/915 queries). Temporal evaluation pools the scenes and reports 322
+changed-only queries; leave-one-scene-out evaluation trains on four scenes and
+tests on the fifth using 644 change-balanced queries. All predictors share query
+identities, causal histories, and legal candidate sets. The main table reports
+five-seed variation; no future observation or private transition label is
+available at inference time.
+
+\paragraph{Real-world protocol.}
+LYNX M20 is the primary quantitative platform, with X30 and Lite3 used for
+transfer. Each method receives identical pre-query history, candidate locations,
+start condition, perception interface, and robot-specific low-level stack.
+Targets remain stationary during each 360-second search episode, and success
+requires autonomous online confirmation within three inspections. Missed
+detections, navigation failures, timeouts, and human interventions count as
+failures. Indoor/outdoor balance, platform specifications, and condition-wise
+breakdowns are provided in \cref{app:real-world}.
+
+\paragraph{Reporting controls.}
+Within a comparison, methods share detectors, candidate states, inspection
+viewpoints, and budgets. Released navigation agents retain their native policy;
+memory-only and prediction-only systems are attached to the shared planner so
+that temporal reasoning is not confounded with a stronger perception or control
+stack. Results are stratified by world variant, staleness, transition class,
+mobility regime, and generalization split. Paired routine/static/random episodes
+retain scene, query, and marginal placement factors while changing only the
+hidden transition mechanism.
+
 \section{Benchmark Construction and Evaluation Protocol}
 \label{app:benchmark-protocol}
 

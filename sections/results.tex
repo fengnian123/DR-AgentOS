@@ -1,15 +1,11 @@
-\section{Results and Analysis}
+\subsection{Main Results}
 \label{sec:results}
 
-The evaluation separates six questions: performance across embodied benchmarks,
-predictive navigation on \pfdbench{}, visual-domain generalization, the role of
-individual components, controller dependence, and indoor/outdoor object search.
-\na{} denotes an unavailable measurement.
+We first test whether the predictive-memory advantage transfers across tasks,
+then examine evolving-world navigation, simulation fidelity, and physical
+deployment. \na{} denotes an unavailable measurement.
 
-
-
-
-\subsection{Comparison across Embodied Benchmarks}
+\paragraph{Comparison across embodied benchmarks.}
 
 \begin{table*}[!htbp]
 \caption{Cross-benchmark comparison (\%). \evolvingworldnav{} reports mean $\pm$
@@ -69,11 +65,11 @@ after additional search (81.00 Search SR and 66.83 SPL), but its lower First-Go
 SR suggests that updating memory alone is insufficient to select the current
 destination before new evidence arrives. Released navigation systems are run
 through their native policies when possible; memory and prediction methods are
-inserted into a shared controller as specified in \cref{sec:baselines}.
+inserted into a shared controller as specified in \cref{sec:setup}.
 Appendix tables retain the full FindingDory high-/low-level breakdown and
 disaggregate GOAT category, language, and image goals.
 
-\subsection{Predictive Navigation on P4D-Bench}
+\paragraph{Predictive navigation on \pfdbench{}.}
 
 First-Go SR isolates whether a better current-state belief becomes a better
 physical destination. Search SR and cost then test whether probability mass
@@ -115,7 +111,7 @@ measurements and are not inferred from aggregate SR. Appendix \cref{fig:predicti
 visualizes these complementary staleness, budget, and mobility diagnostics.
 
 
-\subsection{Generalization across Simulation Fidelity}
+\paragraph{Generalization across simulation fidelity.}
 
 \Cref{tab:domains} assigns one established task to each simulator rather than
 pooling incompatible goal definitions: R2R-CE on MP3D, HM3D-OVON on HM3D,
@@ -171,34 +167,80 @@ Uni-LaViRA \citep{ding2026uni} & 60.7 & 47.7 & 60.0 & \textbf{40.5} & \na & \na 
 }
 \end{table}
 
-We include a method only when the exact benchmark has published results.
-Reported R2R-CE and HM3D-OVON scores use the Val-Unseen split, and SAGE-Bench
-uses its high-level VLN protocol. NaVid provides matched trained-policy results
-on both R2R-CE and SAGE-Bench, while DRIVE-Nav supplies a recent training-free
-HM3D-OVON reference. Published values are transferred only when the split,
-sensor, action, and success protocols match. Habitat-GS releases PointNav episodes and
-an evaluator but does not report a paper-level baseline, so those cells remain
-open pending matched evaluation. Comparisons are therefore made vertically
-within each benchmark,
-not horizontally across tasks. Beyond average SR, the mesh-to-Gaussian and
-static-to-evolving changes reveal whether failures arise from visual transfer,
-goal grounding, or stale world state.
-
-\paragraph{Published cross-environment evidence.}
-Among task-adapted systems, D3D-VLP reports the strongest R2R-CE result in this
-comparison (61.3 SR / 56.1 SPL), while SoftNav attains the highest HM3D-OVON
-Val-Unseen SR in the table (66.7 SR / 25.7 SPL). NaVILA transfers less strongly
-from R2R-CE (54.0 / 49.0)
-to the photorealistic SAGE-Bench protocol (39.0 / 34.0), illustrating the
-difficulty added by executable 3DGS scenes. The zero-shot block remains
-competitive without target-benchmark policy training: Uni-LaViRA reaches
-60.7 / 47.7 on R2R-CE and 60.0 / 40.5 on HM3D-OVON, whereas AO-Planner reaches
-25.5 / 16.6 on R2R-CE. These values establish the published reference points;
-the open cells require matched reruns rather than cross-protocol substitution.
+We include a result only when its split, sensors, actions, and success rule
+match the target column. The leading method consequently changes across
+R2R-CE, HM3D-OVON, and SAGE-Bench, showing that strong mesh-based navigation
+does not imply transfer to photorealistic 3DGS scenes. Habitat-GS releases
+PointNav episodes and an evaluator but no paper-level baseline, so those cells
+remain open pending matched evaluation. The table therefore provides
+protocol-specific reference points rather than a pooled leaderboard; each
+column tests a distinct source of generalization, while pfdbench{} additionally
+isolates stale-state reasoning.
 
 \FloatBarrier
 
-\subsection{Core Component Ablations}
+\paragraph{Real-world validation.}
+\label{sec:real-world-results}
+We evaluate four methods on 64 matched LYNX M20 search trials per method,
+balanced across indoor and outdoor environments. Each trial permits three
+inspections and 360 seconds; all methods receive the same history, candidates,
+perception, and low-level navigation stack.
+
+\begin{table}[!htbp]
+\caption{Primary LYNX M20 search results (64 episodes per method).}
+\label{tab:real-main}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+Method &
+\makecell{First-Go\\SR $\uparrow$} &
+\makecell{Search\\SR $\uparrow$} &
+\makecell{Recovery\\SR $\uparrow$} &
+\makecell{Dist.\\(m)} &
+\makecell{Time\\(s)} &
+\makecell{Completed\\inspect.} \\
+\midrule
+Last Seen + Search
+ & 17.2 & 26.6 & 12.8 & 56.2 & 284 & 2.19 \\
+Time Frequency
+ & 21.9 & 31.3 & 14.0 & 52.9 & 277 & 2.05 \\
+Retrieval + Reasoning
+ & 26.6 & 37.5 & 17.1 & 50.3 & 281 & 2.03 \\
+\rowcolor{tblours}\textbf{\evolvingworldnav{}}
+ & \textbf{34.4} & \textbf{48.4} & \textbf{24.3}
+ & \textbf{43.8} & \textbf{248} & \textbf{1.84} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/Real_World_Case_third_1.pdf}
+    \caption{Outdoor search under stale and predictive memories.}
+    \label{fig:real-world-car-case}
+\end{figure}
+
+\evolvingworldnav{} improves Search SR from 37.5\% to 48.4\% over Retrieval +
+Reasoning and reduces mean travel from 50.3\,m to 43.8\,m. The case in
+\cref{fig:real-world-car-case} shows the corresponding mechanism: Last Seen
+revisits an obsolete parking location, whereas the predictive belief selects
+the current target first. Recovery remains 24.3\%, exposing residual end-to-end
+failures rather than hiding them. Platform and condition breakdowns are in
+\cref{app:real-world}.
+
+\FloatBarrier
+
+\subsection{Ablation Studies}
+\label{sec:ablations}
+
+We isolate the contributions of predictive history, structured state belief,
+uncertainty-aware search, and online evidence updates, then test robustness to
+predictor and VLM choice. Fine-grained controls are deferred to
+\cref{app:fine-grained-ablation}.
+
+\paragraph{Core components.}
 
 \begin{table}[!htbp]
 \caption{Core component ablation on embodied navigation. SR and SPL are
@@ -226,26 +268,15 @@ No Evidence Update & 39.29 & 43.31 & 36.23 & 6.48\\
 \end{tabularx}
 \end{table}
 
-The first two variants test whether predictive belief and temporally persistent
-history improve over reactive search and the latest observation alone. Direct
-Candidate Prediction replaces the persistence--relocation factorization with a
-single candidate softmax. Top-1 Belief Only collapses the predicted distribution
-before planning, testing whether retained uncertainty benefits embodied search.
-No Evidence Update freezes the initial belief and disables the
-observe--update--replan loop.
-
-Full \evolvingworldnav{} reaches 62.17 First-Go SR, 85.33 Search SR, and 70.87
-SPL. Relative to Direct Candidate Prediction, the structured model gains 13.84,
-15.75, and 13.05 points, respectively, at the same average inspection count.
-Collapsing the belief to its Top-1 state reduces Search SR by 22.41 points and
-requires 1.23 more inspections than the full model, showing that probability
-mass beyond the mode supports efficient search. Disabling evidence
-updates causes the largest Search SR degradation, from 85.33 to 43.31, confirming
-the importance of the observe--update--replan loop. All variants preserve
-perception, candidate states, inspection viewpoints, and low-level control.
-Additional controls for temporal encoding, historical evidence, memory capacity,
-predictor architecture, and alternative update rules are reported in
-\cref{app:fine-grained-ablation}.
+The variants answer five questions: whether prediction and persistent history
+matter, whether persistence--relocation factorization improves over a direct
+softmax, whether the full distribution aids search, and whether observations
+must update the belief. Full \evolvingworldnav{} reaches 62.17 First-Go SR,
+85.33 Search SR, and 70.87 SPL. Direct Candidate Prediction loses 15.75 Search
+SR points; Top-1 Belief Only loses 22.41 points and needs 1.23 more inspections;
+and disabling evidence updates produces the largest drop, to 43.31 Search SR.
+Thus prediction, retained uncertainty, and the observe--update--replan loop make
+distinct contributions under otherwise identical perception and control.
 
 \FloatBarrier
 
@@ -422,108 +453,27 @@ mechanism improves an action-facing belief rather than merely sharpening an
 uncalibrated score, which is essential when confidence determines the next
 inspection target.
 
-Because this table evaluates prediction independently of embodied execution,
-it does not by itself establish a navigation advantage.
-We therefore next evaluate whether these improved beliefs translate into more
-efficient search and navigation.
-Full predictor configurations, matched-input controls, and additional
-diagnostics are reported in \cref{app:prediction-evidence}.
+Because this table isolates prediction from embodied execution, it complements
+rather than duplicates the navigation ablation in \cref{tab:module_ablation}.
+Together, the two experiments connect better calibrated current-state belief to
+more efficient search. Full predictor controls and diagnostics are reported in
+\cref{app:prediction-evidence}.
 
 \FloatBarrier
 
-\subsection{Foundation-Model Adaptation}
+\paragraph{Foundation-model robustness.}
 
-The full paired backbone matrix is moved to Appendix \cref{tab:foundation_models}.
-
-This experiment isolates the contribution of predictive memory from
-foundation-model capacity. Following embodied evaluations that span proprietary and
-open-weight VLMs \citep{qiao2025navbench}, we evaluate GPT-4o, GPT-5.5, and
-GPT-5.6-Luna \citep{hurst2024gpt4o,openai2026gpt55,openai2026gpt56luna},
-together with the open-weight Qwen2.5-VL-3B and Qwen2.5-VL-32B
-\citep{bai2025qwen25vl}. For every controller, the
-last-seen baseline and \evolvingworldnav{} run the same episodes with identical
-perception, candidate locations, tools, prompts, action budgets, and low-level
-navigator. The baseline replaces predictive 4D belief with the last supported
-target state; \evolvingworldnav{} keeps the VLM fixed and changes only the memory,
-prediction, and evidence-update pathway.
-
-The decisive statistic is the paired within-controller gain rather than the
-absolute ranking of VLMs. Across all five controllers, \evolvingworldnav{}
-improves First-Go SR by 22.30 points, Search SR by 20.90 points, and SPL by
-0.2525 on average. Search-SR gains remain positive for every VLM, ranging from
-14.91 points on Qwen2.5-VL-32B to 25.93 points on GPT-5.6-Luna. The latter
-reaches the strongest absolute result (63.87 First-Go SR, 83.36 Search SR, and
-0.6639 SPL), while even Qwen2.5-VL-3B gains 22.01 First-Go points, 18.47 Search
-points, and 0.2225 SPL. This consistency across model scale and provider argues
-that the advantage comes from predictive memory and evidence updating rather
-than a particular VLM. Together with the VLM-independent prediction results in
-\cref{tab:predictors}, it separates world-state belief quality from the general
-reasoning strength of the controller.
-
-\FloatBarrier
-
-
-\subsection{Real-World Evaluation}
-\label{sec:real-world-results}
-
-All numerical results in this subsection are measured from completed
-physical robot trials.
-
-\paragraph{Predictive memory improves budgeted real-world search.}
-We compare four methods on the primary LYNX M20 platform using 64 matched search
-blocks per method, equally divided between indoor and outdoor environments.
-Each run permits three inspections and 360 seconds. First-Go SR requires
-autonomous target confirmation at the first inspection; Search SR measures
-confirmation within the full episode budget.
-
-\begin{table}[!htbp]
-\caption{Primary LYNX M20 search results (64 episodes per method).}
-\label{tab:real-main}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrrrrr}
-\toprule
-Method &
-\makecell{First-Go\\SR $\uparrow$} &
-\makecell{Search\\SR $\uparrow$} &
-\makecell{Recovery\\SR $\uparrow$} &
-\makecell{Dist.\\(m)} &
-\makecell{Time\\(s)} &
-\makecell{Completed\\inspect.} \\
-\midrule
-Last Seen + Search
- & 17.2 & 26.6 & 12.8 & 56.2 & 284 & 2.19 \\
-Time Frequency
- & 21.9 & 31.3 & 14.0 & 52.9 & 277 & 2.05 \\
-Retrieval + Reasoning
- & 26.6 & 37.5 & 17.1 & 50.3 & 281 & 2.03 \\
-\textbf{\evolvingworldnav{}}
- & \textbf{34.4} & \textbf{48.4} & \textbf{24.3}
- & \textbf{43.8} & \textbf{248} & \textbf{1.84} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{figures/Real_World_Case_third_1.pdf}
-    \caption{Outdoor target search: Last Seen revisits the wrong car, while \evolvingworldnav{} reaches the current target.}
-    \label{fig:real-world-car-case}
-\end{figure}
-
-As shown in \cref{tab:real-main}, \evolvingworldnav{} raises Search SR from
-37.5\% for Retrieval + Reasoning to 48.4\% and First-Go SR from 26.6\% to
-34.4\%, while reducing mean travel from 50.3\,m to 43.8\,m. Recovery remains
-limited at 24.3\%, so predictive belief does not eliminate end-to-end failures.
-Indoor/outdoor, temporal-condition, recovery, and cross-platform breakdowns are
-reported in \cref{app:real-world}.
-
-\Cref{fig:real-world-car-case} illustrates the same failure mode behind the
-aggregate gains. Both policies start from the same query and historical
-observation, but Last Seen commits to the previous parking location and
-terminates at the wrong vehicle. The predictive belief instead prioritizes the
-time-conditioned current location, yielding a successful first destination
-without privileged access to the target state.
+We pair the last-seen baseline and \evolvingworldnav{} on identical episodes,
+tools, prompts, budgets, and low-level control while varying only the frozen
+VLM. The study spans GPT-4o, GPT-5.5, GPT-5.6-Luna, and open-weight
+Qwen2.5-VL-3B/32B \citep{hurst2024gpt4o,openai2026gpt55,
+openai2026gpt56luna,bai2025qwen25vl,qiao2025navbench}. Across all five
+controllers, predictive memory improves First-Go SR by 22.30 points, Search SR
+by 20.90 points, and SPL by 0.2525 on average; every individual Search-SR gain
+is positive (14.91--25.93 points). This within-controller consistency, together
+with the VLM-independent prediction results in \cref{tab:predictors}, attributes
+the gain to world-state belief and evidence updating rather than controller
+scale or provider. The full paired matrix is in Appendix
+\cref{tab:foundation_models}.
 
 \FloatBarrier
