@@ -13,9 +13,10 @@ maps, tools, and reusable navigation skills
 li2026agenticnav}. Active-search methods further use semantic relations or
 belief maps to order exploration \citep{zheng2021cos,ginting2024seek,
 zhang2025apexnav}. These approaches mainly assume that the task-relevant state
-remains compatible with the agent's map. Our focus is the complementary case
-in which the stored evidence is historically correct but has become stale
-before the next task.
+remains compatible with the agent's map during execution. Our focus is the
+complementary case in which stored evidence is historically correct but may
+become stale before or during navigation because changes occur outside the
+current view.
 
 \paragraph{Persistent memory and changing worlds.}
 Long-horizon benchmarks require agents to retain experience across visits or
@@ -27,11 +28,11 @@ after a change is observed \citep{bescos2018dynaslam,narayana2020lifelong}.
 Scene Graph Memory and PredictiveGraphs instead model evolving object--location
 relations \citep{kurenkov2023dynamic,saavedraruiz2026predictivegraphs}, while
 FlowMaps predicts multimodal future placements for dynamic ObjectNav
-\citep{argenziano2026flowmaps}. We build on persistent identity and temporal
-provenance, but target an action-facing belief about the latent present. The
-belief explicitly separates persistence from relocation and is repeatedly
-tested through an observe--update--replan loop, rather than used only as a
-retrospective record or fixed candidate ranking.
+\citep{argenziano2026flowmaps}. Our contribution is not prediction alone: we
+turn persistent identity and temporal provenance into an action-facing belief
+about the latent present. The belief separates persistence from relocation,
+retains alternatives for search, and is repeatedly tested with
+visibility-qualified evidence in an observe--update--replan loop.
 
 \paragraph{Human routines and hidden world evolution.}
 Household activities contain temporal and person-specific regularities.

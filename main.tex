@@ -36,7 +36,7 @@
 
 \newcommand{\pfdnav}{\textsc{P4D-Nav}}
 \newcommand{\pfdbench}{\textsc{P4D-Bench}}
-\newcommand{\evolvingworldnav}{\textsc{EvolvingNAV}}
+\newcommand{\evolvingworldnav}{\textsc{EvolvingWorldNav}}
 \newcommand{\na}{--}
 \definecolor{tblheader}{RGB}{233,238,245}
 \definecolor{tblours}{RGB}{238,240,242}
@@ -56,26 +56,31 @@
 \maketitle
 
 \begin{abstract}
-Long-lived embodied agents must navigate worlds that continue to evolve while
-unobserved. Their memories can remain faithful to past observations yet provide
-obsolete guidance for present actions. We formulate \emph{persistent navigation
-in evolving worlds}: inferring the current task-relevant state from intermittent
-experience and gathering physical evidence to resolve the resulting uncertainty.
-We introduce \textsc{EvolvingWorldNav}, an embodied agent that converts 4D
-memory---persistent 3D entities with temporal state histories---into a belief
-over the present. A continuous-time Transformer encodes irregular observations,
-and a persistence--relocation head separates whether the last observed state
-remains valid from where it may have transitioned. The full belief guides
-cost-aware search; visibility-aware Bayesian updates distinguish an informative
-negative observation from an inconclusive inspection and trigger replanning.
-This loop operates with a frozen vision--language controller. To evaluate hidden
-world evolution, we introduce \pfdbench{}, a human-trace-grounded benchmark with
-\textbf{54} scenes and \textbf{803.68k} tasks spanning state prediction,
-navigation, and embodied question answering. On P4D-Bench, our agent achieves
-\textbf{61.32\%} first-attempt success, improving over the strongest baseline by
-\textbf{15.99} percentage points, and reaches \textbf{86.18\%} search success
-with \textbf{70.15\%} SPL. It also achieves \textbf{63.22\%} HL-SR on FindingDory
-and \textbf{35.43\%} SR on GOAT-Bench. Ablation studies and controlled temporal evaluations further reveal that the improvement comes from learning how the world evolves over time, rather than exploiting static scene priors or object-frequency patterns. This establishes a new paradigm for embodied navigation: agents should not merely remember where objects were observed, but predict where the world has evolved to.
+A robot can remember an object correctly and still navigate to the wrong place
+when the world continues to evolve during navigation and the change occurs
+outside its view. For long-lived embodied agents, the challenge is to infer the
+current state from intermittent observations, remain responsive to unobserved
+changes during execution, and decide where to gather evidence when that
+inference is uncertain. We introduce \evolvingworldnav{}, an embodied agent
+that turns timestamped 3D entity histories into a belief over current object
+locations. Our key insight is to separate whether the last observed state
+remains valid from where the object may have moved, and to carry this
+uncertainty through navigation rather than committing to a stale destination.
+A continuous-time Transformer predicts this persistence--relocation belief
+from irregular observations. The agent then balances candidate probability
+against inspection cost and updates its belief during navigation using
+visibility-aware evidence, distinguishing an empty location from an
+inconclusive view. The learned predictor operates within a frozen
+vision--language control loop. We also introduce \pfdbench{}, a
+human-trace-grounded simulation benchmark with \textbf{54} scenes and
+\textbf{803.68k} task instances for evaluating inference and action under
+hidden world evolution. On its navigation evaluation, \evolvingworldnav{}
+achieves \textbf{61.32\%} first-attempt success and \textbf{86.18\%} search
+success, exceeding the strongest evaluated baseline by \textbf{15.99} and
+\textbf{5.18} percentage points, respectively. Controlled evaluations show
+that the predictive advantage is largest under learnable temporal structure,
+motivating explicit uncertainty and evidence gathering when history alone is
+insufficient.
 \end{abstract}
 
 \raggedbottom

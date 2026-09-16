@@ -109,6 +109,11 @@ beyond Top-1; and paired routine gains separate learnable temporal structure
 from matched random transitions. These diagnostics require episode-level
 measurements and are not inferred from aggregate SR. Appendix \cref{fig:predictive-memory}
 visualizes these complementary staleness, budget, and mobility diagnostics.
+In the paired control (Appendix \cref{tab:worlds}), \pfdnav{} reaches 60.85 SR
+under routine evolution but 30.12 SR under matched random transitions. Its
+22.36-point routine gain over Last Seen therefore localizes the main predictive
+benefit to learnable temporal structure rather than implying uniform advantage
+across arbitrary dynamics.
 
 
 \paragraph{Generalization across simulation fidelity.}

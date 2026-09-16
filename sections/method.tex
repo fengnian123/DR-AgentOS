@@ -17,8 +17,8 @@ partial history
 \mathcal H_{\leq t_q}=\{(I_k,D_k,\xi_k,t_k)\mid t_k\leq t_q\},
 \end{equation}
 where $I_k,D_k,\xi_k$ denote RGB, depth, and camera pose. The true query-time
-state $s_q^o\in\mathcal C_o\cup\{\mathrm{unknown}\}$ and all transitions that
-occur outside the agent's observations are hidden.
+state $s_q^o\in\mathcal C_o\cup\{\mathrm{unknown}\}$ is hidden, as are any
+later transitions that occur outside the agent's observations.
 
 An episode supplies a target description, query time, initial pose $x_0$, a
 causal memory materialized from $\mathcal H_{\leq t_q}$, and a finite action
@@ -33,10 +33,13 @@ success while minimizing travel and unnecessary inspections:
 \right].
 \label{eq:objective}
 \end{equation}
-The main protocol holds the target fixed after $t_q$, isolating whether stale
-history can be transformed into a useful belief about the present. An
-online-dynamic extension advances the world clock during execution and may
-apply an additional hidden transition outside the camera view.
+The main protocol holds the target fixed after $t_q$, isolating whether a
+history ending before the query can be transformed into a useful belief about
+the present. An online-dynamic extension advances the world clock during
+execution and may apply an additional hidden transition outside the camera
+view. Both protocols use the same belief, evidence update, and replanning
+interface; the latter additionally tests whether a destination can become stale
+while the robot is en route.
 
 \Cref{fig:p4dnav_method} presents the complete architecture. Timestamped RGB-D
 experience is consolidated into persistent entity histories, transformed into
