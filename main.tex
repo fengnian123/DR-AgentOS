@@ -56,26 +56,25 @@
 \maketitle
 
 \begin{abstract}
-Long-lived embodied agents must navigate in evolving environments where object
-locations can change outside their view, making accurate memories stale and
-current-state inference from intermittent observations uncertain. Recent work
-on persistent memory and open-vocabulary mapping supports retrieval of past
-spatial experience, while predictive scene representations and routine models
-learn temporal regularities in object states and placements. A remaining
-challenge is to turn these predictions into physical decisions that retain
-alternative hypotheses and gather reliable evidence as the world continues to
-evolve during navigation. To address this challenge, we introduce
+A robot can remember an object correctly and still navigate to the wrong place
+when the world continues to evolve during navigation and the change occurs
+outside its view. Long-lived embodied agents must therefore infer the current
+state from intermittent observations and decide where to gather evidence when
+that inference is uncertain. Recent memory and mapping methods retain spatial
+experience, while predictive scene representations and routine models learn
+temporal regularities in object states and placements. Translating these
+advances into navigation requires retaining alternative hypotheses and revising
+decisions as new evidence arrives. To address this challenge, we introduce
 \evolvingworldnav{}, an embodied agent
 that turns timestamped 3D entity histories into a belief over current object
-locations. Our key insight is to separate whether the last observed state
-remains valid from where the object may have moved, and to carry this
-uncertainty through navigation rather than committing to a stale destination.
-A continuous-time Transformer predicts this persistence--relocation belief
-from irregular observations. The agent then balances candidate probability
-against inspection cost and updates its belief during navigation using
-visibility-aware evidence, distinguishing an empty location from an
-inconclusive view. The learned predictor operates within a frozen
-vision--language control loop. We also introduce \pfdbench{}, a
+locations. A continuous-time Transformer learns to predict this
+persistence--relocation belief from irregular observations, separating whether
+the last observed state remains valid from where the object may have moved.
+Within a frozen vision--language control loop, the agent retains alternative
+location hypotheses and balances candidate probability against inspection
+cost. It then updates its belief and replans using visibility-aware evidence,
+distinguishing an empty location from an inconclusive view. We also introduce
+\pfdbench{}, a
 human-trace-grounded simulation benchmark with \textbf{54} scenes and
 \textbf{803.68k} task instances for evaluating inference and action under
 hidden world evolution. On its navigation evaluation, \evolvingworldnav{}
@@ -83,8 +82,8 @@ achieves \textbf{61.32\%} first-attempt success and \textbf{86.18\%} search
 success, exceeding the strongest evaluated baseline by \textbf{15.99} and
 \textbf{5.18} percentage points, respectively. Controlled evaluations show
 that the predictive advantage is largest under learnable temporal structure,
-motivating explicit uncertainty and evidence gathering when history alone is
-insufficient.
+highlighting the need to retain uncertainty and gather evidence when history
+alone is insufficient.
 \end{abstract}
 
 \raggedbottom
