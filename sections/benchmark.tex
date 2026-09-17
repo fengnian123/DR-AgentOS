@@ -49,29 +49,26 @@ convenience.
     \label{fig:p4dbench-generation}
 \end{wrapfigure}
 
-Human traces constrain generation rather than supply copied trajectories
+Human traces constrain generation; source trajectories are not copied
 (\cref{fig:p4dbench-generation}). CASAS \citep{cook2013casas}, ARAS, and HOMER+
 \citep{patel2023routine} inform schedules and activities; HD-EPIC, ParaHome
 \citep{perrett2025hdepic,kim2025parahome}, and OPPORTUNITY supply interaction
-and placement evidence. A shared event schema preserves provenance and marks
-benchmark-authored assumptions.
+and placement evidence. Event records preserve provenance and mark authored
+assumptions.
 
-Across 54 HSSD scenes \citep{khanna2024hssd}, fixed household habits and
-stochastic exceptions generate chronological object histories. Stable, routine,
+Across 54 HSSD scenes \citep{khanna2024hssd}, household habits and stochastic
+exceptions generate chronological histories. Stable, routine,
 personal, and irregular regimes test persistence, activity regularity,
 owner-specific habits, and uncertainty (\cref{tab:mobility-regimes}); labels
-are hidden. Habitat replay enforces semantically valid, collision-free placements
-with reachable inspection viewpoints.
+are hidden. Habitat replay ensures semantically valid, collision-free placements
+and reachable inspection viewpoints.
 
-Patrols use only maps, time, travel cost, and observed history, producing
-visibility-qualified RGB-D evidence. Queries expose causal observations, the
-last supported state, elapsed and calendar time, candidates, and spatial context.
-Current states, hidden transitions and activities, mobility labels, and oracle
-viewpoints remain private.
-
-Splits keep temporal sequences, paired worlds, and near-duplicate query or
-transition groups intact. Audits check temporal and metadata leakage, split
-overlap, paired-world consistency, physical validity, and patrol access to
-hidden state. Results are stratified by mobility, transition, staleness,
-spatial difficulty, and generalization; details appear in
-\cref{app:benchmark-protocol}.
+Patrols collect visibility-qualified RGB-D using only maps, time, travel cost,
+and observed history. Queries expose causal observations, the last supported
+state, elapsed/calendar time, candidates, and spatial context; current states,
+transitions, activities, mobility labels, and oracle viewpoints remain private.
+Splits group complete temporal sequences, paired worlds, and near-duplicate
+query/transition groups. Audits cover temporal/metadata leakage, split overlap,
+paired-world consistency, physical validity, and patrol access to hidden state.
+Stratification covers mobility, transition, staleness, spatial difficulty, and
+generalization (\cref{app:benchmark-protocol}).
