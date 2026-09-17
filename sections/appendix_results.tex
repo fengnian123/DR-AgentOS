@@ -1,7 +1,9 @@
 \subsection{Cross-Environment Navigation}
 
+SR and SPL are reported in percent for all environments.
+
 \begin{table}[H]
-\caption{Cross-environment navigation; SR and SPL are percentages.}
+\caption{Cross-environment navigation.}
 \label{tab:domains}
 \centering
 \scriptsize
@@ -56,13 +58,15 @@ MSGNav \citep{huang2026msgnav} & 11.6 & 9.4 & 48.3 & 27.0 & 37.2 & 34.8 & 23.5 &
 \subsection{Full Prediction Results and Calibration}
 \label{app:full-prediction-results}
 
+The temporal split contains 322 changed-only queries and LOSO contains 644
+change-balanced queries. Ours reports mean $\pm$ standard deviation over five
+seeds; Top-1 is a percentage, while MRR and NLL are unscaled.
+
 \begin{table}[H]
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\caption{Full prediction-only results on temporal changed-only ($n=322$) and LOSO
-change-balanced queries ($n=644$). Ours reports mean $\pm$ standard deviation
-over five seeds; Top-1 is in percent, while MRR and NLL are unscaled.}
+\caption{Full current-state prediction results.}
 \label{tab:predictors-full}
 
 \resizebox{\linewidth}{!}{%

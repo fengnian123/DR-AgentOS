@@ -2,10 +2,10 @@
 \label{sec:results}
 
 \paragraph{Comparison across embodied benchmarks.}
+\evolvingworldnav{} reports mean $\pm$ standard deviation over five seeds.
 
 \begin{table*}[!htbp]
-\caption{Cross-benchmark comparison (\%). \evolvingworldnav{} reports mean $\pm$
-standard deviation over five seeds.}
+\caption{Cross-benchmark comparison (\%).}
 \label{tab:crossbench}
 \centering
 \scriptsize
@@ -69,7 +69,7 @@ hidden transition process while holding the scene and query fixed.
 \begin{wraptable}{r}{0.60\linewidth}
 \vspace{-0.7\baselineskip}
 \centering
-\caption{Paired-world navigation SR and routine-world gain over Last Seen.}
+\caption{Paired-world SR and routine gain (\%).}
 \label{tab:worlds}
 \scriptsize
 \setlength{\tabcolsep}{2pt}
@@ -85,6 +85,7 @@ Transformer Direct & 69.79 & 48.82 & 31.39 & $+10.33$\\
 \end{tabular}
 \end{wraptable}
 
+Routine gain is measured relative to Last Seen.
 \pfdnav{} gains 22.36 routine-world points over Last Seen but not under
 matched random motion. This localizes the predictive advantage to learnable
 temporal structure rather than arbitrary dynamics; staleness and budget
@@ -98,7 +99,7 @@ search trials per method with identical histories, candidates, perception, and
 low-level control.
 
 \begin{table}[!t]
-\caption{Primary LYNX M20 search results (64 episodes per method).}
+\caption{Primary LYNX M20 search results.}
 \label{tab:real-main}
 \centering
 \scriptsize
@@ -147,11 +148,13 @@ the observe--update--replan loop make distinct contributions: direct candidate
 prediction and Top-1-only search reduce Search SR by 15.75 and 22.41 points,
 while removing evidence updates causes the largest degradation.
 
+The temporal split contains 322 changed-only queries; LOSO contains 644
+change-balanced queries. Top-1 is reported in percent, and Ours reports
+five-seed mean $\pm$ standard deviation. The full comparison is in
+\cref{tab:predictors-full}.
+
 \begin{table}[!htbp]
-\caption{Prediction-only results on temporal changed-only ($n=322$) and
-leave-one-scene-out (LOSO) change-balanced queries ($n=644$). Top-1 is in
-percent; Ours reports five-seed mean $\pm$ standard deviation.
-Full comparison: \cref{tab:predictors-full}.}
+\caption{Current-state prediction on temporal and LOSO splits.}
 \label{tab:predictors}
 \centering
 \scriptsize

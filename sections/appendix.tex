@@ -154,10 +154,11 @@ Table~\ref{tab:mainnav} complements the main benchmark table with search cost
 and recovery after an incorrect first destination; lower is better for the two
 cost columns. Table~\ref{tab:foundation_models} tests whether paired navigation
 gains persist across different VLMs under matched tools, prompts, episodes, and
-action budgets.
+action budgets. In the VLM study, SR is reported in percent and SPL is
+unscaled.
 
 \begin{table}[!t]
-\caption{Search cost and recovery on P4D-Bench routine worlds.}
+\caption{P4D-Bench routine-world search cost and recovery.}
 \label{tab:mainnav}
 \centering
 \scriptsize
@@ -196,7 +197,7 @@ retained uncertainty and evidence updating reduce redundant inspections and
 support recovery when the initial prediction is wrong.
 
 \begin{table}[!t]
-\caption{VLM robustness on P4D-Bench; SR is in percent and SPL is unscaled.}
+\caption{VLM robustness on P4D-Bench.}
 \label{tab:foundation_models}
 \centering
 \scriptsize
@@ -235,8 +236,10 @@ candidate set, inspection viewpoints, and low-level navigator.
 
 \subsubsection{Temporal and Memory Ablations}
 
+SR and SPL are reported in percent throughout this analysis.
+
 \begin{table}[!htbp]
-\caption{Temporal and memory ablations; SR and SPL are percentages.}
+\caption{Temporal and memory ablations.}
 \label{tab:temporal-memory-ablation}
 \centering
 \scriptsize
@@ -288,6 +291,8 @@ $(0.10,0.59,0.31)$ and the planner selects the kitchen island next. The inspecte
 state retains nonzero mass, reflecting residual perceptual uncertainty rather
 than an irreversible deletion.
 
+Top-1 is reported as a percentage in \cref{tab:evidence-update-ablation}.
+
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\linewidth]{figures/Agent_Evidence_Update.pdf}
@@ -296,7 +301,7 @@ than an irreversible deletion.
 \end{figure}
 
 \begin{table}[!htbp]
-\caption{Belief quality after negative-evidence updates; Top-1 is a percentage.}
+\caption{Belief quality after negative-evidence updates.}
 \label{tab:evidence-update-ablation}
 \centering
 \scriptsize
@@ -328,7 +333,7 @@ input to the observe--update--replan loop.
 \subsubsection{Predictor Architecture}
 
 \begin{table}[!htbp]
-\caption{Predictor architecture on temporal changed-only queries.}
+\caption{Predictor architecture on changed-only queries.}
 \label{tab:predictor-architecture-ablation}
 \centering
 \scriptsize
@@ -402,7 +407,7 @@ while the \evolvingworldnav{} memory, prediction, belief-update, and high-level
 search components remain unchanged.
 
 \begin{table}[!t]
-\caption{Robot platforms used in real-world evaluation.}
+\caption{Robot platforms for real-world evaluation.}
 \label{tab:robot-platforms}
 \centering
 \scriptsize
@@ -428,7 +433,7 @@ setting has longer routes and lower success for all methods, while the direction
 of the \evolvingworldnav{} gain is consistent across both environments.
 
 \begin{table}[!t]
-\caption{M20 results by environment.}
+\caption{LYNX M20 results by environment.}
 \label{tab:real-domain}
 \centering
 \scriptsize
@@ -454,7 +459,7 @@ Retrieval + Reasoning & 31.3 & 40.6 & 25.1 & 21.9 & 34.4 & 75.5 \\
 \begin{wraptable}{r}{0.60\linewidth}
 \vspace{-0.7\baselineskip}
 \centering
-\caption{M20 Search SR (\%) by temporal condition.}
+\caption{LYNX M20 Search SR by temporal condition (\%).}
 \label{tab:real-condition}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
@@ -482,7 +487,7 @@ that could be explained by generic search alone.
 \begin{wraptable}[7]{r}{0.60\linewidth}
 \vspace{-0.7\baselineskip}
 \centering
-\caption{Cross-platform transfer results.}
+\caption{Cross-platform navigation transfer.}
 \label{tab:real-transfer}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
