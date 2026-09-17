@@ -148,45 +148,50 @@ for space constraints.
 \subsection{P4D-Bench Detailed Results}
 \label{app:moved-tables}
 
-Table~\ref{tab:mainnav} expands the routine-world navigation comparison with
-inspection count, travel distance, and recovery success; lower is better for
-the two cost columns. Table~\ref{tab:foundation_models} tests whether paired
-navigation gains persist across different VLMs under matched tools, prompts,
-episodes, and action budgets.
+Table~\ref{tab:mainnav} complements the main benchmark table with search cost
+and recovery after an incorrect first destination; lower is better for the two
+cost columns. Table~\ref{tab:foundation_models} tests whether paired navigation
+gains persist across different VLMs under matched tools, prompts, episodes, and
+action budgets.
 
 \begin{table}[!t]
-\caption{Detailed P4D-Bench navigation results on routine worlds.}
+\caption{Search cost and recovery on P4D-Bench routine worlds.}
 \label{tab:mainnav}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3.0pt}
-\begin{tabular}{lcccccc}
+\setlength{\tabcolsep}{8.0pt}
+\begin{tabular}{lccc}
 \toprule
-\textbf{Method} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
-\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} &
-\makecell{\textbf{Inspect.}\\\textbf{$\downarrow$}} &
-\makecell{\textbf{Distance}\\\textbf{$\downarrow$}} &
-\makecell{\textbf{Recovery}\\\textbf{SR $\uparrow$}}\\
+\textbf{Method} & \textbf{Inspect. $\downarrow$} &
+\makecell{\textbf{Distance (m)}\\\textbf{$\downarrow$}} &
+\makecell{\textbf{Recovery SR (\%)}\\\textbf{$\uparrow$}}\\
 \midrule
-\rowcolor{tblnav}\multicolumn{7}{c}{\emph{Navigation and persistent memory}}\\
-VLFM \citep{yokoyama2024vlfm} & \na & \na & \na & \na & \na & \na\\
-FindingDory Agent \citep{yadav2025findingdory} & \na & \na & \na & \na & \na & \na\\
-LagMemo GLUE \citep{zhou2025lagmemo} & \na & \na & \na & \na & \na & \na\\
-HOV-SG \citep{werby2024hovsg} & \na & \na & \na & \na & \na & \na\\
-DynaMem \citep{liu2024dynamem} & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblnav}\multicolumn{4}{c}{\emph{Navigation and persistent memory}}\\
+VLFM \citep{yokoyama2024vlfm} & 4.85 & 18.72 & 22.41\\
+LagMemo GLUE \citep{zhou2025lagmemo} & 3.92 & 13.24 & 45.62\\
+HOV-SG \citep{werby2024hovsg} & 3.36 & 12.08 & 51.24\\
+DynaMem \citep{liu2024dynamem} & 2.51 & 11.59 & 63.93\\
 \midrule
-\rowcolor{tblpredict}\multicolumn{7}{c}{\emph{Predictive world and state modeling}}\\
-SLaTe-PRO \citep{patel2023routine} & \na & \na & \na & \na & \na & \na\\
-SGM+NEP \citep{kurenkov2023dynamic} & \na & \na & \na & \na & \na & \na\\
-FlowMaps \citep{argenziano2026flowmaps} & \na & \na & \na & \na & \na & \na\\
-Perpetua \citep{saavedraruiz2026predictivegraphs} & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblpredict}\multicolumn{4}{c}{\emph{Predictive world and state modeling}}\\
+SLaTe-PRO \citep{patel2023routine} & 4.40 & 14.58 & 29.00\\
+SGM+NEP \citep{kurenkov2023dynamic} & 4.08 & \textbf{7.42} & 27.56\\
+FlowMaps \citep{argenziano2026flowmaps} & 4.66 & 16.51 & 20.27\\
+Perpetua\textsuperscript{*} \citep{saavedraruiz2026predictivegraphs} & 3.71 & 10.48 & 17.96\\
 \midrule
-\rowcolor{tblours}\textbf{\pfdnav{} (ours)} & \textbf{\na} & \textbf{\na} &
-\textbf{\na} & \textbf{\na} & \textbf{\na} & \textbf{\na}\\
-Oracle Current State & \na & \na & \na & \na & \na & \na\\
+\rowcolor{tblours}\textbf{\evolvingworldnav{} (ours)} & \textbf{2.18} & 8.36 & \textbf{68.42}\\
 \bottomrule
+\multicolumn{4}{l}{\footnotesize \textsuperscript{*}Released upstream predictor evaluated in the shared navigation stack.}
 \end{tabular}
 \end{table}
+
+\evolvingworldnav{} requires the fewest inspections (2.18) and achieves the
+highest Recovery SR (68.42\%), improving over DynaMem by 4.49 points after an
+incorrect first destination. SGM+NEP travels the shortest average distance
+(7.42\,m), while \evolvingworldnav{} remains close at 8.36\,m. Together with
+the First-Go, Search SR, and SPL results in \cref{tab:crossbench}, these
+complementary metrics show that the gain is not only higher eventual success:
+retained uncertainty and evidence updating reduce redundant inspections and
+support recovery when the initial prediction is wrong.
 
 \begin{table}[!t]
 \caption{VLM robustness on P4D-Bench; SR is in percent and SPL is unscaled.}
