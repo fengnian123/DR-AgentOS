@@ -2,48 +2,46 @@
 \label{sec:related_work}
 
 \paragraph{Embodied navigation and agent control.}
-Object-goal, language-conditioned, and exploratory navigation couple semantic
-perception with spatial reasoning and action
+Embodied navigation combines semantic perception, spatial reasoning, and action
+for object-goal and language-conditioned tasks
 \citep{anderson2018evaluation,savva2019habitat,chaplot2020objectnav,
-xin2026agentvln}. Open-vocabulary maps and scene graphs ground language in
-metric or structured space \citep{huang2023vlmaps,gu2024conceptgraphs,
-werby2024hovsg,Li_2026_CVPR,huang2026msgnav}, while recent agents compose frozen foundation models with
-maps, tools, and reusable navigation skills
+xin2026agentvln}. Open-vocabulary maps and scene graphs ground language goals
+in metric or structured space
+\citep{huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg,Li_2026_CVPR,
+huang2026msgnav}, while foundation-model agents combine maps, tools, and
+navigation skills
 \citep{yokoyama2024vlfm,long2024instructnav,ziliotto2025tango,
-li2026agenticnav}. Active-search methods further use semantic relations or
-belief maps to order exploration \citep{zheng2021cos,ginting2024seek,
-zhang2025apexnav}. These approaches mainly assume that the task-relevant state
-remains compatible with the agent's map during execution. Our focus is the
-complementary case in which stored evidence is historically correct but may
-become stale before or during navigation because changes occur outside the
-current view.
+li2026agenticnav}. Active search uses semantic relations or belief maps to guide
+exploration \citep{zheng2021cos,ginting2024seek,zhang2025apexnav}. We study
+navigation when past observations become stale through unobserved changes
+before or during execution.
 
 \paragraph{Persistent memory and changing worlds.}
-Long-horizon benchmarks require agents to retain experience across visits or
-tasks \citep{khanna2024goatbench,majumdar2024openeqa,
-yadav2025findingdory}, and open-vocabulary 3D/4D memories support spatial and
-temporal retrieval \citep{liu2024dynamem,sohn2025r4,gorlo2026describe}.
-Dynamic mapping typically filters moving content or updates a representation
-after a change is observed \citep{bescos2018dynaslam,narayana2020lifelong}.
-Scene Graph Memory and PredictiveGraphs instead model evolving object--location
-relations \citep{kurenkov2023dynamic,saavedraruiz2026predictivegraphs}, while
-FlowMaps predicts multimodal future placements for dynamic ObjectNav
-\citep{argenziano2026flowmaps}. Our contribution is not prediction alone: we
-turn persistent identity and temporal provenance into an action-facing belief
-about the latent present. The belief separates persistence from relocation,
-retains alternatives for search, and is repeatedly tested with
-visibility-qualified evidence in an observe--update--replan loop.
+Memory benchmarks evaluate navigation across tasks
+\citep{khanna2024goatbench,yadav2025findingdory} and episodic question answering
+\citep{majumdar2024openeqa}; 4D memories support spatiotemporal retrieval
+\citep{sohn2025r4,gorlo2026describe}. Dynamic mapping filters moving content or
+updates maps from observations
+\citep{bescos2018dynaslam,narayana2020lifelong,liu2024dynamem}. Prediction also
+supports dynamic search: Scene Graph Memory infers object locations from partial
+histories to guide search \citep{kurenkov2023dynamic}, PredictiveGraphs uses
+Bayesian temporal filters to predict evolving object--location relations for
+dynamic navigation
+\citep{saavedraruiz2026predictivegraphs}, and FlowMaps models multimodal
+future placements in continuous 3D space for ObjectNav
+\citep{argenziano2026flowmaps}. We combine persistent identity and temporal
+provenance with a belief over current object locations that separates
+persistence from relocation, retains alternatives, and guides
+cost-aware inspections with visibility-qualified updates. Inspection evidence
+revises the belief in an observe--update--replan loop.
 
 \paragraph{Human routines and hidden world evolution.}
-Household activities contain temporal and person-specific regularities.
-HOMER/HOMER+ model object-use routines, STREAK studies continual adaptation,
-and personalized navigation systems exploit user habits
+HOMER/HOMER+ capture household object-use routines, STREAK studies continual
+adaptation across household contexts, and personalized navigation exploits user
+habits
 \citep{patel2023homer,patel2023routine,bartoli2025streak,zhang2026ucon}.
-Egocentric and reconstructed-home datasets provide complementary traces of
-human--object interaction \citep{perrett2025hdepic,kim2025parahome}.
-\pfdbench{} converts such traces into executable, causally bounded scene
-histories and pairs static, routine, and random worlds while holding scene and
-query factors fixed. This design distinguishes prediction of unobserved change
-from online target tracking, post-change map repair, and frequency-based
-search, positioning \evolvingworldnav{} at the intersection of long-term
-memory, temporal prediction, active perception, and embodied planning.
+HD-EPIC and ParaHome provide human--object interaction traces
+\citep{perrett2025hdepic,kim2025parahome}. \pfdbench{} uses such evidence to
+constrain executable scene histories while exposing only causal observations.
+Its paired static, routine, and random worlds control scene and query factors
+to test whether temporal regularities improve search beyond location frequencies.
