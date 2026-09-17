@@ -1,3 +1,83 @@
+\subsection{Construction and Audit Details}
+\label{app:benchmark-construction}
+
+\paragraph{Design principles.}
+\pfdbench{} follows four principles: temporal continuity, causal observability,
+physical executability, and controlled dynamics. Examples are sampled from
+persistent scene histories rather than independent placements. Public memories
+contain only evidence available to the robot by the query time. Candidate states
+must admit collision-free placements and reachable, visibility-checked inspection
+viewpoints. Paired worlds hold the scene, target, query, and marginal placement
+factors fixed while varying the hidden transition mechanism. Together, these
+controls separate predictive reasoning from scene frequency, route geometry,
+and privileged simulator access.
+
+\paragraph{Source alignment and provenance.}
+The generator combines longitudinal smart-home records from CASAS
+\citep{cook2013casas} and ARAS with multi-week activity and object-location
+sequences from HOMER+ \citep{patel2023routine}. HD-EPIC provides fine-grained
+egocentric action traces, and ParaHome provides reconstructed human--object
+interactions \citep{perrett2025hdepic,kim2025parahome}; OPPORTUNITY supplies
+complementary evidence. A common event schema records time, activity, actor
+context, object category, source state, destination state, and evidence
+provenance. Source statistics constrain schedules, activity--object
+associations, transition timing, and placement tendencies. No source trajectory
+is copied verbatim into simulation, and unsupported quantities are labeled
+benchmark-authored rather than measured human behavior.
+
+\paragraph{Household generation and behavioral checks.}
+For each HSSD scene \citep{khanna2024hssd}, resident schedules, room preferences,
+orderliness, object ownership, and placement habits are fixed at the household
+level. Activities, resident region trajectories, and object transitions are
+generated jointly in chronological order over multi-day histories; stochastic
+events, delayed returns, and exceptions prevent deterministic histories.
+Household profiles, transition rules, and task templates instantiate executable
+N1--N5, VLN, and EQA episodes. Every relocation is attributed to an activity,
+resident transition, object lifecycle event, or tidying event. Personal objects
+alternate between placed and carried states with owner-specific return habits;
+irregular objects use affordance-valid destinations without temporal or
+actor-specific predictability. Audits check that personal objects do not simply
+track their owners and that actor or activity identity does not predict irregular
+destinations beyond affordance. The audited configuration yields 42.6 region
+transitions per resident-day, 6.56 relocations per personal object-day, 52.6\%
+within-region relocations, and zero terminal collisions.
+
+\paragraph{Candidate metadata and query sampling.}
+Chronological Habitat replay records navigability, geodesic cost, camera frustum
+coverage, unoccluded target fraction, and success viewpoints for each candidate.
+These fields support the physical validity and visibility checks described in
+\cref{app:audit}; candidates without collision-free placements and reachable
+inspection viewpoints are excluded. Query times sample both the natural temporal
+distribution and mechanism-relevant windows, including routine stages and
+intervals after a personal object is dropped. Each navigation query is augmented
+with a start pose, candidate inspection viewpoints, a path budget, and frozen
+success conditions. The patrol policy cannot access current object states,
+resident locations, hidden activities, or generator latents. Query-time activity
+and hidden transitions are retained only by the evaluator.
+
+\paragraph{Language tasks and release documentation.}
+EQA questions cover existence, location, temporal order, activity association,
+count, comparison, and compositional relations over the same causal memories.
+Answers are evaluated against a normalized ontology, and questions requiring
+future evidence are excluded. VLN replaces the object label with a language goal
+whose referents and constraints are grounded in the same versioned scene history.
+The broader task annotations support studies beyond the prediction and navigation
+experiments emphasized in this paper. Across tracks, only memory representations,
+current-state beliefs, and resulting decisions differ between controlled methods.
+Dataset cards and audit summaries document source mappings, authored assumptions,
+physical validity, candidate coverage, and leakage tests.
+
+\paragraph{Splits and leakage checks.}
+Complete temporal sequences are split together so that no future portion of a
+household day enters an earlier decision. Held-out homes are reserved for
+cross-scene evaluation; paired static/routine/random members remain in the same
+split. Near-duplicate queries and transition groups are assigned atomically.
+Serialized releases are checked for future timestamps, private event fields,
+answer-correlated filenames or indices, repeated event groups across splits,
+inconsistent paired variants, invalid physics, unreachable goals, and accidental
+patrol dependence on hidden state. Episode-level checks and mobility assignment
+are further specified in \cref{app:audit,app:mobility}.
+
 \subsection{Mobility Regimes and Task Protocols}
 
 Mobility labels are used only for stratified evaluation and are hidden from the

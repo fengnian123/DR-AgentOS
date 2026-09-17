@@ -1,31 +1,13 @@
 \section{P4D-Bench: Evaluating Navigation in Evolving Worlds}
 \label{sec:benchmark}
 
-Existing navigation benchmarks typically expose a fixed scene or reset the
-environment between episodes, making the agent's latest map a valid account of
-the world. They therefore cannot isolate the central difficulty of our setting:
-the world may change during an observation gap, while only the agent's causal
-history is available at decision time. We introduce \pfdbench{} as a dedicated
-benchmark for this gap. The full release contains 54 scenes and 803.68k task
-instances over longitudinal hidden state changes. It couples continuous
-world evolution with executable embodied episodes so that the same latent state
-can be evaluated through prediction, navigation, language-conditioned behavior,
-and embodied question answering.
+\pfdbench{} evaluates decisions from causal observation histories while the
+world changes outside observation. Its 54 scenes and 803.68k task instances
+combine persistent histories, executable placements, and controlled dynamics.
 
-\subsection{Design Principles and Scope}
+\subsection{Tasks and Controlled Dynamics}
 
-\pfdbench{} is designed around four principles. First, \emph{temporal
-continuity}: examples are sampled from persistent scene histories rather than
-independent object placements. Second, \emph{causal observability}: the public
-memory contains only evidence that the robot could have acquired before the
-query. Third, \emph{physical executability}: predicted states correspond to
-collision-free placements with reachable, visibility-checked inspection
-viewpoints. Fourth, \emph{controlled dynamics}: paired worlds keep the scene,
-target, query, and marginal placement factors fixed while varying the hidden
-transition mechanism. These controls separate predictive reasoning from scene
-frequency, route geometry, and privileged simulator access.
 \FloatBarrier
-% Keep each illustration beside its explanatory text and within the page.
 \Needspace{0.34\textheight}
 \begin{wrapfigure}{r}{0.58\textwidth}
     \centering
@@ -36,19 +18,29 @@ frequency, route geometry, and privileged simulator access.
 \end{wrapfigure}
 
 The task pool comprises current-state prediction (16\%), object navigation
-(27\%), vision-and-language navigation (29\%), and embodied question answering
-(28\%) \citep{majumdar2024openeqa,sakamoto2024map}. Prediction probes the belief independently of control. Navigation tests
-whether that belief produces useful destinations, search orders, and recovery.
-VLN supplies language-conditioned goals over the same evolving histories, while
-EQA probes whether memory preserves the evidence needed to reason about current
-and historical states. The controlled experiments in this paper emphasize state
-prediction and navigation, with EQA as a memory diagnostic; the remaining task
-annotations are included to support broader study of evolving-world agents.
+(27\%), vision-and-language navigation (VLN; 29\%), and embodied question
+answering (EQA; 28\%) \citep{majumdar2024openeqa,sakamoto2024map}.
+Prediction evaluates a calibrated region/receptacle belief independently of
+control; navigation uses the same target--time queries
+(\cref{fig:p4dbench,tab:tasks}). N1 inspects the Top-1 destination; N2 uses the
+full belief for cost-aware search; N3 adds visibility-qualified updates and
+recovery. N1--N3 fix the target after the query. N4 advances the world clock
+during execution, permitting further hidden transitions. N5 applies these protocols to held-out scenes and households.
 
-\subsection{Human-Trace-Grounded World Evolution}
+VLN grounds language goals in the same histories; EQA probes current and
+historical states without future evidence. Our experiments emphasize prediction
+and navigation, with EQA as a memory diagnostic. Controlled comparisons match public
+observations, candidates, geometry, starts, controllers, and budgets.
 
-% Keep each illustration beside its explanatory text and within the page.
-\Needspace{0.34\textheight}
+Paired \emph{static}, \emph{routine}, and \emph{random} worlds share public setup
+variables. Static preserves the last supported state; routine follows household
+dynamics; random matches legal candidates and marginal movement statistics while
+removing temporal dependencies. Improvements specific to routine worlds thus
+support the use of historical regularity over category frequency or spatial
+convenience.
+
+\Needspace{0.38\textheight}
+\subsection{World Construction and Causal Evaluation}
 \begin{wrapfigure}{r}{0.58\textwidth}
     \centering
     \vspace{-8pt}
@@ -57,118 +49,29 @@ annotations are included to support broader study of evolving-world agents.
     \label{fig:p4dbench-generation}
 \end{wrapfigure}
 
-\paragraph{Source alignment.}
-As summarized in \cref{fig:p4dbench-generation}, we derive complementary
-statistics from longitudinal smart-home records such as
-CASAS \citep{cook2013casas} and ARAS, and from the multi-week household activity
-and object-location sequences in HOMER+ \citep{patel2023routine}. Real
-action--object and placement evidence comes from HD-EPIC and ParaHome
-\citep{perrett2025hdepic,kim2025parahome}, supplemented by OPPORTUNITY. HD-EPIC
-provides fine-grained egocentric action traces, ParaHome provides reconstructed
-human--object interactions, and HOMER+ supplies longer-term variation in routine
-object use.
-These sources are normalized into a common event schema linking time, activity,
-actor context, object category, source state, destination state, and evidence
-provenance. They constrain schedules, activity--object associations, transition
-timing, and placement tendencies; no source trajectory is copied verbatim into
-simulation. Unsupported quantities are explicitly marked as benchmark-authored
-rather than presented as measured human behavior.
+Human traces constrain generation rather than supply copied trajectories
+(\cref{fig:p4dbench-generation}). CASAS \citep{cook2013casas}, ARAS, and HOMER+
+\citep{patel2023routine} inform schedules and activities; HD-EPIC, ParaHome
+\citep{perrett2025hdepic,kim2025parahome}, and OPPORTUNITY supply interaction
+and placement evidence. A shared event schema preserves provenance and marks
+benchmark-authored assumptions.
 
-\paragraph{Persistent household generation.}
-Across 54 HSSD scenes \citep{khanna2024hssd} and multi-day household histories, we
-freeze household-level factors including resident schedules, room preferences,
-orderliness, object ownership, and placement habits. We then jointly generate
-activities, resident region trajectories, and object transitions in chronological
-order. Frozen factors make earlier observations informative about later states,
-whereas stochastic events, delayed returns, and exceptions prevent the histories
-from becoming deterministic scripts. The unified schema is instantiated through
-household profiles, transition rules, and task templates to produce paired
-static, routine, and random worlds with executable N1--N5, VLN, and EQA episodes.
-The audited configuration yields 42.6
-region transitions per resident-day, 6.56 relocations per personal object-day,
-52.6\% within-region relocations, and zero terminal collisions.
+Across 54 HSSD scenes \citep{khanna2024hssd}, fixed household habits and
+stochastic exceptions generate chronological object histories. Stable, routine,
+personal, and irregular regimes test persistence, activity regularity,
+owner-specific habits, and uncertainty (\cref{tab:mobility-regimes}); labels
+are hidden. Habitat replay enforces semantically valid, collision-free placements
+with reachable inspection viewpoints.
 
-\subsection{Controlled Dynamics and Mobility Regimes}
+Patrols use only maps, time, travel cost, and observed history, producing
+visibility-qualified RGB-D evidence. Queries expose causal observations, the
+last supported state, elapsed and calendar time, candidates, and spatial context.
+Current states, hidden transitions and activities, mobility labels, and oracle
+viewpoints remain private.
 
-Every relocation is attributable to an activity, resident transition, object
-lifecycle event, or tidying event. Targets follow one of four complementary
-mechanisms shown in \cref{tab:mobility-regimes}. Stable or rarely moved objects
-measure whether a predictive method preserves valid history. Routine objects
-follow repeated activity chains. Personal objects alternate between placed and
-carried states and exhibit owner-specific return habits. Irregular objects use
-affordance-valid destinations without temporal or actor-specific predictability.
-Mobility labels support stratified analysis but are hidden from the agent.
-
-For each compatible history and query, we construct paired \emph{static},
-\emph{routine}, and \emph{random} worlds. Static preserves the last supported
-state; routine samples from the household's frozen transition process; and random
-matches legal candidates and marginal movement statistics while breaking the
-learnable temporal dependency. Pair members share all public setup variables.
-Consequently, improvement specific to routine worlds is evidence that a model
-uses historical regularity rather than category frequency or spatial convenience.
-Audits additionally verify that personal objects do not simply track their owners
-and that actor or activity identity does not predict irregular destinations beyond
-affordance.
-
-\subsection{Physical Realization and Causal Observation}
-
-Generated transitions are replayed chronologically in Habitat. Only semantically
-valid, collision-free placements with at least one reachable inspection viewpoint
-enter the benchmark. For every candidate, we record navigability, geodesic cost,
-camera frustum coverage, unoccluded target fraction, and success viewpoints.
-These checks prevent a method from being penalized for an impossible placement
-or an unreachable observation.
-
-A robot patrols using the map, time, travel cost, and its own accumulated history;
-it never observes current object states, resident locations, hidden activities,
-or generator latents. Region visits produce local RGB-D snapshots that are
-converted into positive and negative observations with visibility metadata. For
-a target queried at $t_q$, the public input terminates at or before $t_q$ and
-contains the observed history, last supported state, elapsed time, calendar
-context, legal candidates, and spatial context. The evaluator retains the current
-state, hidden transitions, query-time activity, mobility regime, and oracle
-viewpoints. Query times cover both the natural temporal distribution and
-mechanism-relevant windows, such as stages of a routine or the interval after a
-personal object is dropped.
-
-\subsection{Tasks and Evaluation Protocols}
-
-\pfdbench{} derives all prediction and navigation episodes from the same
-target--time queries (\cref{fig:p4dbench,tab:tasks}). The prediction track asks
-for a calibrated belief over the current region or receptacle without navigation
-confounds. A navigation episode augments that query with a start pose, candidate
-inspection viewpoints, a path budget, and frozen success conditions. N1 permits
-only the Top-1 predicted destination and measures whether prediction becomes a
-useful physical decision. N2 exposes the full belief and measures cost-aware
-search. N3 updates the belief after visibility-qualified observations and tests
-recovery from an incorrect first destination. N4 advances the world clock during
-execution and can introduce another hidden transition. N5 is not a separate task;
-it applies the preceding protocols to held-out scenes and households.
-
-The EQA suite queries existence, location, temporal order, activity association,
-count, comparison, and compositional relations over the same causal memories.
-Answers are evaluated against a normalized ontology, and questions requiring
-future evidence are excluded. VLN episodes replace an object label with a
-language-conditioned goal whose referents and constraints are grounded in the
-same versioned scene history. Across tracks, methods receive identical public
-observations, candidates, geometry, starts, controllers, and budgets; only their
-memory representation, current-state belief, and resulting decisions differ.
-
-\subsection{Splits, Leakage Prevention, and Quality Control}
-
-We split complete temporal sequences rather than individual queries so that no
-future portion of a household day can leak into an earlier decision. Held-out
-homes are reserved for cross-scene evaluation, and paired static/routine/random
-members remain in the same split. Near-duplicate queries and transition groups
-are assigned atomically. The serialized release is audited for future timestamps,
-private event fields, answer-correlated filenames or indices, repeated event
-groups across splits, inconsistent paired variants, invalid physics, unreachable
-goals, and accidental dependence of the patrol policy on hidden state.
-
-Results are reported by mobility regime, transition class, staleness, spatial
-difficulty, and generalization split. We also expose dataset cards and audit
-summaries for source mappings, authored assumptions, physical validity, candidate
-coverage, and leakage tests. Full schema definitions, episode validity rules, and
-metric implementations are provided in the supplement.
-
-\input{sections/appendix_benchmark}
+Splits keep temporal sequences, paired worlds, and near-duplicate query or
+transition groups intact. Audits check temporal and metadata leakage, split
+overlap, paired-world consistency, physical validity, and patrol access to
+hidden state. Results are stratified by mobility, transition, staleness,
+spatial difficulty, and generalization; details appear in
+\cref{app:benchmark-protocol}.

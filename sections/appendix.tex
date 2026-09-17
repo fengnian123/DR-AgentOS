@@ -16,12 +16,42 @@ The high-level track exposes
 \end{center}
 with a fixed navigation backend. The low-level track exposes Habitat-style forward, turn, look, and stop actions. The main paper uses the high-level track to isolate predictive state selection; low-level results measure sensitivity to control and perception.
 
+The causal input at query time $t_q$ is
+\begin{equation}
+\mathcal H_{\leq t_q}=\{(I_k,D_k,\xi_k,t_k)\mid t_k\leq t_q\},
+\end{equation}
+where $I_k,D_k,\xi_k$ denote RGB, depth, and camera pose. The task objective
+balances successful target verification against travel and inspection costs:
+\begin{equation}
+\pi^*=\arg\max_{\pi}\;\mathbb E_{\pi}\!\left[
+\mathbb I(\mathrm{success})-\lambda_d L-\lambda_n N_{\mathrm{inspect}}
+\right],
+\label{eq:objective}
+\end{equation}
+where $L$ is travel distance, $N_{\mathrm{inspect}}$ counts inspections, and
+$\lambda_d,\lambda_n$ weight their costs. The main protocol fixes the target
+after the query; the online-dynamic extension allows additional hidden
+transitions while the agent moves.
+
 \subsection{Detailed 4D Memory Construction}
 \label{app:memory-details}
 
 \Cref{fig:memory} illustrates how observations are converted into persistent
 entity versions. Each observation contributes spatial evidence and temporal
 validity, allowing the memory to preserve both previous and current states.
+Memory is materialized
+causally from versioned deltas:
+\begin{equation}
+\mathcal M_{\leq t}=\operatorname{Materialize}(\Delta\mathcal M_0,\ldots,\Delta\mathcal M_t)
+=(\mathcal G_t,\mathcal V_t,\mathcal B_t),
+\label{eq:memory}
+\end{equation}
+where $\mathcal G_t$ stores semantic--spatial relations, $\mathcal V_t$ stores
+time-valid entity versions, and $\mathcal B_t$ stores observation provenance.
+Persistent identity is separated from mutable state: a change appends a
+time-valid version without erasing earlier states, and each memory query
+uses only evidence available at its decision time.
+
 For image coordinate
 $\widetilde{\mathbf u}=[u,v,1]^\top$ with depth $D_t(u,v)$, the corresponding
 world point is
@@ -44,6 +74,88 @@ containing a validity interval, candidate state, confidence, visual feature, and
     \caption{Temporally versioned 4D memory construction.}
     \label{fig:memory}
 \end{figure}
+
+\subsection{Belief Encoding and Training}
+\label{app:belief-encoding}
+
+For target $o$, the retrieved history contains the most recent $K$ causal events,
+\begin{equation}
+H_o=\{e_k=(o_k,s_k,t_k,z_k,c_k,v_k)\}_{k=1}^{K},
+\label{eq:history}
+\end{equation}
+with entity, state, time, evidence type, confidence, and visibility as defined
+in \cref{sec:belief_model}. Each event is encoded as
+\begin{align}
+\mathbf x_k={}&E_o(o_k)+E_s(s_k)+E_z(z_k)+E_c(c_k)+E_v(v_k)\nonumber\\
+&+\phi_{\Delta}(t_q-t_k)+\phi_{\mathrm{cal}}(t_k),
+\label{eq:eventtoken}
+\end{align}
+where $\phi_{\Delta}$ includes $\log(1+t_q-t_k)$ and
+$\phi_{\mathrm{cal}}$ contains sinusoidal hour-of-day and day-of-week features.
+A learned query token specifies the target, query time, and last positive state.
+The history encoder produces
+\begin{equation}
+(\mathbf h_1,\ldots,\mathbf h_K,\mathbf h_q)
+=\operatorname{CTTransformer}(\mathbf x_1,\ldots,\mathbf x_K,\mathbf x_q).
+\end{equation}
+The persistence head estimates agreement between the current state and the
+last positive observation:
+\begin{equation}
+\rho_q=P(s_{t_q}^o=s_{\mathrm{last}}\mid H_o,t_q)
+=\sigma(\mathbf w_{\rho}^{\top}\mathbf h_q).
+\label{eq:persistence}
+\end{equation}
+For each alternative candidate
+$i\in\widetilde{\mathcal C}_o\setminus\{s_{\mathrm{last}}\}$,
+including $\mathrm{unknown}$, a shared pointer head computes
+\begin{equation}
+a_i=\frac{(W_q\mathbf h_q)^\top(W_c\mathbf g_i)}{\sqrt d}
++\psi(\mathbf h_q,\mathbf g_i),\qquad
+\pi_q(i)=\frac{\exp a_i}
+{\sum_{u\in\widetilde{\mathcal C}_o\setminus\{s_{\mathrm{last}}\}}\exp a_u},
+\label{eq:pointer}
+\end{equation}
+where $\mathbf g_i$ represents candidate context, functional role, geometry,
+and instance identity, $d$ is the projection dimension, and $\psi$ is a
+learned compatibility function. The heads jointly define the normalized belief
+in \cref{eq:prior} and are trained with current-state negative log-likelihood,
+$\mathcal L_{\mathrm{state}}=-\log b_q^-(s_{t_q}^o)$, without a separate
+change label or oracle mobility type.
+
+\subsection{Evidence Updates and Online Prediction}
+\label{app:belief-control}
+
+For an inspection of candidate $r_j$ at time $t_j$, the negative-observation
+model is
+\begin{equation}
+\ell_j(i)=P(z_j=\mathrm{notseen}\mid s_{t_j}^o=i,c_j,v_j)=
+\begin{cases}
+1-c_jv_j, & i=r_j,\\
+1, & i\neq r_j,
+\end{cases}
+\label{eq:negative}
+\end{equation}
+where $c_j,v_j\in[0,1]$ are detector reliability and effective visibility.
+The Bayesian update in \cref{eq:bayes} uses this likelihood over the full
+candidate support, including $\mathrm{unknown}$. A clear empty view provides
+strong counter-evidence, whereas an occluded view leaves more uncertainty.
+Observations and visibility are retained as evidence; the posterior is stored
+as an inferred belief. Under the fixed-target protocol, each posterior becomes
+the next inspection prior.
+
+For online-dynamic episodes, the predictor evaluates beliefs at the estimated
+arrival time of each candidate:
+\begin{equation}
+b_{t+\widehat\tau_i}^-=F_\theta(H_{o,\leq t},t+\widehat\tau_i),
+\end{equation}
+where $\widehat\tau_i$ is estimated travel time and $H_{o,\leq t}$ contains
+observations available at decision time $t$. The agent replans after each
+action chunk. The same interface supports direct predictive navigation,
+belief-guided search, and recovery after an incorrect first destination, without
+an explicit static/dynamic policy router. Controlled belief comparisons share
+perception and low-level navigation; the learned component changes inference
+and the choice of inspection locations. The navigator returns RGB-D observations
+without privileged success flags.
 
 \subsection{Full Baseline Specification}
 \label{app:baselines}
@@ -105,6 +217,8 @@ hidden transition mechanism.
 
 This section documents episode validity, leakage controls, mobility assignment,
 and the metrics used for all reported comparisons.
+
+\input{sections/appendix_benchmark}
 
 \subsection{Episode Validity and Leakage Audit}
 \label{app:audit}
