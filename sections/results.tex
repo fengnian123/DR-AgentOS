@@ -235,7 +235,7 @@ the current target first. Recovery remains 24.3\%, exposing residual end-to-end
 failures rather than hiding them. Platform and condition breakdowns are in
 \cref{app:real-world}.
 
-\FloatBarrier
+\clearpage
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
@@ -247,36 +247,19 @@ predictor and VLM choice. Fine-grained controls are deferred to
 
 \paragraph{Core components.}
 
-\begin{table}[!htbp]
-\caption{Core component ablation on embodied navigation. SR and SPL are
-percentages; Ours reports the five-seed mean with standard deviation below.}
-\label{tab:module_ablation}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{4pt}
-\begin{tabularx}{0.90\linewidth}{@{}>{\raggedright\arraybackslash}X *{4}{>{\centering\arraybackslash}p{0.105\linewidth}}@{}}
-\toprule
-\textbf{Variant} & \makecell{\textbf{First-Go}\\\textbf{SR $\uparrow$}} &
-\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} &
-\textbf{SPL $\uparrow$} & \textbf{Inspect. $\downarrow$}\\
-\midrule
-No Predictive Belief & 12.51 & 57.02 & 38.98 & 7.12\\
-Latest Observation Only & 46.25 & 64.42 & 55.64 & 4.20\\
-Direct Candidate Prediction & 48.33 & 69.58 & 57.82 & 3.95\\
-Top-1 Belief Only & 48.33 & 62.92 & 52.68 & 5.18\\
-No Evidence Update & 39.29 & 43.31 & 36.23 & 6.48\\
-\rowcolor{tblours}
-& \textbf{62.17} & \textbf{85.33} & \textbf{70.87} & \textbf{3.95}\\
-\rowcolor{tblours}\multirow{-2}{*}{\textbf{Full \evolvingworldnav{}}}
-& $\pm 2.732$ & $\pm 3.270$ & $\pm 2.334$ & $\pm 0.36$\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
 The variants answer five questions: whether prediction and persistent history
 matter, whether persistence--relocation factorization improves over a direct
 softmax, whether the full distribution aids search, and whether observations
-must update the belief. Full \evolvingworldnav{} reaches 62.17 First-Go SR,
+must update the belief.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/core_component_ablation.pdf}
+    \caption{Core component ablation on embodied navigation. Error bars show five-seed standard deviations.}
+    \label{fig:module_ablation}
+\end{figure}
+
+As shown in \cref{fig:module_ablation}, full \evolvingworldnav{} reaches 62.17 First-Go SR,
 85.33 Search SR, and 70.87 SPL. Direct Candidate Prediction loses 15.75 Search
 SR points; Top-1 Belief Only loses 22.41 points and needs 1.23 more inspections;
 and disabling evidence updates produces the largest drop, to 43.31 Search SR.
@@ -459,7 +442,7 @@ uncalibrated score, which is essential when confidence determines the next
 inspection target.
 
 Because this table isolates prediction from embodied execution, it complements
-rather than duplicates the navigation ablation in \cref{tab:module_ablation}.
+rather than duplicates the navigation ablation in \cref{fig:module_ablation}.
 Together, the two experiments connect better calibrated current-state belief to
 more efficient search. Full predictor controls and diagnostics are reported in
 \cref{app:prediction-evidence}.
