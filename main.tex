@@ -56,12 +56,16 @@
 \maketitle
 
 \begin{abstract}
-A robot can remember an object correctly and still navigate to the wrong place
-when the world continues to evolve during navigation and the change occurs
-outside its view. For long-lived embodied agents, the challenge is to infer the
-current state from intermittent observations, remain responsive to unobserved
-changes during execution, and decide where to gather evidence when that
-inference is uncertain. We introduce \evolvingworldnav{}, an embodied agent
+Long-lived embodied agents must navigate in evolving environments where object
+locations can change outside their view, making accurate memories stale and
+current-state inference from intermittent observations uncertain. Recent work
+on persistent memory and open-vocabulary mapping supports retrieval of past
+spatial experience, while predictive scene representations and routine models
+learn temporal regularities in object states and placements. A remaining
+challenge is to turn these predictions into physical decisions that retain
+alternative hypotheses and gather reliable evidence as the world continues to
+evolve during navigation. To address this challenge, we introduce
+\evolvingworldnav{}, an embodied agent
 that turns timestamped 3D entity histories into a belief over current object
 locations. Our key insight is to separate whether the last observed state
 remains valid from where the object may have moved, and to carry this
