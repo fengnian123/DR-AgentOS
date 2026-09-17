@@ -1,55 +1,20 @@
 \section{Experiments}
 \label{sec:experiments}
-
-We evaluate whether predictive 4D memory improves current-state inference,
-embodied search, and recovery from contradicted beliefs. Within each comparison,
-methods share perception, legal candidates, inspection viewpoints, low-level
-control, and action budgets. Extended protocols and implementation details are
-provided in \cref{app:experimental-setup,app:benchmark-protocol}.
-
-\subsection{Setup}
 \label{sec:setup}
-
-\paragraph{Datasets.}
-Our primary evaluation uses \pfdbench{}, whose evolving HSSD histories test
-state prediction, First-Go navigation, belief-guided search, and evidence-aware
-replanning. FindingDory \citep{yadav2025findingdory} and GOAT-Bench
-\citep{khanna2024goatbench} test long-horizon memory and repeated-goal
-navigation. Cross-domain evaluation uses R2R-CE on MP3D, HM3D-OVON on HM3D,
-PointNav on Habitat-GS, and SAGE-Bench on InteriorGS; each retains its native
-split and success rule. We additionally conduct 64 matched search trials per
-method on the LYNX M20, balanced across indoor and outdoor environments, with
-X30 and Lite3 used for transfer analysis.
-
-\paragraph{Base VLMs.}
-The controller remains frozen. The primary evaluation uses a fixed VLM,
-prompt, typed tool interface, and inference budget across methods. To test model
-dependence, we repeat paired episodes with GPT-4o, GPT-5.5, GPT-5.6-Luna, and
-the open-weight Qwen2.5-VL-3B/32B
-\citep{hurst2024gpt4o,openai2026gpt55,openai2026gpt56luna,
-bai2025qwen25vl}; only the memory, prediction, and evidence-update pathway
-changes.
-
-\paragraph{Baseline methods.}
 \label{sec:baselines}
-The main comparison covers open-vocabulary or lifelong navigation (VLFM, ZSON,
-FindingDory, LagMemo), structured memory (HOV-SG, DynaMem), and predictive
-world models (SLaTe-PRO, SGM+NEP, FlowMaps, Perpetua)
-\citep{yokoyama2024vlfm,majumdar2022zson,zhou2025lagmemo,
-werby2024hovsg,liu2024dynamem,patel2023routine,kurenkov2023dynamic,
-argenziano2026flowmaps,saavedraruiz2026predictivegraphs}. Diagnostic studies
-add Last Seen, frequency/Markov models, Random Forest, GRU, and direct
-Transformer predictors. Cross-environment baselines are separated into
-navigation-trained/task-adapted and zero-shot systems. Released policies use
-their native protocol; memory or prediction modules are otherwise connected to
-the shared controller. Full adaptation rules are in \cref{app:baselines}.
-
-\paragraph{Evaluation metrics.}
 \label{sec:metrics}
-Belief quality is measured by Top-1, MRR, NLL, ECE, and true-state rank.
-Navigation uses SR, SPL, First-Go SR, Recovery SR, inspected candidates, travel
-distance, and time; EQA uses category-macro accuracy. Cross-benchmark results
-report five-seed variation, while paired routine/static/random worlds isolate
-learned temporal regularity from scene-frequency shortcuts. Metric definitions,
-prediction splits, confidence intervals, real-world scoring, and stratified
-analyses appear in \cref{app:experimental-setup,app:metrics}.
+
+\paragraph{Setup.}
+We evaluate current-state prediction, First-Go navigation, search, and recovery
+on \pfdbench{}, with FindingDory and GOAT-Bench testing broader memory use.
+Within each comparison, methods share perception, legal candidates, inspection
+viewpoints, low-level control, and action budgets; the VLM controller remains
+frozen. Baselines cover open-vocabulary/lifelong navigation, structured memory,
+and predictive world models. Released policies retain their native protocol;
+otherwise, memory or prediction modules use the shared controller.
+Prediction is scored by Top-1, MRR, and NLL. First-Go SR permits inspection of
+only the initial candidate; Search SR measures eventual success; Recovery SR is
+conditioned on an incorrect first prediction. SPL and inspection/travel costs
+measure efficiency. Protocols, baseline adaptations, additional environments,
+and metric definitions are detailed in
+\cref{app:experimental-setup,app:baselines,app:metrics,app:extended-setup}.

@@ -1,17 +1,9 @@
 \section{Conclusion}
 
-We introduced persistent navigation in evolving worlds, where an embodied agent
-must act while task-relevant changes can occur outside its view before or during
-navigation. \evolvingworldnav{} closes a memory--belief--action loop: its
-\pfdnav{} core separates persistence from relocation, retains uncertainty over
-scene-specific candidates, converts visibility-qualified observations into
-posterior evidence, and replans from the updated belief. \pfdbench{} grounds
-this question in human-trace-driven HSSD histories and paired static, routine,
-and random worlds. The strongest gains occur under learnable routine evolution,
-while lower performance on matched random transitions defines the current
-boundary of predictive benefit. Results on held-out scenes, other embodied
-benchmarks, and physical robots further suggest that the belief-and-evidence
-interface transfers beyond the controlled routine setting. Overall, navigation
-in an evolving world requires not only remembering or predicting a destination,
-but testing that belief against new physical evidence and revising action when
-the world no longer supports it.
+\evolvingworldnav{} turns irregular object histories into a persistence--relocation
+belief and revises navigation using visibility-qualified evidence.
+\pfdbench{} evaluates this loop under hidden world evolution, with paired
+controls showing that predictive gains depend on learnable temporal structure.
+Cross-benchmark and physical results support the value of combining prediction
+with evidence gathering: persistent navigation requires maintaining alternative
+locations and revising them when observations contradict memory.
