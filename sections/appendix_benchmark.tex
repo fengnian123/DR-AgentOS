@@ -1,48 +1,4 @@
-\subsection{Extended Benchmark Design and Construction}
-\label{app:benchmark-extended-design}
-
-\paragraph{Design principles.}
-Temporal continuity samples examples from persistent scene histories rather than
-independent object placements. Causal observability restricts public memory to
-evidence available to the robot before the query. Physical executability requires
-collision-free placements with reachable, visibility-checked inspection
-viewpoints. Controlled dynamics hold scene, target, query, and marginal placement
-factors fixed while varying the hidden transition mechanism. Together, these
-controls separate predictive reasoning from scene frequency, route geometry,
-and privileged simulator access.
-
-\subsubsection{Source Alignment and Household Generation}
-\label{app:world-generation}
-
-Longitudinal smart-home records from CASAS \citep{cook2013casas} and ARAS provide
-complementary schedule statistics; HOMER+ \citep{patel2023routine} provides
-multi-week household activity and object-location sequences. HD-EPIC
-\citep{perrett2025hdepic} supplies fine-grained egocentric action traces,
-ParaHome \citep{kim2025parahome} provides reconstructed human--object
-interactions, and HOMER+ captures longer-term variation in routine object use.
-OPPORTUNITY supplies additional evidence. Their common schema links time,
-activity, actor context, object category, source state, destination state, and
-evidence provenance. Source mappings and unsupported benchmark-authored
-assumptions are exposed in dataset cards and audit summaries.
-
-Across multi-day histories in 54 HSSD scenes \citep{khanna2024hssd}, frozen
-household factors include resident schedules, room preferences, orderliness,
-object ownership, and placement habits. Activities, resident region trajectories,
-and object transitions are jointly generated in chronological order. Stochastic
-events, delayed returns, and exceptions prevent deterministic scripts. Household
-profiles, transition rules, and task templates instantiate the schema as paired
-static, routine, and random worlds with executable N1--N5, VLN, and EQA episodes.
-
-\subsubsection{Controlled Dynamics and Mobility Regimes}
-\label{app:mobility-regime-overview}
-
-Every relocation is attributable to an activity, resident transition, object
-lifecycle event, or tidying event. Stable or rarely moved objects test whether a
-method preserves valid history. Routine objects follow repeated activity chains.
-Personal objects alternate between placed and carried states with owner-specific
-return habits. Irregular objects use affordance-valid destinations without
-temporal or actor-specific predictability (\cref{tab:mobility-regimes}). Labels
-support stratified analysis but are hidden from agents.
+\subsection{Mobility Regimes and Task Protocols}
 
 \begin{table}[!htbp]
 \caption{Mobility regimes in \pfdbench{}. Labels are used only for stratified
@@ -63,28 +19,6 @@ Irregular & Affordance sampling & Affordance only & Uncertainty control\\
 \end{tabularx}
 \end{table}
 
-Paired-world audits verify that personal objects do not simply track their owners
-and that actor or activity identity does not predict irregular destinations beyond
-affordance. For every candidate placement, physical checks record navigability,
-geodesic cost, camera frustum coverage, unoccluded target fraction, and success
-viewpoints, excluding impossible placements and unreachable observations.
-Query times cover both the natural temporal distribution and mechanism-relevant
-windows, including routine stages and intervals after personal objects are
-dropped.
-
-\subsubsection{Tasks and Evaluation Protocols}
-\label{app:task-protocol-overview}
-
-\pfdbench{} derives prediction and navigation episodes from the same target--time
-queries (\cref{tab:tasks}). Prediction asks for a calibrated belief over current
-regions or receptacles. A navigation episode adds a start pose, candidate
-inspection viewpoints, path budget, and frozen success conditions. N1 measures
-whether a Top-1 prediction becomes a useful physical decision. N2 evaluates
-search over the full belief, and N3 tests recovery after an incorrect first
-destination through visibility-qualified evidence. N4 additionally advances the
-clock and can introduce another hidden transition. N5 is a held-out evaluation
-of the preceding protocols, rather than a separate task.
-
 \begin{table}[!htbp]
 \caption{Prediction and navigation protocols in \pfdbench{}.}
 \label{tab:tasks}
@@ -104,18 +38,4 @@ N5  & Cross-scene generalization & Any protocol above & Held-out SR\\
 \bottomrule
 \end{tabularx}
 \end{table}
-
-The EQA suite queries existence, location, temporal order, activity association,
-count, comparison, and compositional relations over causal memories. Answers are
-evaluated against a normalized ontology; questions requiring future evidence are
-excluded. VLN replaces the object label with a language-conditioned goal whose
-referents and constraints are grounded in the same versioned history. Prediction
-probes belief independently of control, navigation probes destinations and search
-orders, and EQA probes the evidence retained for current and historical reasoning.
-
-Complete temporal sequences, near-duplicate queries, and transition groups are
-assigned atomically to splits, preventing future portions of a household day
-from leaking into earlier decisions. Dataset cards and audit summaries expose
-source mappings, authored assumptions, physical validity, candidate coverage,
-and leakage tests, alongside full schemas, episode validity rules, and metric
-implementations.
+\FloatBarrier
