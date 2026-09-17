@@ -14,7 +14,7 @@ persistence from relocation.
     \label{fig:p4dnav_method}
 \end{figure*}
 
-\paragraph{Problem formulation.}
+\subsection{Problem Formulation}
 \label{sec:problem}
 
 For target $o$, $\mathcal C_o$ contains candidate locations with inspection
@@ -27,31 +27,45 @@ near a valid viewpoint with the target visible and correctly identified.
 The main protocol fixes the target after $t_q$; the online-dynamic extension
 permits further hidden transitions during navigation (\cref{app:episode}).
 
-\subsection{From Causal 4D Memory to Current-State Belief}
-\label{sec:belief_model}
-
-\paragraph{Causal memory and history encoding.}
-Frozen perception models supply detections, masks, and features for cross-view
-entity association \citep{liu2024grounding,ravi2025sam,radford2021learning}.
-Persistent identities link timestamped state versions and observation provenance;
-changes append versions without overwriting history (\cref{app:memory-details}).
+\subsection{Causal 4D Memory and History Encoding}
+\label{sec:memory_encoding}
+Frozen perception models supply detections, masks, and features
+\citep{liu2024grounding,ravi2025sam,radford2021learning}. RGB-D observations
+are registered in a shared frame and associated across views using semantics,
+geometry, temporal consistency, and source confidence.
+Memory stores semantic--spatial relations, time-valid entity versions, and
+observation provenance. Persistent identities link successive versions; changes
+append versions without overwriting history (\cref{app:memory-details}).
 Memory queries use only evidence available at their decision time.
 
 A target query retrieves the latest $K$ causal events
 $H_o=\{(o_k,s_k,t_k,z_k,c_k,v_k)\}_{k=1}^K$: entity, candidate state, time,
 evidence type ($\mathrm{seen}/\mathrm{notseen}$), confidence, and visibility.
 Context may include related entities, receptacles, regions, and time windows,
-but excludes hidden activities and transition labels. A continuous-time Transformer combines event,
-elapsed-time, and calendar features into a query representation $\mathbf h_q$;
-a shared encoder represents each candidate's context, role, geometry, and
-identity (\cref{app:belief-encoding}).
+but excludes hidden activities and transition labels. A continuous-time
+Transformer combines these events with elapsed-time and calendar features.
+The former include $\log(1+t_q-t_k)$; the latter use sinusoidal hour-of-day and
+day-of-week encodings. A learned query token specifies the target, query time,
+and last positive state; its Transformer output is $\mathbf h_q$. A shared
+encoder represents each candidate's context, role, geometry, and identity
+(\cref{app:belief-encoding}).
 
-\paragraph{Persistence--relocation belief.}
+\subsection{Persistence--Relocation Belief}
+\label{sec:belief_model}
 Let $s_{\mathrm{last}}$ be the last positive state, guaranteed by episode
 validity (\cref{app:audit}). A persistence head predicts its current probability
-$\rho_q=\sigma(\mathbf w_\rho^\top\mathbf h_q)$; a shared pointer head
-predicts $\pi_q$ over alternatives
-$\widetilde{\mathcal C}_o\setminus\{s_{\mathrm{last}}\}$. Together they give
+$\rho_q=\sigma(\mathbf w_\rho^\top\mathbf h_q)$. For alternatives
+$i\in\widetilde{\mathcal C}_o\setminus\{s_{\mathrm{last}}\}$, a shared pointer
+head computes
+\begin{equation}
+a_i=\frac{(W_q\mathbf h_q)^\top(W_c\mathbf g_i)}{\sqrt d}
++\psi(\mathbf h_q,\mathbf g_i),\qquad
+\pi_q(i)=\frac{\exp a_i}
+{\sum_{u\in\widetilde{\mathcal C}_o\setminus\{s_{\mathrm{last}}\}}\exp a_u},
+\label{eq:pointer}
+\end{equation}
+where $\mathbf g_i$ represents candidate $i$, $d$ is the projection dimension,
+and $\psi$ is a learned compatibility function. The prior is
 \begin{equation}
 b_q^-(i)=
 \begin{cases}

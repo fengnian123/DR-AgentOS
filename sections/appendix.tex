@@ -84,7 +84,7 @@ H_o=\{e_k=(o_k,s_k,t_k,z_k,c_k,v_k)\}_{k=1}^{K},
 \label{eq:history}
 \end{equation}
 with entity, state, time, evidence type, confidence, and visibility as defined
-in \cref{sec:belief_model}. Each event is encoded as
+in \cref{sec:memory_encoding}. Each event is encoded as
 \begin{align}
 \mathbf x_k={}&E_o(o_k)+E_s(s_k)+E_z(z_k)+E_c(c_k)+E_v(v_k)\nonumber\\
 &+\phi_{\Delta}(t_q-t_k)+\phi_{\mathrm{cal}}(t_k),
@@ -105,22 +105,12 @@ last positive observation:
 =\sigma(\mathbf w_{\rho}^{\top}\mathbf h_q).
 \label{eq:persistence}
 \end{equation}
-For each alternative candidate
-$i\in\widetilde{\mathcal C}_o\setminus\{s_{\mathrm{last}}\}$,
-including $\mathrm{unknown}$, a shared pointer head computes
-\begin{equation}
-a_i=\frac{(W_q\mathbf h_q)^\top(W_c\mathbf g_i)}{\sqrt d}
-+\psi(\mathbf h_q,\mathbf g_i),\qquad
-\pi_q(i)=\frac{\exp a_i}
-{\sum_{u\in\widetilde{\mathcal C}_o\setminus\{s_{\mathrm{last}}\}}\exp a_u},
-\label{eq:pointer}
-\end{equation}
-where $\mathbf g_i$ represents candidate context, functional role, geometry,
-and instance identity, $d$ is the projection dimension, and $\psi$ is a
-learned compatibility function. The heads jointly define the normalized belief
-in \cref{eq:prior} and are trained with current-state negative log-likelihood,
-$\mathcal L_{\mathrm{state}}=-\log b_q^-(s_{t_q}^o)$, without a separate
-change label or oracle mobility type.
+The shared pointer head in \cref{eq:pointer} scores every alternative,
+including $\mathrm{unknown}$, from the query and candidate representations.
+Its candidate encoder combines context, functional role, geometry, and instance
+identity. The persistence and pointer heads jointly define the normalized
+belief in \cref{eq:prior}, trained with current-state negative log-likelihood
+without a separate change label or oracle mobility type.
 
 \subsection{Evidence Updates and Online Prediction}
 \label{app:belief-control}
