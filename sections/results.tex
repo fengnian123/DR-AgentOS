@@ -1,21 +1,62 @@
 \subsection{Main Results}
 \label{sec:results}
 
-\paragraph{Benchmark comparison.}
-We first ask whether predictive memory transfers across long-horizon,
-repeated-goal, and evolving-world tasks. Across FindingDory, GOAT-Bench, and
-\pfdbench{}, \evolvingworldnav{} leads all headline metrics; on \pfdbench{},
-First-Go and Search SR exceed the strongest baselines by 15.99 and 5.18 points.
-The larger first-attempt gain shows that prediction improves the initial
-destination, while the remaining Search-SR gain reflects recovery from retained
-alternatives. Full cross-benchmark and search-cost results are reported in
-\cref{tab:crossbench,tab:mainnav}.
+\paragraph{Comparison across embodied benchmarks.}
 
-\paragraph{Qualitative mechanism.}
-\Cref{fig:p4d_case_study} traces a routine-world episode in which a bowl moves
-from its last-seen cabinet to the sink during dinner cleanup. The predictive
-belief ranks the current state first, whereas stale or geometry-only orderings
-spend an inspection on an obsolete location.
+\begin{table*}[!htbp]
+\caption{Cross-benchmark comparison (\%). \evolvingworldnav{} reports mean $\pm$
+standard deviation over five seeds.}
+\label{tab:crossbench}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4.0pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+& \multicolumn{2}{c}{\textbf{FindingDory}} &
+\multicolumn{3}{c}{\textbf{GOAT-Bench}} &
+\multicolumn{3}{c}{\textbf{\pfdbench{}}}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}
+\textbf{Method} & \textbf{HL-SR $\uparrow$} & \textbf{HL-SPL $\uparrow$} &
+\textbf{SR $\uparrow$} & \textbf{SPL $\uparrow$} &
+\textbf{Repeat-SR $\uparrow$} & \textbf{First-Go SR $\uparrow$} &
+\textbf{Search SR $\uparrow$} & \textbf{SPL $\uparrow$}\\
+\midrule
+\rowcolor{tblnav}\multicolumn{9}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
+VLFM \citep{yokoyama2024vlfm} & 13.42 & 10.86 & 15.79 & 5.45 & 11.82 & 20.65 & 28.36 & 24.67\\
+ZSON \citep{majumdar2022zson} & 27.89 & 21.81 & 29.64 & 2.45 & 16.37 & 26.84 & 32.13 & 28.55\\
+FindingDory Agent \citep{yadav2025findingdory} & 52.44 & \na & \na & \na & \na & \na & \na & \na\\
+LagMemo GLUE \citep{zhou2025lagmemo} & 32.79 & 23.25 & 20.61 & 1.74 & 11.27 & 30.18 & 42.27 & 33.82\\
+\midrule
+\rowcolor{tblmemory}\multicolumn{9}{c}{\emph{Structured spatio-temporal memory}}\\
+HOV-SG \citep{werby2024hovsg} & 21.47 & 15.20 & 28.37 & 2.23 & 12.38 & 36.46 & 52.32 & 40.61\\
+DynaMem \citep{liu2024dynamem} & 30.30 & 22.78 & 14.54 & 1.71 & 15.79 & 45.33 & 81.00 & 66.83\\
+\midrule
+\rowcolor{tblpredict}\multicolumn{9}{c}{\emph{Predictive world and state modeling}}\\
+SLaTe-PRO \citep{patel2023routine} & 18.18 & 14.53 & 9.41 & 0.99 & 6.38 & 13.00 & 36.33 & 26.37\\
+SGM+NEP \citep{kurenkov2023dynamic} & 34.20 & 19.48 & 10.67 & 1.64 & 2.56 & 27.26 & 41.82 & 37.00\\
+FlowMaps \citep{argenziano2026flowmaps} & 3.03 & 3.03 & 15.07 & 0.32 & 6.25 & 4.33 & 22.67 & 14.35\\
+Perpetua \citep{saavedraruiz2026predictivegraphs} & 24.24 & 13.50 & 10.27 & 1.80 & 7.48 & 36.18 & 43.67 & 40.36\\
+\midrule
+\rowcolor{tblours} & \textbf{63.22} & \textbf{48.83} &
+\textbf{35.43} & \textbf{12.98} & \textbf{19.31} & \textbf{61.32} &
+\textbf{86.18} & \textbf{70.15}\\
+\rowcolor{tblours}\multirow{-2}{*}{\textbf{\evolvingworldnav{} (ours)}} & $\pm 3.87$ & $\pm 2.43$ & $\pm 2.16$ &
+$\pm 0.92$ & $\pm 0.68$ & $\pm 3.235$ & $\pm 2.07$ & $\pm 1.74$\\
+\bottomrule
+\end{tabular}
+}
+\end{table*}
+
+\evolvingworldnav{} leads all reported headline metrics. Its larger gain in
+First-Go SR than Search SR on \pfdbench{} indicates that predictive memory
+mainly improves the initial destination, while retained alternatives support
+recovery. Complementary search-cost measures are in \cref{tab:mainnav}.
+
+\paragraph{Predictive navigation under controlled evolution.}
+\Cref{fig:p4d_case_study} shows how a routine-conditioned belief avoids an
+obsolete last-seen location. The paired-world control then changes only the
+hidden transition process while holding the scene and query fixed.
 
 \begin{figure}[!t]
     \centering
@@ -24,13 +65,37 @@ spend an inspection on an obsolete location.
     \label{fig:p4d_case_study}
 \end{figure}
 
+\par\medskip
+\begin{wraptable}{r}{0.60\linewidth}
+\vspace{-0.7\baselineskip}
+\centering
+\caption{Paired-world navigation SR and routine-world gain over Last Seen.}
+\label{tab:worlds}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Method} & \textbf{Static SR} & \textbf{Routine SR} & \textbf{Random SR} & \makecell{\textbf{Routine gain}\\\textbf{over Last Seen}}\\
+\midrule
+Last Seen & \textbf{100.00} & 38.49 & \textbf{34.21} & --\\
+Markov Transition & 80.22 & 32.57 & 20.64 & $-5.92$\\
+Transformer Direct & 69.79 & 48.82 & 31.39 & $+10.33$\\
+\rowcolor{tblours}\textbf{\pfdnav{}} & 82.19 & \textbf{60.85} & 30.12 & \textbf{$+22.36$}\\
+\bottomrule
+\end{tabular}
+\end{wraptable}
+
+\pfdnav{} gains 22.36 routine-world points over Last Seen but not under
+matched random motion. This localizes the predictive advantage to learnable
+temporal structure rather than arbitrary dynamics; staleness and budget
+diagnostics appear in \cref{fig:predictive-memory}.
+
 \paragraph{Generalization and physical deployment.}
-Cross-environment results span MP3D, HM3D, Habitat-GS, InteriorGS, and HSSD
-without pooling incompatible task definitions; \evolvingworldnav{} leads seven
-of ten native metrics, while task-trained systems remain stronger on R2R-CE or
-SAGE-Bench SPL (\cref{tab:domains}). We then evaluate 64 matched LYNX M20
-search trials per method, balanced across indoor and outdoor environments, with
-identical histories, candidates, perception, and low-level control.
+Across MP3D, HM3D, Habitat-GS, InteriorGS, and HSSD, \evolvingworldnav{} leads
+seven of ten native metrics, while specialized systems remain stronger on
+R2R-CE or SAGE-Bench SPL (\cref{tab:domains}). We also run 64 matched LYNX M20
+search trials per method with identical histories, candidates, perception, and
+low-level control.
 
 \begin{table}[!t]
 \caption{Primary LYNX M20 search results (64 episodes per method).}
@@ -58,17 +123,17 @@ Retrieval + Reasoning & 26.6 & 37.5 & 17.1 & 50.3 & 281 & 2.03 \\
 \end{tabularx}
 \end{table}
 
-\evolvingworldnav{} improves both success and efficiency, indicating that its
-gain is not produced by exhaustive search. Indoor/outdoor, temporal-condition,
-recovery, and cross-platform breakdowns are in \cref{app:real-world-eval}.
+The robot results improve both success and efficiency, ruling out exhaustive
+search as the source of the gain. Condition and platform breakdowns are in
+\cref{app:real-world-eval}.
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
 
 \paragraph{Core components.}
-We separately remove predictive history, persistence--relocation factorization,
-distributional search, and online evidence updating while keeping perception
-and control fixed.
+We remove predictive history, persistence--relocation factorization,
+distributional search, and online evidence updating under fixed perception and
+control.
 
 \begin{figure}[!t]
     \centering
@@ -77,33 +142,44 @@ and control fixed.
     \label{fig:module_ablation}
 \end{figure}
 
-\Cref{fig:module_ablation} shows distinct contributions: direct candidate
+\Cref{fig:module_ablation} shows that prediction, retained uncertainty, and
+the observe--update--replan loop make distinct contributions: direct candidate
 prediction and Top-1-only search reduce Search SR by 15.75 and 22.41 points,
-while removing evidence updates causes the largest degradation. Thus, the gain
-requires both a predictive distribution and the observe--update--replan loop.
+while removing evidence updates causes the largest degradation.
 
-\paragraph{When does prediction help?}
-\begin{wraptable}[7]{r}{0.57\linewidth}
+\begin{table}[!htbp]
+\caption{Prediction-only results on temporal changed-only ($n=322$) and
+leave-one-scene-out (LOSO) change-balanced queries ($n=644$). Top-1 is in
+percent; Ours reports five-seed mean $\pm$ standard deviation.
+Full comparison: \cref{tab:predictors-full}.}
+\label{tab:predictors}
 \centering
-\caption{Paired-world navigation SR (\%).}
-\label{tab:worlds}
 \scriptsize
-\setlength{\tabcolsep}{2.2pt}
-\begin{tabular}{@{}lrrrr@{}}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrr}
 \toprule
-Method & Static & Routine & Random & \makecell{Routine\\gain}\\
+& \multicolumn{3}{c}{Temporal} & \multicolumn{3}{c}{LOSO}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Predictor & Top-1 $\uparrow$ & MRR $\uparrow$ & NLL $\downarrow$
+& Top-1 $\uparrow$ & MRR $\uparrow$ & NLL $\downarrow$\\
 \midrule
-Last Seen & \textbf{100.00} & 38.49 & \textbf{34.21} & --\\
-Markov Transition & 80.22 & 32.57 & 20.64 & $-5.92$\\
-Transformer Direct & 69.79 & 48.82 & 31.39 & $+10.33$\\
-\rowcolor{tblours}\textbf{\pfdnav{}} & 82.19 & \textbf{60.85} & 30.12 & \textbf{$+22.36$}\\
+Last Seen & 0.00 & 0.1699 & 3.4011 & 50.00 & 0.5850 & 1.8825\\
+Time Frequency & 33.85 & 0.5462 & 1.8400 & 49.53 & 0.6166 & 1.6455\\
+Original gated Transformer & 34.16 & 0.5586 & 1.7292 & 51.71 & 0.6884 & 1.3157\\
+Shared semantic prior & 36.02 & 0.5957 & 1.5766 & 59.47 & 0.7462 & 1.0448\\
+\rowcolor{tblours} & \textbf{38.24} & \textbf{0.5971} & \textbf{1.4925}
+& \textbf{61.18} & \textbf{0.7523} & \textbf{0.9778}\\
+\rowcolor{tblours}\multirow{-2}{*}{\textbf{Ours}}
+& $\pm1.42$ & $\pm0.0291$ & $\pm0.0867$
+& $\pm4.53$ & $\pm0.0176$ & $\pm0.0228$\\
 \bottomrule
 \end{tabular}
-\end{wraptable}
-The paired control holds scenes and queries fixed while changing the hidden
-transition process. \pfdnav{} gains 22.36 routine-world points over Last Seen
-but not under matched random motion, localizing the predictive benefit to
-learnable temporal structure rather than arbitrary dynamics. Staleness, search
-budget, predictor, calibration, VLM, and fine-grained component diagnostics are
-reported in \cref{fig:predictive-memory,tab:predictors-full,fig:belief-calibration,%
-tab:foundation_models,app:fine-grained-ablation}.
+\end{table}
+
+\paragraph{Prediction and controller robustness.}
+The complete Table 4 isolates belief quality from navigation: the structured
+model improves both ranking and NLL on temporal and held-out-scene splits.
+Calibration, evidence-update, predictor, VLM, and fine-grained component
+diagnostics are reported in \cref{fig:belief-calibration,%
+tab:evidence-update-ablation,tab:predictors-full,tab:foundation_models,%
+app:fine-grained-ablation}.
