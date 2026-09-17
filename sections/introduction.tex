@@ -27,6 +27,12 @@ treating every failed detection as absence overlooks occlusion. A useful belief
 must therefore connect temporal inference, inspection cost, and the reliability
 of new evidence.
 
+Unlike online target tracking, the agent may receive no observation when a
+change occurs and must begin acting before any hypothesis can be verified. The
+challenge is therefore not only to maintain a current map, but to decide which
+uncertain world state is worth testing and how strongly a failed inspection
+should alter subsequent action.
+
 We study \emph{persistent navigation in evolving worlds} through
 portable-object navigation. Given a target, observations from intermittent
 visits, candidate locations, and a finite action budget, the agent must locate

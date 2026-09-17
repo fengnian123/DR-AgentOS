@@ -2,17 +2,15 @@
 \label{sec:related_work}
 
 \paragraph{Embodied navigation and agent control.}
-Embodied navigation combines semantic perception, spatial reasoning, and action
-for object-goal and language-conditioned tasks
+Embodied navigation combines semantic perception, spatial reasoning, and action,
+while open-vocabulary maps and scene graphs ground language goals in metric or
+structured space
 \citep{anderson2018evaluation,savva2019habitat,chaplot2020objectnav,
-xin2026agentvln}. Open-vocabulary maps and scene graphs ground language goals
-in metric or structured space
-\citep{huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg,Li_2026_CVPR,
-huang2026msgnav}, while foundation-model agents combine maps, tools, and
+xin2026agentvln,huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg,
+Li_2026_CVPR,huang2026msgnav}. Foundation-model agents combine maps, tools, and
 navigation skills
 \citep{yokoyama2024vlfm,long2024instructnav,ziliotto2025tango,
-li2026agenticnav}. Active search uses semantic relations or belief maps to guide
-exploration \citep{zheng2021cos,ginting2024seek,zhang2025apexnav}. We study
+li2026agenticnav,zheng2021cos,ginting2024seek,zhang2025apexnav}. We study
 navigation when past observations become stale through unobserved changes
 before or during execution.
 
@@ -22,14 +20,11 @@ Memory benchmarks evaluate navigation across tasks
 \citep{majumdar2024openeqa}; 4D memories support spatiotemporal retrieval
 \citep{sohn2025r4,gorlo2026describe}. Dynamic mapping filters moving content or
 updates maps from observations
-\citep{bescos2018dynaslam,narayana2020lifelong,liu2024dynamem}. Prediction also
-supports dynamic search: Scene Graph Memory infers object locations from partial
-histories to guide search \citep{kurenkov2023dynamic}, PredictiveGraphs uses
-Bayesian temporal filters to predict evolving object--location relations for
-dynamic navigation
-\citep{saavedraruiz2026predictivegraphs}, and FlowMaps models multimodal
-future placements in continuous 3D space for ObjectNav
-\citep{argenziano2026flowmaps}. We combine persistent identity and temporal
+\citep{bescos2018dynaslam,narayana2020lifelong,liu2024dynamem}. Predictive
+navigation infers locations from partial histories, temporal filters, or
+multimodal continuous placements
+\citep{kurenkov2023dynamic,saavedraruiz2026predictivegraphs,
+argenziano2026flowmaps}. We combine persistent identity and temporal
 provenance with a belief over current object locations that separates
 persistence from relocation, retains alternatives, and guides
 cost-aware inspections with visibility-qualified updates. Inspection evidence
