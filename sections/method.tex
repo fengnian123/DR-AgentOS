@@ -1,134 +1,57 @@
 \section{Predictive 4D Belief Navigation}
 \label{sec:method}
 
-\subsection{Persistent Navigation in Evolving Worlds}
-\label{sec:problem}
-
-At the system level, the task-relevant state may include object placement,
-spatial configuration, and accessibility. To isolate the coupling between
-hidden world evolution, predictive belief, and physical action, we formalize
-the core task through portable-object goals. Let an environment contain a
-navigable space $\mathcal X$, persistent entities $\mathcal O$, and candidate
-states $\mathcal C_o$ for each target $o\in\mathcal O$. A state identifies a
-semantically valid receptacle or region and its associated inspection
-viewpoints. Before a query at time $t_q$, the agent has collected only a
-partial history
-\begin{equation}
-\mathcal H_{\leq t_q}=\{(I_k,D_k,\xi_k,t_k)\mid t_k\leq t_q\},
-\end{equation}
-where $I_k,D_k,\xi_k$ denote RGB, depth, and camera pose. The true query-time
-state $s_q^o\in\mathcal C_o\cup\{\mathrm{unknown}\}$ is hidden, as are any
-later transitions that occur outside the agent's observations.
-
-An episode supplies a target description, query time, initial pose $x_0$, a
-causal memory materialized from $\mathcal H_{\leq t_q}$, and a finite action
-budget. At decision step $j$, the agent selects a candidate viewpoint or a
-low-level navigation action, receives observation $z_j$, and may terminate
-with \texttt{STOP} or \texttt{NOT\_FOUND}. Success requires a correct stop near
-a valid goal viewpoint with the target visible. The policy should maximize
-success while minimizing travel and unnecessary inspections:
-\begin{equation}
-\pi^*=\arg\max_{\pi}\;\mathbb E_{\pi}\!\left[
-\mathbb I(\mathrm{success})-\lambda_d L-\lambda_n N_{\mathrm{inspect}}
-\right].
-\label{eq:objective}
-\end{equation}
-The main protocol holds the target fixed after $t_q$, isolating whether a
-history ending before the query can be transformed into a useful belief about
-the present. An online-dynamic extension advances the world clock during
-execution and may apply an additional hidden transition outside the camera
-view. Both protocols use the same belief, evidence update, and replanning
-interface; the latter additionally tests whether a destination can become stale
-while the robot is en route.
-
-\Cref{fig:p4dnav_method} presents the complete architecture. Timestamped RGB-D
-experience is consolidated into persistent entity histories, transformed into
-a task-conditioned predictive belief, and exposed to an embodied agent through
-typed memory and action skills. Physical evidence closes the loop through
-belief updating and replanning.
+\evolvingworldnav{} turns timestamped 3D histories into a current-location
+belief, then tests and revises it through physical inspection
+(\cref{fig:p4dnav_method}). Its predictive core, \pfdnav{}, separates
+persistence from relocation.
 
 \begin{figure*}[!htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/method.pdf}
-    \caption{Architecture of \evolvingworldnav{}, coupling persistent 4D memory,
-    predictive 4D belief, and an evidence-updating embodied agent.}
+    \caption{\evolvingworldnav{} couples persistent 4D memory, predictive belief,
+    and an embodied agent that updates its belief from inspection evidence.}
     \label{fig:p4dnav_method}
 \end{figure*}
+
+\paragraph{Problem formulation.}
+\label{sec:problem}
+
+For target $o$, $\mathcal C_o$ contains candidate locations with inspection
+viewpoints; $\widetilde{\mathcal C}_o=\mathcal C_o\cup\{\mathrm{unknown}\}$
+also covers unmapped states. At query time $t_q$, the agent receives a target
+description, initial pose, action budget, and partial RGB-D history
+$\mathcal H_{\leq t_q}=\{(I_k,D_k,\xi_k,t_k):t_k\leq t_q\}$, where $\xi_k$
+is camera pose. The true state $s_{t_q}^o$ is hidden. Success requires a stop
+near a valid viewpoint with the target visible and correctly identified.
+The main protocol fixes the target after $t_q$; the online-dynamic extension
+permits further hidden transitions during navigation.
 
 \subsection{From Causal 4D Memory to Current-State Belief}
 \label{sec:belief_model}
 
-\paragraph{Evidence-grounded 4D memory.}
-The memory represents a persistent 3D semantic scene whose entity states evolve
-over time. Timestamped RGB-D observations are registered in a shared frame and
-associated across views using semantics, geometry, temporal consistency, and
-source confidence. Frozen open-vocabulary detection, segmentation, and
-vision-language features provide the semantic support
-\citep{liu2024grounding,ravi2025sam,radford2021learning}. Memory is materialized
-causally from versioned deltas:
-\begin{equation}
-\mathcal M_{\leq t}=\operatorname{Materialize}(\Delta\mathcal M_0,\ldots,\Delta\mathcal M_t)
-=(\mathcal G_t,\mathcal V_t,\mathcal B_t),
-\label{eq:memory}
-\end{equation}
-where $\mathcal G_t$ stores semantic--spatial relations, $\mathcal V_t$ stores
-time-valid entity versions, and $\mathcal B_t$ stores observation provenance.
-Persistent identity is separated from mutable state: a change appends a
-time-valid version without erasing earlier states, and every query-time view
-excludes evidence after $t_q$. Projection, association, and entity-version
-details are provided in the appendix.
+\paragraph{Causal memory and history encoding.}
+Frozen perception models supply detections, masks, and features for cross-view
+entity association \citep{liu2024grounding,ravi2025sam,radford2021learning}.
+Persistent identities link timestamped state versions and observation provenance;
+changes append versions without overwriting history (\cref{app:memory-details}).
+Memory queries use only evidence available at their decision time.
 
-\paragraph{Target-conditioned history and continuous time.}
-For target $o$, a typed memory query resolves its persistent identity and returns
-the most recent $K$ causal events
-\begin{equation}
-H_o=\{e_k=(o_k,s_k,t_k,z_k,c_k,v_k)\}_{k=1}^{K},
-\label{eq:history}
-\end{equation}
-where $s_k$ is the observed candidate state;
-$z_k\in\{\mathrm{seen},\mathrm{notseen}\}$ is the evidence type; $c_k$ is
-perception confidence; and $v_k$ measures whether that state was adequately
-visible. Context events may share an entity, receptacle, region, or time window
-with the target, but hidden activities and transition labels are never exposed.
-Each scene-specific candidate is encoded from its context, functional role,
-geometry, and instance identity; an additional \texttt{unknown} candidate
-absorbs states outside the mapped set.
+A target query retrieves $K$ causal events
+$H_o=\{(o_k,s_k,t_k,z_k,c_k,v_k)\}_{k=1}^K$: entity, candidate state, time,
+evidence type ($\mathrm{seen}/\mathrm{notseen}$), confidence, and visibility.
+Context may include related entities and locations, but excludes hidden
+activities and transition labels. A continuous-time Transformer combines event,
+elapsed-time, and calendar features into a query representation $\mathbf h_q$;
+a shared encoder represents each candidate's context, role, geometry, and
+identity (\cref{app:belief-encoding}).
 
-An event token combines entity, state, evidence, confidence, and visibility with
-elapsed and calendar time:
-\begin{align}
-\mathbf x_k={}&E_o(o_k)+E_s(s_k)+E_z(z_k)+E_c(c_k)+E_v(v_k)\nonumber\\
-&+\phi_{\Delta}(t_q-t_k)+\phi_{\mathrm{cal}}(t_k),
-\label{eq:eventtoken}
-\end{align}
-where $\phi_{\Delta}$ includes $\log(1+t_q-t_k)$ and
-$\phi_{\mathrm{cal}}$ contains sinusoidal hour-of-day and day-of-week features.
-A learned query token specifies the target, query time, and last positive state.
-A compact Transformer yields
-\begin{equation}
-(\mathbf h_1,\ldots,\mathbf h_K,\mathbf h_q)
-=\operatorname{CTTransformer}(\mathbf x_1,\ldots,\mathbf x_K,\mathbf x_q).
-\end{equation}
-It therefore models irregular gaps, repeated negative evidence, and event order
-without an oracle mobility type or the activity responsible for a hidden change.
-
-\paragraph{Structured persistence--relocation belief.}
-A direct classifier entangles whether a state changed with where it changed to.
-We factorize these questions. Let $s_{\mathrm{last}}$ be the last positive state.
-The persistence branch predicts
-\begin{equation}
-\rho_q=P(s_q^o=s_{\mathrm{last}}\mid H_o,t_q)
-=\sigma(\mathbf w_{\rho}^{\top}\mathbf h_q).
-\label{eq:persistence}
-\end{equation}
-For each candidate $i\neq s_{\mathrm{last}}$, a shared pointer head computes
-\begin{equation}
-a_i=\frac{(W_q\mathbf h_q)^\top(W_c\mathbf g_i)}{\sqrt d}
-+\psi(\mathbf h_q,\mathbf g_i),\qquad
-\pi_q(i)=\frac{\exp a_i}{\sum_{j\neq s_{\mathrm{last}}}\exp a_j},
-\label{eq:pointer}
-\end{equation}
-where $\mathbf g_i$ is the candidate representation. The prior belief is
+\paragraph{Persistence--relocation belief.}
+Let $s_{\mathrm{last}}$ be the last positive state, guaranteed by episode
+validity (\cref{app:audit}). A persistence head predicts its current probability
+$\rho_q=\sigma(\mathbf w_\rho^\top\mathbf h_q)$; a shared pointer head
+predicts $\pi_q$ over alternatives
+$\widetilde{\mathcal C}_o\setminus\{s_{\mathrm{last}}\}$. Together they give
 \begin{equation}
 b_q^-(i)=
 \begin{cases}
@@ -137,72 +60,53 @@ b_q^-(i)=
 \end{cases}
 \label{eq:prior}
 \end{equation}
-The model is trained end-to-end with
-$\mathcal L_{\mathrm{state}}=-\log b_q^-(s_q^o)$. Thus the factorization is an
-inductive bias rather than an oracle change label: it can preserve a strong
-last-state hypothesis, concentrate on recurring transitions, or expose diffuse
-uncertainty to the downstream agent.
+We train the predictor with $\mathcal L_{\mathrm{state}}=-\log b_q^-(s_{t_q}^o)$,
+without separate change labels. Here $\rho_q$ measures current agreement with
+the last observation, including departures followed by returns.
 
 \subsection{Predictive Embodied Agent}
 \label{sec:agent}
 
-\evolvingworldnav{} treats the belief model as a tool inside an embodied decision loop,
-not as an open-loop destination predictor. Given a navigation or language goal,
-the agent (i) resolves the referenced entity and task constraints, (ii) queries
-the causal 4D memory, (iii) invokes \pfdnav{} at the decision time, (iv) selects a
-navigation or inspection tool call from the returned belief and map costs, and
-(v) writes the resulting observation and posterior back to memory. A frozen
-high-level controller may express goals and tool calls in language, while the
-belief update and spatial interfaces remain typed and verifiable. The perception
-stack and low-level navigator are shared across all compared methods, so the
-learned component changes what the agent believes and where it gathers evidence,
-not its locomotion capability.
+A frozen vision--language controller accesses memory, prediction, and navigation
+through typed tools. It selects inspections from the belief and updates it
+using returned RGB-D evidence.
 
-\paragraph{Belief-guided action.}
-Each candidate $i$ has reachable inspection viewpoints $\mathcal W_i$. Let
-$d(x,\mathcal W_i)$ be the shortest geodesic distance from the current pose and
-$\widehat v_i$ the expected inspection coverage. The agent selects
+\paragraph{Cost-aware inspection.}
+For candidate $i$, let $\mathcal W_i$ denote reachable inspection viewpoints,
+$d(x,\mathcal W_i)$ the shortest geodesic distance from pose $x$, and
+$\widehat v_i$ the expected coverage. Given belief $b$, the agent selects
 \begin{equation}
 i^*=\arg\max_{i\in\mathcal C_o\setminus\mathcal I}
 \frac{b(i)\widehat v_i}{d(x,\mathcal W_i)+\lambda_{\mathrm{inspect}}},
 \label{eq:planner}
 \end{equation}
-where $\mathcal I$ contains sufficiently inspected hypotheses. A concentrated
-belief supports direct navigation; a diffuse belief induces cost-aware active
-inspection. The low-level navigator executes the chosen route and returns an
-RGB-D observation rather than a privileged success flag.
+where $\mathcal I$ contains sufficiently inspected hypotheses and
+$\lambda_{\mathrm{inspect}}>0$ accounts for inspection cost. The
+$\mathrm{unknown}$ state retains belief mass but has no inspection viewpoint.
 
-\paragraph{Evidence update and replanning.}
-After inspecting candidate $r$, the agent obtains result $z$, detector
-reliability $c$, and effective visibility $v\in[0,1]$. A positive instance match
-supports $r$; a negative view should suppress it only when the target would have
-been observable:
+\paragraph{Visibility-aware evidence updates.}
+A verified target observation permits a successful stop. For a negative
+inspection of $r_j$ at step $j$, we use detector reliability and visibility
+$c_j,v_j\in[0,1]$ to define the likelihood and update
 \begin{equation}
-P(z=\mathrm{notseen}\mid s_q^o=i,c,v)=
+\ell_j(i)=
 \begin{cases}
-1-cv, & i=r,\\
-1, & i\neq r.
+1-c_jv_j, & i=r_j,\\
+1, & i\neq r_j,
 \end{cases}
-\label{eq:negative}
-\end{equation}
-The posterior is
-\begin{equation}
-b_q^+(i)=\frac{b_q^-(i)P(z\mid s_q^o=i,c,v)}
-{\sum_j b_q^-(j)P(z\mid s_q^o=j,c,v)}.
+\qquad
+b_j^+(i)=\frac{b_j^-(i)\ell_j(i)}
+{\sum_{u\in\widetilde{\mathcal C}_o}b_j^-(u)\ell_j(u)}.
 \label{eq:bayes}
 \end{equation}
-A clear empty view provides strong counter-evidence; an occluded view makes only
-a small change. The agent stores the inspection, visibility assessment, and
-posterior as a new causal memory event, removes only sufficiently tested
-hypotheses, and repeats the plan--act--observe cycle until it succeeds, exhausts
-the budget, or returns \texttt{NOT\_FOUND}.
+An empty, well-observed location loses probability; an occluded view provides
+little counter-evidence. Initially $b_0^-=b_q^-$, and the fixed-target protocol
+sets $b_{j+1}^-=b_j^+$. The agent records observations and visibility, excludes
+sufficiently tested hypotheses, and replans until success, budget exhaustion,
+or \texttt{NOT\_FOUND}.
 
-This single loop supports direct predictive navigation, belief-guided search,
-and recovery after an incorrect first destination. In online-dynamic episodes,
-the agent predicts at the candidate arrival time rather than only at departure:
-\begin{equation}
-b_{t+\widehat\tau_i}^-=F_\theta(H_o,t+\widehat\tau_i),
-\end{equation}
-and replans after every action chunk. No explicit router chooses a ``static'' or
-``dynamic'' policy; behavior emerges from the current belief, travel cost, and
-newly acquired evidence.
+In online-dynamic episodes, the predictor $F_\theta$ evaluates arrival-time
+beliefs $b_{t+\widehat\tau_i}^-=F_\theta(H_{o,\leq t},t+\widehat\tau_i)$,
+where $\widehat\tau_i$ is estimated travel time and $H_{o,\leq t}$ includes
+observations through the current decision time $t$. The agent replans after
+each action chunk.
