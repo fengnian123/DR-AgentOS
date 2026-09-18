@@ -2,10 +2,10 @@
 \label{sec:results}
 
 \paragraph{Comparison across embodied benchmarks.}
-\evolvingworldnav{} reports mean $\pm$ standard deviation over five seeds.
 
 \begin{table*}[!htbp]
-\caption{Cross-benchmark comparison (\%).}
+\caption{Cross-benchmark comparison (\%). 
+$\pm$ denotes standard deviation over five seeds.}
 \label{tab:crossbench}
 \centering
 \scriptsize
@@ -48,10 +48,13 @@ $\pm 0.92$ & $\pm 0.68$ & $\pm 3.235$ & $\pm 2.07$ & $\pm 1.74$\\
 }
 \end{table*}
 
-\evolvingworldnav{} leads all reported headline metrics. Its larger gain in
-First-Go SR than Search SR on \pfdbench{} indicates that predictive memory
-mainly improves the initial destination, while retained alternatives support
-recovery. Complementary search-cost measures are in \cref{tab:mainnav}.
+\evolvingworldnav{} consistently improves the evaluated metrics across FindingDory,
+GOAT-Bench, and P4D-BENCH. On P4D-BENCH, it improves First-Go SR from
+45.33\% (DynaMem) to 61.32\% and Search SR from 81.00\% to 86.18\%,
+indicating that predictive belief primarily improves initial destination selection
+while preserving alternative hypotheses for recovery. The gains on FindingDory
+and GOAT-Bench further show that predictive memory remains effective beyond
+the proposed evolving-world setting.
 
 \paragraph{Predictive navigation under controlled evolution.}
 \Cref{fig:p4d_case_study} shows how a routine-conditioned belief avoids an
@@ -148,8 +151,7 @@ while removing evidence updates causes the largest degradation.
 
 The temporal split contains 322 changed-only queries; LOSO contains 644
 change-balanced queries. Top-1 is reported in percent, and Ours reports
-five-seed mean $\pm$ standard deviation. The full comparison is in
-\cref{tab:predictors-full}.
+five-seed mean $\pm$ standard deviation. 
 
 \begin{table}[!htbp]
 \caption{Current-state prediction on temporal and LOSO splits.}
