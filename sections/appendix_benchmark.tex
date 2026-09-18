@@ -46,7 +46,7 @@ within-region relocations, and zero terminal collisions.
 Chronological Habitat replay records navigability, geodesic cost, camera frustum
 coverage, unoccluded target fraction, and success viewpoints for each candidate.
 These fields support the physical validity and visibility checks described in
-\cref{app:audit}; candidates without collision-free placements and reachable
+\appref{app:audit}; candidates without collision-free placements and reachable
 inspection viewpoints are excluded. Query times sample both the natural temporal
 distribution and mechanism-relevant windows, including routine stages and
 intervals after a personal object is dropped. Each navigation query is augmented
@@ -76,7 +76,7 @@ Serialized releases are checked for future timestamps, private event fields,
 answer-correlated filenames or indices, repeated event groups across splits,
 inconsistent paired variants, invalid physics, unreachable goals, and accidental
 patrol dependence on hidden state. Episode-level checks and mobility assignment
-are further specified in \cref{app:audit,app:mobility}.
+are further specified in \appref{app:audit,app:mobility}.
 
 \subsection{Mobility Regimes and Task Protocols}
 
