@@ -47,6 +47,18 @@
 \definecolor{tblpredict}{RGB}{242,237,248}
 \newcommand{\hdr}[1]{\colorbox{tblheader}{\strut #1}}
 
+% Render references to appendix sections as “Appendix A”, while keeping
+% ordinary section references unchanged.
+\newcommand{\appref}[1]{%
+  \begingroup
+  \crefalias{section}{appendix}%
+  \crefalias{subsection}{appendix}%
+  \crefname{appendix}{Appendix}{Appendices}%
+  \Crefname{appendix}{Appendix}{Appendices}%
+  \cref{#1}%
+  \endgroup
+}
+
 \title{EvolvingWorldNav: Predictive 4D Belief for Persistent Navigation in Evolving Worlds}
 
 % ICLR 2027 is double blind. Author identities must not appear in either the
