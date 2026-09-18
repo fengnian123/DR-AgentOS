@@ -127,7 +127,7 @@ Retrieval + Reasoning & 26.6 & 37.5 & 17.1 & 50.3 & 281 & 2.03 \\
 \end{tabularx}
 \end{table}
 
-The robot results in \Cref{tab:real-main} demonstrate consistent gains in both success and efficiency, indicating that the improvement does not arise from exhaustive search. Additional condition- and platform-level analyses are provided in \cref{app:real-world-eval}.
+The robot results in \Cref{tab:real-main} demonstrate consistent gains in both success and efficiency, indicating that the improvement does not arise from exhaustive search. Additional condition- and platform-level analyses are provided in \appref{app:real-world-eval}.
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
@@ -183,6 +183,6 @@ Shared semantic prior & 36.02 & 0.5957 & 1.5766 & 59.47 & 0.7462 & 1.0448\\
 The complete Table 4 isolates belief quality from navigation: the structured
 model improves both ranking and NLL on temporal and held-out-scene splits.
 Calibration, evidence-update, predictor, VLM, and fine-grained component
-diagnostics are reported in \cref{fig:belief-calibration,%
+diagnostics are reported in \appref{fig:belief-calibration,%
 tab:evidence-update-ablation,tab:predictors-full,tab:foundation_models,%
 app:fine-grained-ablation}.
