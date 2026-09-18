@@ -63,7 +63,7 @@ where $\mathcal G_t$ stores semantic--spatial relations, $\mathcal V_t$ stores
 time-valid entity versions, and $\mathcal B_t$ stores observation provenance.
 An observed change appends a time-valid version without erasing identity or
 history, and every query excludes future evidence. Projection, association, and
-versioning details appear in \cref{app:memory-details}.
+versioning details appear in \appref{app:memory-details}.
 
 \paragraph{Target-conditioned history and continuous time.}
 For target $o$, a typed memory query resolves its persistent identity and returns
@@ -102,7 +102,7 @@ labels.
 \label{sec:belief_model}
 We predict whether the last observed state holds and where the target is
 otherwise. Let $s_{\mathrm{last}}$ be the last positive state, guaranteed by
-episode validity (\cref{app:audit}). The persistence branch predicts
+episode validity (\appref{app:audit}). The persistence branch predicts
 \begin{equation}
 \rho_q=P(s_{t_q}^o=s_{\mathrm{last}}\mid H_o,t_q)
 =\sigma(\mathbf w_{\rho}^{\top}\mathbf h_q).
