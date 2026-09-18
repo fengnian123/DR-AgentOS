@@ -1,0 +1,16 @@
+{
+  "CASAS": {
+    "role": "reference for household activity diversity and schedule variation"
+  },
+  "HSSD": {
+    "repository": "hssd/hssd-hab",
+    "revision": "4369cb9876214c7fbebcf552eb532380e4d287e4",
+    "role": "scene geometry, semantics, and imported object assets"
+  },
+  "UCAmI": {
+    "role": "reference for time-stamped daily activity ordering; no original dates retained"
+  },
+  "synthetic_generation": {
+    "role": "40-day routines, personal habits, irregular events, and robot observations"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "candidate_policy": "8-11 semantically valid search candidates for mobile targets",
+  "canonical_format_spec": "reports/P4D_HUGGINGFACE_BENCHMARK_FORMAT.md",
+  "created_at": "2026-09-05T02:25:47.595125+00:00",
+  "dataset_id": "p4d_hssd_5scene_30d_v2.1.0",
+  "derived_from": "tools/4d_dynnav_hssd/build_p4d_four_scene_months.py",
+  "hssd_revision": "4369cb9876214c7fbebcf552eb532380e4d287e4",
+  "physical_scenes": [
+    {
+      "dataset_config": "data/4d_dynnav/hssd/p4d-monthly-scenes/102344280/p4d.scene_dataset_config.json",
+      "hssd_exact_target_count": 28,
+      "navmesh": "data/4d_dynnav/hssd/p4d-monthly-scenes/102344280/navmeshes/102344280.navmesh",
+      "proxy_target_count": 2,
+      "scene_id": "102344280",
+      "scene_instance": "data/4d_dynnav/hssd/p4d-monthly-scenes/102344280/scenes-articulated/102344280_p4d.scene_instance.json",
+      "target_instance_count": 30
+    },
+    {
+      "dataset_config": "data/4d_dynnav/hssd/p4d-monthly-scenes/102344094/p4d.scene_dataset_config.json",
+      "hssd_exact_target_count": 28,
+      "navmesh": "data/4d_dynnav/hssd/p4d-monthly-scenes/102344094/navmeshes/102344094.navmesh",
+      "proxy_target_count": 2,
+      "scene_id": "102344094",
+      "scene_instance": "data/4d_dynnav/hssd/p4d-monthly-scenes/102344094/scenes-articulated/102344094_p4d.scene_instance.json",
+      "target_instance_count": 30
+    },
+    {
+      "dataset_config": "data/4d_dynnav/hssd/p4d-monthly-scenes/102816852/p4d.scene_dataset_config.json",
+      "hssd_exact_target_count": 28,
+      "navmesh": "data/4d_dynnav/hssd/p4d-monthly-scenes/102816852/navmeshes/102816852.navmesh",
+      "proxy_target_count": 2,
+      "scene_id": "102816852",
+      "scene_instance": "data/4d_dynnav/hssd/p4d-monthly-scenes/102816852/scenes-articulated/102816852_p4d.scene_instance.json",
+      "target_instance_count": 30
+    },
+    {
+      "dataset_config": "data/4d_dynnav/hssd/p4d-monthly-scenes/103997403_171030405/p4d.scene_dataset_config.json",
+      "hssd_exact_target_count": 28,
+      "navmesh": "data/4d_dynnav/hssd/p4d-monthly-scenes/103997403_171030405/navmeshes/103997403_171030405.navmesh",
+      "proxy_target_count": 2,
+      "scene_id": "103997403_171030405",
+      "scene_instance": "data/4d_dynnav/hssd/p4d-monthly-scenes/103997403_171030405/scenes-articulated/103997403_171030405_p4d.scene_instance.json",
+      "target_instance_count": 30
+    },
+    {
+      "dataset_config": "data/4d_dynnav/hssd/p4d-monthly-scenes/104348511_171513654/p4d.scene_dataset_config.json",
+      "hssd_exact_target_count": 28,
+      "navmesh": "data/4d_dynnav/hssd/p4d-monthly-scenes/104348511_171513654/navmeshes/104348511_171513654.navmesh",
+      "proxy_target_count": 2,
+      "scene_id": "104348511_171513654",
+      "scene_instance": "data/4d_dynnav/hssd/p4d-monthly-scenes/104348511_171513654/scenes-articulated/104348511_171513654_p4d.scene_instance.json",
+      "target_instance_count": 30
+    }
+  ],
+  "predictive_memory_classes": {
+    "activity_routine_mobile": 11,
+    "irregular_mobile": 7,
+    "personal_habit_mobile": 8,
+    "stable": 4
+  },
+  "scene_ids": [
+    "102344280",
+    "102344094",
+    "102816852",
+    "103997403_171030405",
+    "104348511_171513654"
+  ],
+  "schema_version": "p4d_benchmark_v1.0",
+  "timeline": {
+    "days": 40,
+    "start": "2026-01-05T00:00:00+08:00",
+    "test_days": 5,
+    "timezone": "Asia/Shanghai",
+    "train_days": 30,
+    "validation_days": 5
+  },
+  "totals": {
+    "activities": 1841,
+    "days_per_scene": 40,
+    "observations": 5717,
+    "queries": 7300,
+    "scenes": 5,
+    "target_instances_per_scene": 30,
+    "test_days_per_scene": 5,
+    "train_days_per_scene": 30,
+    "validation_days_per_scene": 5,
+    "world_events": 8742
+  },
+  "version": "2.1.0"
+}
