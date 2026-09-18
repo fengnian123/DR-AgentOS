@@ -2,7 +2,7 @@
 \label{app:benchmark-construction}
 
 \paragraph{Design principles.}
-\pfdbench{} follows four principles: temporal continuity, causal observability,
+\pfdbench{} follows four principles: temporal continuity, past-only observability,
 physical executability, and controlled dynamics. Examples are sampled from
 persistent scene histories rather than independent placements. Public memories
 contain only evidence available to the robot by the query time. Candidate states
@@ -42,6 +42,37 @@ destinations beyond affordance. The audited configuration yields 42.6 region
 transitions per resident-day, 6.56 relocations per personal object-day, 52.6\%
 within-region relocations, and zero terminal collisions.
 
+\subsection{Human Review Protocol}
+\label{app:human-review}
+
+Every retained benchmark episode passes a two-stage human quality-control
+process. Five trained researchers perform the primary annotation using a
+structured checklist, and one supervising researcher conducts the final audit.
+For each object transition, reviewers verify identity continuity, a physically
+valid and reachable destination, collision-free placement, consistency with the
+scene geometry and visibility model, and a transition time that lies between
+the relevant observations without exposing future information. They also record
+whether the relocation reason is compatible with the attributed activity,
+actor context, object affordance, or household routine. A destination may be
+temporarily unobserved by the agent, as required by the benchmark, but it
+cannot be impossible, outside the navigable scene, or revealed through the
+public history. Reviewers additionally check that state changes, returns, and
+negative evidence are temporally ordered and semantically consistent.
+
+Tasks are reviewed for target--episode correspondence, referent clarity,
+executability, and research relevance. The target category or instance must be
+instantiated in the private world state (or explicitly belong to a valid
+not-found track), candidate states and viewpoints must be reachable, and the
+action budget must permit a meaningful search. Language goals must identify the
+intended object without answer-correlated names or future-state hints. Finally,
+each task is checked to ensure that it probes the paper's setting---stale
+observations, hidden evolution, predictive belief, or visibility-aware evidence
+updates---rather than reducing to a static or trivially solvable navigation
+case. Reviewers assign accept, revise, or reject decisions; disagreements are
+resolved by majority vote, while unresolved or high-risk cases are adjudicated
+by the supervisor. Rejected cases are regenerated or removed, and the audit log
+records the decision and reason for every retained item.
+
 \paragraph{Candidate metadata and query sampling.}
 Chronological Habitat replay records navigability, geodesic cost, camera frustum
 coverage, unoccluded target fraction, and success viewpoints for each candidate.
@@ -57,7 +88,8 @@ and hidden transitions are retained only by the evaluator.
 
 \paragraph{Language tasks and release documentation.}
 EQA questions cover existence, location, temporal order, activity association,
-count, comparison, and compositional relations over the same causal memories.
+count, comparison, and compositional relations over the same time-indexed
+memories.
 Answers are evaluated against a normalized ontology, and questions requiring
 future evidence are excluded. VLN replaces the object label with a language goal
 whose referents and constraints are grounded in the same versioned scene history.

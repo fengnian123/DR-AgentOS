@@ -8,7 +8,7 @@ the main paper.
 \subsection{Formal Episode Interface}
 \label{app:episode}
 
-Each navigation episode references one causal prediction query. Public fields include schema version, episode and query identifiers, split, task type, scene and household identifiers, world variant, target description, query time, agent start pose, candidate-state identifiers, budgets, and success criteria. Evaluation-private fields include the current state, target pose, valid goal viewpoints, hidden transition class, oracle path, mobility label, and query-time activity. Train and validation releases may expose analysis labels in metadata; the formal test release replaces them with null values and computes grouped metrics in a private evaluator.
+Each navigation episode references one time-indexed prediction query. Public fields include schema version, episode and query identifiers, split, task type, scene and household identifiers, world variant, target description, query time, agent start pose, candidate-state identifiers, budgets, and success criteria. Evaluation-private fields include the current state, target pose, valid goal viewpoints, hidden transition class, oracle path, mobility label, and query-time activity. Train and validation releases may expose analysis labels in metadata; the formal test release replaces them with null values and computes grouped metrics in a private evaluator.
 
 The high-level track exposes
 \begin{center}
@@ -16,7 +16,7 @@ The high-level track exposes
 \end{center}
 with a fixed navigation backend. The low-level track exposes Habitat-style forward, turn, look, and stop actions. The main paper uses the high-level track to isolate predictive state selection; low-level results measure sensitivity to control and perception.
 
-The causal input at query time $t_q$ is
+The observation history available at query time $t_q$ is
 \begin{equation}
 \mathcal H_{\leq t_q}=\{(I_k,D_k,\xi_k,t_k)\mid t_k\leq t_q\},
 \end{equation}
@@ -53,7 +53,7 @@ where $\mathbf K$ is the camera intrinsic matrix and $\mathbf T_{w\leftarrow c,t
 \begin{equation}
 h_o^m=([t_{o,s}^m,t_{o,e}^m),s_o^m,c_o^m,f_o^m,\mathcal P_o^m),
 \end{equation}
-containing a validity interval, candidate state, confidence, visual feature, and evidence handles. An observed state change appends a version without erasing the earlier trajectory, preserving both causal history and observation provenance.
+containing a validity interval, candidate state, confidence, visual feature, and evidence handles. An observed state change appends a version without erasing the earlier trajectory, preserving both time-ordered history and observation provenance.
 
 \begin{figure}[!t]
     \centering
@@ -135,7 +135,7 @@ The prediction-only study trains on days 0--29, selects configurations on days
 (5,475/910/915 queries). Temporal evaluation pools the scenes and reports 322
 changed-only queries; leave-one-scene-out evaluation trains on four scenes and
 tests on the fifth using 644 change-balanced queries. All predictors share query
-identities, causal histories, and legal candidate sets. The main table reports
+identities, time-ordered histories, and legal candidate sets. The main table reports
 five-seed variation; no future observation or private transition label is
 available at inference time.
 

@@ -1,7 +1,7 @@
 \section{P4D-Bench: Evaluating Navigation in Evolving Worlds}
 \label{sec:benchmark}
 
-\pfdbench{} evaluates decisions from causal observation histories while the
+\pfdbench{} evaluates decisions from time-ordered observation histories while the
 world changes outside observation. Its 54 scenes and 803.68k task instances
 combine persistent histories, executable placements, and controlled dynamics.
 
@@ -40,7 +40,7 @@ support the use of historical regularity over category frequency or spatial
 convenience.
 
 \Needspace{0.38\textheight}
-\subsection{World Construction and Causal Evaluation}
+\subsection{World Construction and Past-Only Evaluation}
 \begin{wrapfigure}{r}{0.58\textwidth}
     \centering
     \vspace{-8pt}
@@ -64,7 +64,8 @@ are hidden. Habitat replay ensures semantically valid, collision-free placements
 and reachable inspection viewpoints.
 
 Patrols collect visibility-qualified RGB-D using only maps, time, travel cost,
-and observed history. Queries expose causal observations, the last supported
+and observed history. Queries expose only observations available by the query
+time, the last supported
 state, elapsed/calendar time, candidates, and spatial context; current states,
 transitions, activities, mobility labels, and oracle viewpoints remain private.
 Splits group complete temporal sequences, paired worlds, and near-duplicate
