@@ -4,8 +4,8 @@
 We test whether predictive 4D memory improves current-state inference,
 embodied search, and recovery from contradicted beliefs. Within each
 comparison, methods share perception, legal candidates, inspection viewpoints,
-low-level control, and action budgets. Full protocols and implementation
-details are in \cref{app:experimental-setup,app:benchmark-protocol}.
+low-level control, and action budgets. Further protocol, implementation, and
+analysis details are summarized in Appendices~A--D.
 
 \subsection{Setup}
 \label{sec:setup}
@@ -16,8 +16,16 @@ navigation, belief-guided search, and evidence-aware replanning. FindingDory
 \citep{yadav2025findingdory} and GOAT-Bench \citep{khanna2024goatbench} test
 long-horizon memory and repeated-goal navigation. We additionally evaluate one
 native task in each of MP3D, HM3D, Habitat-GS, and InteriorGS, and run 64
-matched LYNX M20 trials per method. Dataset splits, 3DGS settings, and robot
-protocols are deferred to the appendix.
+matched LYNX M20 trials per method.
+
+\paragraph{Real-world setup.}
+We evaluate on the DEEP Robotics LYNX M20 as the primary quantitative
+platform, with X30 and Lite3 used for transfer. Platform-specific perception
+and low-level navigation are wrapped by a common interface, while all methods
+receive identical pre-query histories, candidate locations, start conditions,
+and robot-specific control stacks. Each 360-second episode uses a stationary
+target and requires online confirmation within three inspections; detailed
+platform specifications and condition-wise results appear in \appref{app:robot-platforms,app:real-world}.
 
 \paragraph{Controllers and baselines.}
 The VLM, prompt, tool interface, and inference budget remain fixed within each
@@ -25,11 +33,11 @@ comparison. Baselines cover open-vocabulary and lifelong navigation, structured
 memory, predictive world models, and simple temporal predictors; released
 policies retain their native protocols. Paired runs with GPT-4o, GPT-5.5,
 GPT-5.6-Luna, and Qwen2.5-VL-3B/32B test controller dependence. Full adaptation
-rules and model endpoints appear in \cref{app:baselines,tab:foundation_models}.
+rules and model endpoints appear in \appref{app:baselines,tab:foundation_models}.
 
 \paragraph{Metrics.}
 Prediction uses Top-1, MRR, NLL, ECE, and true-state rank. Navigation uses SR,
 SPL, First-Go SR, Recovery SR, inspection count, distance, and time. Main
 comparisons report five-seed variation; paired static, routine, and random
 worlds isolate learnable temporal structure. Definitions and confidence
-intervals are in \cref{app:metrics}.
+intervals are in \appref{app:metrics}.
