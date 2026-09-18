@@ -31,12 +31,10 @@ The VLM, prompt, tool interface, and inference budget remain fixed within each
 comparison. Baselines cover open-vocabulary and lifelong navigation, structured
 memory, predictive world models, and simple temporal predictors; released
 policies retain their native protocols. Paired runs with GPT-4o, GPT-5.5,
-GPT-5.6-Luna, and Qwen2.5-VL-3B/32B test controller dependence. Full adaptation
-rules and model endpoints appear in \appref{app:baselines,tab:foundation_models}.
+GPT-5.6-Luna, and Qwen2.5-VL-3B/32B test controller dependence.
 
 \paragraph{Metrics.}
 Prediction uses Top-1, MRR, NLL, ECE, and true-state rank. Navigation uses SR,
 SPL, First-Go SR, Recovery SR, inspection count, distance, and time. Main
 comparisons report five-seed variation; paired static, routine, and random
-worlds isolate learnable temporal structure. Definitions and confidence
-intervals are in \appref{app:metrics}.
+worlds isolate learnable temporal structure. 
