@@ -35,13 +35,14 @@ portable-object navigation, namely navigation for movable objects whose
 locations may change over time. Given a target, intermittent observations,
 candidate locations, and a finite action budget, the agent must locate and
 visually verify the target without access to hidden transitions or its current
-ground-truth state. The world clock continues during execution, so an object may
-change outside the agent's view both before the query and while the agent is en
-route. Only evidence available at each decision time may inform the agent. We
-also retain a fixed-target control that freezes the object after the query to
-isolate query-time inference from recovery under en-route changes. Unlike
-continuous target tracking, neither protocol exposes the transition when it
-occurs.
+ground-truth state. \pfdbench{} evaluates two complementary execution settings.
+In N1--N3, the target is fixed after the query, isolating query-time state
+inference, belief-guided search, and evidence-based recovery without further
+target motion. In N4, the world clock continues during execution and additional
+hidden transitions may occur while the agent is en route, testing arrival-time
+prediction and replanning. Only evidence available at each decision time may
+inform the agent; unlike continuous target tracking, neither setting reveals a
+transition when it occurs.
 
 Our approach separates two questions: \emph{does the object occupy its last
 observed location, and if not, where might it be?} We factorize the current-state
@@ -82,7 +83,8 @@ experiments focus on current-state prediction and navigation. Separate metrics
 let us examine how state-estimation quality translates into successful physical
 search under a finite action budget.
 
-On the fixed-target controlled evaluation, \evolvingworldnav{} achieves 61.32\%
+On N1--N3, where the target remains fixed during navigation,
+\evolvingworldnav{} achieves 61.32\%
 first-attempt success (First-Go SR) and 86.18\% Search SR, exceeding DynaMem, the strongest evaluated
 baseline on both metrics, by 15.99 and 5.18 percentage points, respectively
 (\cref{tab:crossbench}). Evaluations on FindingDory, GOAT-Bench, held-out
@@ -93,9 +95,9 @@ memory for worlds in which object relocations follow learnable routines. Our
 main contributions are:
 \begin{itemize}[leftmargin=5mm,itemsep=0.6mm,topsep=1mm]
     \item \textbf{A controlled navigation setting.} We formulate
-    portable-object navigation from intermittent histories under continued
-    hidden evolution, with a fixed-target control for isolating query-time
-    inference.
+    portable-object navigation from intermittent histories with complementary
+    protocols that either hold the target fixed during navigation or permit
+    continued hidden evolution.
     \item \textbf{A structured predictive-memory agent.} We introduce
     \evolvingworldnav{}, coupling a learned persistence--relocation belief
     with cost-aware inspection and visibility-aware evidence updates.
