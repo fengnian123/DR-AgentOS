@@ -25,24 +25,29 @@ SR and SPL are reported in percent for all environments.
 \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
 \midrule
 \rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Navigation-trained or task-adapted}}\\
-MTU3D \citep{zhu2025move} & 8.8 & 6.5 & 40.8 & 12.1 & 75.8 & 72.7 & 25.9 & 15.6 & 35.2 & 30.7\\
-NaVid \citep{zhang2024navid} & 37.4 & 35.9 & 60.3 & 36.0 & 15.3 & 13.4 & 17.4 & 15.1 & 31.0 & 22.6\\
-Uni-NaVid \citep{zhang2024uninavid} & 47.0 & 42.7 & 39.5 & 19.8 & 15.9 & 13.2 & 26.4 & 23.1 & 55.3 & 41.7\\
-NaVILA \citep{cheng2024navila} & 54.0 & 49.0 & 18.3 & 9.7 & 78.4 & 77.5 & 39.0 & \textbf{34.0} & 35.2 & 30.7\\
+MTU3D \citep{zhu2025move} & 8.8 & 6.5 & \paperreported{40.8} & \paperreported{12.1} & 75.8 & 72.7 & 25.9 & 15.6 & 35.2 & 30.7\\
+NaVid \citep{zhang2024navid} & \paperreported{37.4} & \paperreported{35.9} & 60.3 & 36.0 & 15.3 & 13.4 & 17.4 & 15.1 & 31.0 & 22.6\\
+Uni-NaVid \citep{zhang2024uninavid} & \paperreported{47.0} & \paperreported{42.7} & \paperreported{39.5} & \paperreported{19.8} & 15.9 & 13.2 & 26.4 & 23.1 & 55.3 & 41.7\\
+NaVILA \citep{cheng2024navila} & \paperreported{54.0} & \paperreported{49.0} & 18.3 & 9.7 & 78.4 & 77.5 & 39.0 & \textbf{34.0} & 35.2 & 30.7\\
 \midrule
 \rowcolor{tblnav}\multicolumn{11}{c}{\emph{Zero-shot navigation or task adapters}}\\
-HSGM \citep{Li_2026_CVPR} & 47.9 & 32.8 & 40.0 & 32.5 & 37.2 & 35.3 & 11.8 & 9.4 & 17.0 & 12.5\\
-VLFM \citep{yokoyama2024vlfm} & 12.0 & 9.6 & 35.2 & 19.6 & 53.0 & 42.2 & 24.4 & 18.8 & 35.0 & 25.8\\
-AO-Planner \citep{chen2025affordances} & 25.5 & 16.6 & 30.9 & 22.0 & 76.6 & 74.7 & 27.4 & 19.7 & 37.0 & 29.3\\
-TANGO \citep{ziliotto2025tango} & 14.3 & 9.87 & 35.5 & 19.5 & 35.8 & 33.5 & 22.7 & 14.7 & 31.0 & 23.3\\
-Uni-LaViRA \citep{ding2026uni} & \textbf{60.7} & \textbf{47.7} & 60.0 & 40.5 & 81.3 & 77.7 & 35.6 & 28.7 & 65.2 & 39.4\\
-MSGNav \citep{huang2026msgnav} & 11.6 & 9.4 & 48.3 & 27.0 & 37.2 & 34.8 & 23.5 & 17.5 & 26.7 & 19.6\\
+HSGM \citep{Li_2026_CVPR} & \paperreported{47.9} & \paperreported{32.8} & 40.0 & 32.5 & 37.2 & 35.3 & 11.8 & 9.4 & 17.0 & 12.5\\
+VLFM \citep{yokoyama2024vlfm} & 12.0 & 9.6 & \paperreported{35.2} & \paperreported{19.6} & 53.0 & 42.2 & 24.4 & 18.8 & 35.0 & 25.8\\
+AO-Planner \citep{chen2025affordances} & \paperreported{25.5} & \paperreported{16.6} & 30.9 & 22.0 & 76.6 & 74.7 & 27.4 & 19.7 & 37.0 & 29.3\\
+TANGO \citep{ziliotto2025tango} & 14.3 & 9.87 & \paperreported{35.5} & \paperreported{19.5} & 35.8 & 33.5 & 22.7 & 14.7 & 31.0 & 23.3\\
+Uni-LaViRA \citep{ding2026uni} & \textbf{\paperreported{60.7}} & \textbf{\paperreported{47.7}} & \paperreported{60.0} & \paperreported{40.5} & 81.3 & 77.7 & 35.6 & 28.7 & 65.2 & 39.4\\
+MSGNav \citep{huang2026msgnav} & 11.6 & 9.4 & \paperreported{48.3} & \paperreported{27.0} & 37.2 & 34.8 & 23.5 & 17.5 & 26.7 & 19.6\\
 \rowcolor{tblours}\textbf{\evolvingworldnav{} (ours)} & 55.8 & 43.1 &
 \textbf{64.2} & \textbf{51.7} & \textbf{86.2} & \textbf{79.8} &
 \textbf{42.4} & 32.1 & \textbf{86.6} & \textbf{68.2}\\
 \bottomrule
 \end{tabular}
 }
+\vspace{1pt}
+
+\parbox{\textwidth}{\scriptsize
+\textsuperscript{PR} Paper-reported; unmarked baseline scores are reproduced
+in our shared evaluation stack.}
 \end{table}
 \FloatBarrier
 
