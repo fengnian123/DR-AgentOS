@@ -24,11 +24,13 @@ updates maps from observations
 navigation infers locations from partial histories, temporal filters, or
 multimodal continuous placements
 \citep{kurenkov2023dynamic,saavedraruiz2026predictivegraphs,
-argenziano2026flowmaps}. We combine persistent identity and temporal
-provenance with a belief over current object locations that separates
-persistence from relocation, retains alternatives, and guides
-cost-aware inspections with visibility-qualified updates. Inspection evidence
-revises the belief in an observe--update--replan loop.
+argenziano2026flowmaps}. PredictiveGraphs already combines future-state
+prediction, Top-$k$ navigation, online observations, and agent tools. Our focus
+is complementary: a stepwise filtering formulation for continued hidden
+evolution during execution, in which a posterior is propagated to arrival
+times, updated once from newly visible evidence, and allowed to reopen earlier
+hypotheses. The belief also separates persistence from relocation and retains
+executable mass outside the mapped candidate set.
 
 \paragraph{Human routines and hidden world evolution.}
 HOMER/HOMER+ capture household object-use routines, STREAK studies continual

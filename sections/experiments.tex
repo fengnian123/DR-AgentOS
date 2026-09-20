@@ -11,8 +11,9 @@ analysis details are summarized in Appendices~A--D.
 \label{sec:setup}
 
 \paragraph{Datasets.}
-Our primary evaluation uses \pfdbench{} for state prediction, First-Go
-navigation, belief-guided search, and evidence-aware replanning. FindingDory
+Our primary evaluation uses the complete \pfdbench{} N1--N5 suite for
+First-Inspection navigation, belief-guided search, evidence-aware replanning,
+online dynamics, and cross-scene transfer. FindingDory
 \citep{yadav2025findingdory} and GOAT-Bench \citep{khanna2024goatbench} test
 long-horizon memory and repeated-goal navigation. We additionally evaluate one
 native task in each of MP3D, HM3D, Habitat-GS, and InteriorGS, and run 64
@@ -27,14 +28,16 @@ and robot-specific control stacks. Each 360-second episode uses a stationary
 target and requires online confirmation within three inspections.
 
 \paragraph{Controllers and baselines.}
-The VLM, prompt, tool interface, and inference budget remain fixed within each
-comparison. Baselines cover open-vocabulary and lifelong navigation, structured
-memory, predictive world models, and simple temporal predictors; released
-policies retain their native protocols. Paired runs with GPT-4o, GPT-5.5,
-GPT-5.6-Luna, and Qwen2.5-VL-3B/32B test controller dependence.
+Our main method uses a frozen GPT-5.6-Luna controller in a zero-shot setting:
+the VLM receives no navigation-task fine-tuning and invokes the fixed memory,
+prediction, inspection, exploration, and navigation tools. The prompt, tool
+interface, and inference budget remain fixed within each comparison. Baselines
+span navigation, structured memory, and predictive world models; paired runs
+with GPT-4o, GPT-5.5, GPT-5.6-Luna, and Qwen2.5-VL-3B/32B test controller
+dependence.
 
 \paragraph{Metrics.}
 Prediction uses Top-1, MRR, NLL, ECE, and true-state rank. Navigation uses SR,
-SPL, First-Go SR, Recovery SR, inspection count, distance, and time. Main
+SPL, First-Inspection SR, Recovery SR, inspection count, distance, and time. Main
 comparisons report five-seed variation; paired static, routine, and random
 worlds isolate learnable temporal structure. 

@@ -19,7 +19,7 @@ $\pm$ denotes standard deviation over five seeds.}
 \cmidrule(lr){2-3}\cmidrule(lr){4-6}\cmidrule(lr){7-9}
 \textbf{Method} & \textbf{HL-SR $\uparrow$} & \textbf{HL-SPL $\uparrow$} &
 \textbf{SR $\uparrow$} & \textbf{SPL $\uparrow$} &
-\textbf{Repeat-SR $\uparrow$} & \textbf{First-Go SR $\uparrow$} &
+\textbf{Repeat-SR $\uparrow$} & \textbf{First-Inspection SR $\uparrow$} &
 \textbf{Search SR $\uparrow$} & \textbf{SPL $\uparrow$}\\
 \midrule
 \rowcolor{tblnav}\multicolumn{9}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
@@ -36,7 +36,7 @@ DynaMem \citep{liu2024dynamem} & 30.30 & 22.78 & 14.54 & 1.71 & 15.79 & 45.33 & 
 SLaTe-PRO \citep{patel2023routine} & 18.18 & 14.53 & 9.41 & 0.99 & 6.38 & 13.00 & 36.33 & 26.37\\
 SGM+NEP \citep{kurenkov2023dynamic} & 34.20 & 19.48 & 10.67 & 1.64 & 2.56 & 27.26 & 41.82 & 37.00\\
 FlowMaps \citep{argenziano2026flowmaps} & 3.03 & 3.03 & 15.07 & 0.32 & 6.25 & 4.33 & 22.67 & 14.35\\
-Perpetua \citep{saavedraruiz2026predictivegraphs} & 24.24 & 13.50 & 10.27 & 1.80 & 7.48 & 36.18 & 43.67 & 40.36\\
+PredictiveGraphs \citep{saavedraruiz2026predictivegraphs} & 24.24 & 13.50 & 10.27 & 1.80 & 7.48 & 36.18 & 43.67 & 40.36\\
 \midrule
 \rowcolor{tblours} & \textbf{63.22} & \textbf{48.83} &
 \textbf{35.43} & \textbf{12.98} & \textbf{19.31} & \textbf{61.32} &
@@ -49,10 +49,10 @@ $\pm 0.92$ & $\pm 0.68$ & $\pm 3.235$ & $\pm 2.07$ & $\pm 1.74$\\
 \end{table*}
 
 \evolvingworldnav{} consistently improves the evaluated metrics across FindingDory,
-GOAT-Bench, and \pfdbench{}. On \pfdbench{}, it improves First-Go SR from
+GOAT-Bench, and \pfdbench{}. Across \pfdbench{} N1--N5, it improves First-Inspection SR from
 45.33\% (DynaMem) to 61.32\% and Search SR from 81.00\% to 86.18\%,
-indicating that predictive belief primarily improves initial destination selection
-while preserving alternative hypotheses for recovery. The gains on FindingDory
+showing that arrival-time prediction and en-route evidence improve the first
+fully covered inspection while retained hypotheses support recovery. The gains on FindingDory
 and GOAT-Bench further show that predictive memory remains effective beyond
 the proposed evolving-world setting.
 
@@ -97,9 +97,8 @@ diagnostics appear in \cref{fig:predictive-memory}.
 \paragraph{Generalization and physical deployment.}
 Across MP3D, HM3D, Habitat-GS, InteriorGS, and HSSD, \evolvingworldnav{} leads
 seven of ten native metrics, while specialized systems remain stronger on
-R2R-CE or SAGE-Bench SPL (\cref{tab:domains}). We also run 64 matched LYNX M20
-search trials per method with identical histories, candidates, perception, and
-low-level control.
+R2R-CE or SAGE-Bench SPL (\cref{tab:domains}). In 64 matched LYNX M20 trials,
+all methods share histories, candidates, perception, and low-level control.
 
 \begin{table}[!t]
 \caption{Primary LYNX M20 search results.}
@@ -110,7 +109,7 @@ low-level control.
 \begin{tabularx}{0.94\linewidth}{@{}>{\raggedright\arraybackslash}Xrrrrrr@{}}
 \toprule
 Method &
-\makecell{First-Go\\SR $\uparrow$} &
+\makecell{First-Inspection\\SR $\uparrow$} &
 \makecell{Search\\SR $\uparrow$} &
 \makecell{Recovery\\SR $\uparrow$} &
 \makecell{Dist.\\(m) $\downarrow$} &
@@ -127,31 +126,28 @@ Retrieval + Reasoning & 26.6 & 37.5 & 17.1 & 50.3 & 281 & 2.03 \\
 \end{tabularx}
 \end{table}
 
-The robot results in \Cref{tab:real-main} demonstrate consistent gains in both success and efficiency, indicating that the improvement does not arise from exhaustive search. Additional condition- and platform-level analyses are provided in \appref{app:real-world-eval}.
+The robot results improve both success and efficiency, ruling out exhaustive
+search as the source of the gain; further breakdowns are in
+\appref{app:real-world-eval}.
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
 
 \paragraph{Core components.}
-We remove predictive history, persistence--relocation factorization,
-distributional search, and online evidence updating under fixed perception and
-control.
-
 \begin{figure}[!t]
     \centering
-    \includegraphics[width=\columnwidth]{figures/core_component_ablation.pdf}
+    \includegraphics[width=0.95\columnwidth]{figures/core_component_ablation.pdf}
     \caption{Core component ablation; error bars show five-seed standard deviations.}
     \label{fig:module_ablation}
 \end{figure}
 
-\Cref{fig:module_ablation} shows that prediction, retained uncertainty, and
-the observe--update--replan loop make distinct contributions: direct candidate
-prediction and Top-1-only search reduce Search SR by 15.75 and 22.41 points,
-while removing evidence updates causes the largest degradation.
+Under fixed perception and control, direct prediction and Top-1-only search
+reduce Search SR by 15.75 and 22.41 points (\cref{fig:module_ablation}), while
+disabling all stepwise updates causes the largest drop. En-route evidence can
+therefore change the first sufficiently covered inspection.
 
-The temporal split contains 322 changed-only queries; LOSO contains 644
-change-balanced queries. Top-1 is reported in percent, and Ours reports
-five-seed mean $\pm$ standard deviation. 
+Prediction uses 322 changed-only temporal and 644 change-balanced LOSO queries;
+Top-1 is in percent and Ours is five-seed mean $\pm$ standard deviation.
 
 \begin{table}[!htbp]
 \caption{Current-state prediction on temporal and LOSO splits.}
@@ -174,15 +170,14 @@ Shared semantic prior & 36.02 & 0.5957 & 1.5766 & 59.47 & 0.7462 & 1.0448\\
 & \textbf{61.18} & \textbf{0.7523} & \textbf{0.9778}\\
 \rowcolor{tblours}\multirow{-2}{*}{\textbf{Ours}}
 & $\pm1.42$ & $\pm0.0291$ & $\pm0.0867$
-& $\pm4.53$ & $\pm0.0176$ & $\pm0.0228$\\
+& $\pm1.53$ & $\pm0.0176$ & $\pm0.0228$\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Prediction and controller robustness.}
-The complete Table 4 isolates belief quality from navigation: the structured
-model improves both ranking and NLL on temporal and held-out-scene splits.
-Calibration, evidence-update, predictor, VLM, and fine-grained component
-diagnostics are reported in \appref{fig:belief-calibration,%
+Table 4 isolates belief quality: the structured model improves ranking and NLL
+on temporal and held-out-scene splits. Further calibration, update, predictor,
+VLM, and component diagnostics are in \appref{fig:belief-calibration,%
 tab:evidence-update-ablation,tab:predictors-full,tab:foundation_models,%
 app:fine-grained-ablation}.
