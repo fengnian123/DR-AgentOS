@@ -94,17 +94,17 @@ baseline on both metrics, by 15.99 and 5.18 percentage points, respectively
 scenes, and physical robots examine performance beyond \pfdbench{}.
 The paired controls show a gain over Last Seen in routine worlds, but not in
 static or random worlds (\cref{tab:worlds}). These results support predictive
-memory for worlds in which object relocations follow learnable routines. Our
-main contributions are:
-\begin{itemize}[leftmargin=5mm,itemsep=0.6mm,topsep=1mm]
-    \item \textbf{A controlled navigation setting.} We formulate
-    portable-object navigation from intermittent histories with complementary
-    protocols that either hold the target fixed during navigation or permit
-    continued hidden evolution.
-    \item \textbf{A structured predictive-memory agent.} We introduce
-    \evolvingworldnav{}, coupling a learned persistence--relocation belief
-    with an event-driven predict--observe--replan filter.
-    \item \textbf{A benchmark for hidden world evolution.} We introduce
-    \pfdbench{} with time-ordered histories and paired static/routine/random controls
-    to evaluate when temporal prediction improves embodied decisions.
+memory for worlds in which object relocations follow learnable routines. Our contributions are fourfold:
+\begin{itemize}[leftmargin=*,itemsep=1mm]
+    \item \textbf{Evolving-World Navigation:}
+    We formulate navigation under hidden world evolution, where states may change outside the agent's view and during execution.
+
+    \item \textbf{Predictive 4D Belief Agent:}
+    We introduce \evolvingworldnav{}, coupling structured state prediction with an event-driven predict--observe--replan filter.
+
+    \item \textbf{P4D-Bench:}
+    We establish a large-scale benchmark with 54 evolving scenes and 803.68k tasks for controlled evaluation of predictive navigation.
+
+    \item \textbf{Comprehensive Validation:}
+    Extensive simulation and real-robot experiments demonstrate consistent gains across environments, benchmarks, and frozen VLMs.
 \end{itemize}

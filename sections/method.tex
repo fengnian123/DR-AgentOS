@@ -146,10 +146,15 @@ For candidate viewpoints $\mathcal W_i$, let
 $d_{j,i}=d_{\mathrm{geo}}(x_j,\mathcal W_i)$ and $\widehat\tau_{j,i}$ be
 geodesic distance and estimated arrival-plus-inspection time. The agent selects
 \begin{equation}
-i_j^*=\arg\max_{i\in\mathcal C_o}
-\frac{p_{j,i}^{\mathrm{arr}}\widehat q_{j,i}^{\mathrm{new}}}
-{d_{j,i}+\lambda_t\widehat\tau_{j,i}+\lambda_{\mathrm{inspect}}},
-\label{eq:planner}
+i_j^*=\arg\max_{i\in\mathcal{C}_o}
+\frac{
+    p_{j,i}^{\mathrm{arr}}\,
+    \widehat{q}_{j,i}^{\,\mathrm{new}}
+}{
+    d_{j,i}
+    + \lambda_t \widehat{\tau}_{j,i}
+    + \lambda_{\mathrm{inspect}}
+},
 \end{equation}
 where $p_{j,i}^{\mathrm{arr}}$ comes from \cref{eq:arrival-belief} and
 $\widehat q_{j,i}^{\mathrm{new}}$ is detection probability from unseen
