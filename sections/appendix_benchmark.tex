@@ -113,8 +113,9 @@ Dataset cards and audit summaries document source mappings, authored assumptions
 physical validity, candidate coverage, and leakage tests.
 
 \paragraph{Splits and leakage checks.}
-Complete temporal sequences are split together so that no future portion of a
-household day enters an earlier decision. Held-out homes are reserved for
+Each 90-day history uses days 0--79 for training, days 80--84 for validation,
+and days 85--89 for testing. Complete temporal sequences are split together so
+that no future portion of a household day enters an earlier decision. Held-out homes are reserved for
 cross-scene evaluation; paired static/routine/random members remain in the same
 split. Near-duplicate queries and transition groups are assigned atomically.
 Serialized releases are checked for future timestamps, private event fields,

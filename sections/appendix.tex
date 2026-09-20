@@ -103,15 +103,17 @@ predictor is not restarted from the query-time prior.
 \paragraph{Coverage-gated evidence without leakage.}
 Let $C_j(i)$ be the union of candidate surface samples observed through epoch
 $j$. A no-detection event is created only if
-$\Delta C_j(i)=C_j(i)-C_{j-1}(i)>\delta_C$. Candidate surface samples from 4D
-memory are projected into the live camera, and online depth marks samples as
-visible when they lie in the frustum and agree with the measured depth. The
-estimated visible fraction, together with range, view angle, projected size,
-image quality, category, and validation-set detector recall, forms
-$\mathbf f_{j,i}$ for the calibrated detector model $g_\phi$ in
+$\Delta C_j(i)=C_j(i)-C_{j-1}(i)>\delta_C$, with $\delta_C=0.05$. Candidate
+surface samples from 4D memory are projected into the live camera, and online
+depth marks samples as visible when they lie in the frustum and agree with the
+measured depth. The resulting online-estimated coverage and other view features
+form $\mathbf f_{j,i}$ for the calibrated detector model $g_\phi$ in
 \cref{eq:negative}. One view can therefore update several candidates with
 different strengths. Opportunistic views and deliberate inspections use the
-same rule, although the latter usually provide more coverage.
+same rule, although the latter usually provide more coverage. A candidate is
+counted as a sufficiently covered inspection when
+$C_j(i)\geq\tau_{\mathrm{cov}}=0.70$; this designation does not permanently
+remove it from the candidate set.
 
 Every measurement has a unique evidence identifier and is incorporated once.
 Its RGB-D frame and pose remain in memory as provenance, but its likelihood is
@@ -124,14 +126,14 @@ oracle-visibility diagnostic is reported separately from fair comparisons.
 There is no permanent exclusion set. Each candidate stores cumulative coverage,
 the time of its latest clear negative, and cumulative detection probability.
 After propagation, a previously inspected candidate becomes eligible when its
-belief exceeds $\tau_b$, predicted return probability
+belief exceeds $\tau_b=0.10$, predicted return probability
 \begin{equation}
 P_{\mathrm{return}}(i)=\sum_{r\neq i}b_j^+(r)
 K_\theta^{(j)}(r,i;\Delta t)
 \label{eq:return-prob}
 \end{equation}
-exceeds $\tau_{\mathrm{return}}$, or a new viewpoint offers
-$\Delta C(i)>\delta_C$. Thus a weak or occluded view supports multi-view
+exceeds $\tau_{\mathrm{return}}=0.05$, or a new viewpoint offers
+$\Delta C(i)>\delta_C=0.05$. Thus a weak or occluded view supports multi-view
 reinspection, and a location verified empty can regain mass after sufficient
 world evolution.
 
@@ -160,7 +162,39 @@ The Oracle Activity diagnostic may use the hidden activity and source location b
 \subsection{Implementation Details}
 \label{app:implementation}
 
-Unless otherwise noted, the history encoder has three Transformer layers, hidden width $128$, four attention heads, and at most 64 events. The predictive model contains approximately \na million trainable parameters and is optimized with AdamW using validation NLL for checkpoint selection. Candidate encoders are shared across scenes. The main high-level track uses GPT-5.6-Luna as a frozen zero-shot VLM controller, with no navigation-task fine-tuning; it fixes candidate viewpoints and low-level planning, while a Habitat low-level action track evaluates the complete embodied stack. Final learning rate, batch size, epoch count, hardware, simulator version, detector, visibility thresholds, and repeated-run protocol will be frozen before test evaluation.
+\paragraph{Prediction model and optimization.}
+The history encoder uses three Transformer layers, hidden width 128, four
+attention heads, maximum history length $K=64$, and dropout 0.1. Candidate
+encoders are shared across scenes. We optimize with AdamW at learning rate
+$3\times10^{-4}$, weight decay $10^{-2}$, and batch size 64 for at most 100
+epochs. Gradients are clipped to an $\ell_2$ norm of 1.0. Early stopping uses
+patience 10 on validation NLL, and the checkpoint with the lowest validation
+NLL is retained. We report seeds $\{0,1,2,3,4\}$. Experiments use Habitat-Sim
+0.3.3 and Habitat-Lab 0.3.3 on $3\times$ NVIDIA GeForce RTX 5080 GPUs.
+
+\paragraph{Perception and controller.}
+The frozen perception stack uses Grounding DINO
+\citep{liu2024grounding} with box threshold 0.35 and text threshold 0.25,
+followed by SAM 2 \citep{ravi2025sam} only for mask refinement. The main
+high-level agent uses GPT-5.6-Luna as a frozen zero-shot VLM controller, without
+navigation-task fine-tuning. Candidate viewpoints and low-level planning are
+fixed in the high-level track; a Habitat low-level action track evaluates the
+complete embodied stack.
+
+\paragraph{Detection calibration and information boundaries.}
+The function $g_\phi$ in \cref{eq:negative} is a lightweight logistic
+calibrator whose inputs are online-estimated candidate coverage, range, viewing
+angle, projected size, image quality, category, and validation-set detector
+recall. It is fitted only on validation observations and remains frozen
+throughout test evaluation. The agent never accesses ground-truth target masks,
+ground-truth target poses, unoccluded target fractions, or simulator visibility
+flags.
+
+All architecture choices, optimization hyperparameters, calibration models,
+perception thresholds, policy thresholds, and checkpoint-selection rules were
+determined exclusively from the training and validation splits. The test split
+was not used for model selection or hyperparameter tuning and was accessed only
+for final evaluation.
 
 \subsection{Experimental Details}
 \label{app:experimental-setup}
@@ -176,14 +210,14 @@ pooled across these heterogeneous tasks, and published values are transferred
 only when split, sensors, actions, and success rules match.
 
 \paragraph{Prediction splits.}
-The prediction-only study trains on days 0--29, selects configurations on days
-30--34, and evaluates on days 35--39 of five HSSD histories
-(5,475/910/915 queries). Temporal evaluation pools the scenes and reports 322
-changed-only queries; leave-one-scene-out evaluation trains on four scenes and
-tests on the fifth using 644 change-balanced queries. All predictors share query
-identities, time-ordered histories, and legal candidate sets. The main table reports
-five-seed variation; no future observation or private transition label is
-available at inference time.
+Each scene history follows a 90-day chronological split: days 0--79 are used
+for training, days 80--84 for validation, and days 85--89 for testing. Temporal
+evaluation pools the held-out test periods and reports 322 changed-only queries;
+leave-one-scene-out evaluation rotates the held-out scene while preserving the
+same chronological boundaries and reports 644 change-balanced queries. All
+predictors share query identities, time-ordered histories, and legal candidate
+sets. The main table reports five-seed variation; no future observation or
+private transition label is available at inference time.
 
 \paragraph{Real-world protocol.}
 LYNX M20 is the primary quantitative platform, with X30 and Lite3 used for
@@ -216,7 +250,24 @@ and the metrics used for all reported comparisons.
 \subsection{Episode Validity and Leakage Audit}
 \label{app:audit}
 
-An episode is retained only if: (i) the target has at least one positive pre-query observation; (ii) the target state is known to the private evaluator and physically instantiated without collision; (iii) at least one valid viewpoint lies on the NavMesh; (iv) the start is on the NavMesh, at least $3$ meters from the target, and does not reveal it; and (v) all public histories terminate at or before the query. A successful stop must be within $1$ meter geodesic distance of a valid viewpoint, observe the target above a frozen visible-fraction threshold, and identify the correct instance or category.
+An episode is retained only if: (i) the target has at least one positive
+pre-query observation; (ii) the target state is known to the private evaluator
+and physically instantiated without collision; (iii) at least one valid
+viewpoint lies on the NavMesh; (iv) the start is on the NavMesh, at least
+$3$ meters from the target, and does not reveal it; and (v) all public histories
+terminate at or before the query. A stop is successful only when the robot is
+within $1$ meter geodesic distance of a valid viewpoint, the private evaluator
+measures target visible fraction
+$v_{\mathrm{target}}^{\mathrm{GT}}\geq\tau_{\mathrm{success}}=0.20$, and the
+agent identifies the correct target instance or category. This threshold is
+used only by the private evaluator and is never exposed to the agent.
+
+The three coverage quantities have distinct roles:
+$\Delta C>0.05$ triggers a new negative-evidence update,
+$C\geq0.70$ defines a sufficiently covered inspection, and
+$v_{\mathrm{target}}^{\mathrm{GT}}\geq0.20$ defines evaluation success only.
+The first two are estimated online from candidate geometry and depth; the third
+is private evaluator state.
 
 We audit serialized examples for future timestamps, hidden event fields, filenames or indices correlated with answers, duplicate event groups across splits, and inconsistent paired variants. Static, routine, and random members of a pair must have identical public query fields. Invalid simulator episodes are reported separately and are not counted as ordinary failures.
 
@@ -397,10 +448,11 @@ sufficiently long history, rather than merely the most recent observations.
 \subsubsection{Evidence Update Ablations}
 
 \Cref{fig:agent-evidence-update} illustrates one deliberate-inspection event in
-the same stepwise filter used for opportunistic views. Causal memory initially assigns probability 0.62 to the
-last-seen coffee table. Calibrated detector recall ($c=0.95$) and online
-depth-projected coverage ($v=0.98$) give $\widehat r=cv=0.931$; when the target
-is not detected, the likelihood at that state is therefore 0.069. The posterior consequently shifts from $(0.62,0.25,0.13)$ to
+the same stepwise filter used for opportunistic views. Causal memory initially
+assigns probability 0.62 to the last-seen coffee table. The frozen logistic
+calibrator maps the online view features $\mathbf f_{j,i}$ to
+$\widehat r_{j,i}=0.931$; when the target is not detected, the likelihood at
+that state is therefore 0.069. The posterior consequently shifts from $(0.62,0.25,0.13)$ to
 $(0.10,0.59,0.31)$ and the planner selects the kitchen island next. The inspected
 state retains nonzero mass, reflecting residual perceptual uncertainty rather
 than an irreversible deletion.
@@ -428,7 +480,7 @@ Top-1 is reported as a percentage in \cref{tab:evidence-update-ablation}.
 No Update & 5.82 & 62.98 & 2.838 & 0.172\\
 Hard Removal & 10.09 & 42.69 & 11.514 & 0.204\\
 Bayesian Update & 5.25 & 64.71 & \textbf{1.497} & 0.151\\
-\rowcolor{tblours}\textbf{Bayesian + Visibility (Ours)} &
+\rowcolor{tblours}\textbf{Bayesian + Calibration (Ours)} &
 \textbf{4.96} & \textbf{66.93} & 1.530 & \textbf{0.130}\\
 \bottomrule
 \end{tabular}
@@ -439,7 +491,8 @@ every unsuccessful inspection. This irreversible rule performs worst across all
 four metrics, showing that an apparent miss is insufficient evidence when the
 view is partially occluded or perception is uncertain. Bayesian updating lowers
 NLL from 2.838 to 1.497 without discarding hypotheses outright. Adding
-visibility produces the best mean rank (4.96), Top-1 accuracy (66.93\%), and ECE
+calibrated view-conditioned likelihoods produce the best mean rank (4.96),
+Top-1 accuracy (66.93\%), and ECE
 (0.130), while its NLL remains within 0.033 of the uncalibrated Bayesian update.
 The result supports viewpoint-conditioned negative evidence as the most reliable
 input to the observe--update--replan loop.
