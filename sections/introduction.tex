@@ -1,7 +1,8 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Long-lived robots must distinguish what they remember from what is still true.A bowl observed in a cabinet yesterday may be beside the sink when a task
+Long-lived robots must distinguish what they remember from what is still true.
+A bowl observed in a cabinet yesterday may be beside the sink when a task
 starts, even though the robot has witnessed no change. Retrieving the earlier
 observation correctly can therefore send the robot to the wrong destination.
 The bowl may move again while the robot is en route, making even an initially
@@ -12,16 +13,16 @@ retaining historical evidence and assessing its relevance to the current task.
 
 Persistent memories and open-vocabulary maps retain past object observations
 \citep{gu2024conceptgraphs,liu2024dynamem}, while predictive scene
-representations exploit temporal regularities to estimate where an object may
-be \citep{patel2023routine,saavedraruiz2026predictivegraphs}. Yet these
-capabilities are often treated separately: memory retrieves where an object
-was, prediction estimates its current location, and navigation commits to a
-destination. What remains missing is a closed loop that turns an uncertain
-prediction into a cost-aware inspection and then revises the belief using
-visibility-qualified evidence. Without this coupling, committing to one
-destination discards alternatives needed for recovery, while treating every
-failed detection as absence conflates an empty location with an inconclusive
-view.
+representations estimate a query-time state from historical regularities
+\citep{patel2023routine,saavedraruiz2026predictivegraphs}. Most existing
+methods therefore either retrieve the last observed state or predict a state
+at the query time. They do not explicitly couple unobserved evolution during
+the observation gap and subsequent travel with a navigation policy that tests
+and revises multiple hypotheses. Moreover, a failed inspection is often
+treated as binary negative evidence, although an occluded view should not
+eliminate the corresponding hypothesis. What remains missing is a closed loop
+that turns an uncertain belief into a cost-aware inspection and updates it in
+proportion to what was actually visible.
 
 Unlike online target tracking, the agent may receive no observation when a
 change occurs and must begin acting before any hypothesis can be verified. The
@@ -31,15 +32,16 @@ should alter subsequent action.
 
 We study \emph{persistent navigation in evolving worlds} through
 portable-object navigation, namely navigation for movable objects whose
-locations may change over time. Given a target, observations from intermittent
-visits, candidate locations, and a finite action budget, the agent must locate
-and visually verify the target without access to hidden transitions or its
-current ground-truth state. Only observations available at each decision time
-may inform the agent. The main protocol holds the target fixed after the query,
-isolating inference across the preceding observation gap. An online-dynamic
-extension permits additional hidden transitions during execution. This
-separation distinguishes navigation based on stale observations from continuous
-target tracking and makes the roles of prediction, search, and recovery explicit.
+locations may change over time. Given a target, intermittent observations,
+candidate locations, and a finite action budget, the agent must locate and
+visually verify the target without access to hidden transitions or its current
+ground-truth state. The world clock continues during execution, so an object may
+change outside the agent's view both before the query and while the agent is en
+route. Only evidence available at each decision time may inform the agent. We
+also retain a fixed-target control that freezes the object after the query to
+isolate query-time inference from recovery under en-route changes. Unlike
+continuous target tracking, neither protocol exposes the transition when it
+occurs.
 
 Our approach separates two questions: \emph{does the object occupy its last
 observed location, and if not, where might it be?} We factorize the current-state
@@ -54,19 +56,17 @@ hypotheses: a clear view of an empty location reduces its probability, whereas
 an obstructed view leaves more uncertainty.
 
 We implement this approach in \evolvingworldnav{}, an embodied agent with
-\textbf{4D Predictive Memory} (\cref{fig:evolvingworldnav_overview}). Its
-memory associates persistent 3D entities with timestamped state histories and
-observation provenance, preserving earlier versions when states change. The
-predictive core, \pfdnav{}, encodes irregular observations with a continuous-time
-Transformer and estimates the structured belief, including probability mass
-for locations outside the known candidate set. A frozen vision--language
-controller accesses memory, prediction, and navigation through typed tools.
-The agent orders inspections using candidate probability, expected visibility,
-and travel cost, then applies visibility-aware Bayesian updates after negative
-observations and replans. Newly acquired observations return to memory,
-connecting temporal inference with subsequent decisions. In online-dynamic
-episodes, predictions are evaluated at estimated arrival times so that the
-agent can account for changes during travel.
+\textbf{4D Predictive Memory} (\cref{fig:evolvingworldnav_overview}). A frozen
+vision--language controller invokes memory, prediction, inspection, and
+navigation tools, while the learned predictor supplies the current-state
+belief. Within \evolvingworldnav{}, \pfdnav{} serves as this predictive module:
+it encodes irregular observations with a continuous-time Transformer and
+estimates a structured persistence--relocation belief, including probability
+mass outside the known candidate set. The memory associates persistent 3D
+entities with timestamped state histories and provenance. The agent orders
+inspections using belief, expected visibility, and travel cost, then performs
+visibility-aware Bayesian updates and replans. New observations return to
+memory, and arrival-time predictions account for changes during travel.
 
 We introduce \pfdbench{} to evaluate the interaction between history,
 prediction, and action. This human-trace-grounded simulation benchmark contains
@@ -82,18 +82,20 @@ experiments focus on current-state prediction and navigation. Separate metrics
 let us examine how state-estimation quality translates into successful physical
 search under a finite action budget.
 
-Under the main fixed-target protocol, \evolvingworldnav{} achieves 61.32\%
+On the fixed-target controlled evaluation, \evolvingworldnav{} achieves 61.32\%
 first-attempt success (First-Go SR) and 86.18\% Search SR, exceeding DynaMem, the strongest evaluated
 baseline on both metrics, by 15.99 and 5.18 percentage points, respectively
 (\cref{tab:crossbench}). Evaluations on FindingDory, GOAT-Bench, held-out
 scenes, and physical robots examine performance beyond \pfdbench{}.
 The paired controls show a gain over Last Seen in routine worlds, but not in
 static or random worlds (\cref{tab:worlds}). These results support predictive
-memory for worlds in which object relocations follow learnable routines.Our main contributions are:
+memory for worlds in which object relocations follow learnable routines. Our
+main contributions are:
 \begin{itemize}[leftmargin=5mm,itemsep=0.6mm,topsep=1mm]
     \item \textbf{A controlled navigation setting.} We formulate
-    portable-object navigation from intermittent histories, with a fixed-target
-    protocol and an online-dynamic extension.
+    portable-object navigation from intermittent histories under continued
+    hidden evolution, with a fixed-target control for isolating query-time
+    inference.
     \item \textbf{A structured predictive-memory agent.} We introduce
     \evolvingworldnav{}, coupling a learned persistence--relocation belief
     with cost-aware inspection and visibility-aware evidence updates.
