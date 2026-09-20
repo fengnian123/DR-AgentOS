@@ -2,14 +2,14 @@
 \label{sec:method}
 
 \evolvingworldnav{} turns timestamped 3D histories into a current-state belief
-and revises it through physical inspection; its \pfdnav{} core separates
+and revises it from opportunistic and deliberate RGB-D evidence; its \pfdnav{} core separates
 persistence from relocation (\cref{fig:p4dnav_method}).
 
 \begin{figure*}[!htbp]
     \centering
     \includegraphics[width=\textwidth]{figures/method.pdf}
     \caption{\evolvingworldnav{} couples persistent 4D memory, predictive belief,
-    and an embodied agent that updates its belief from inspection evidence.}
+    and an embodied agent that updates and replans from stepwise evidence.}
     \label{fig:p4dnav_method}
 \end{figure*}
 
@@ -42,10 +42,11 @@ The objective is
 \label{eq:objective}
 \end{equation}
 where $L$ is travel distance, $N_{\mathrm{inspect}}$ counts inspections, and
-$\lambda_d,\lambda_n$ weight their costs. The main protocol fixes the target
-after $t_q$; an online-dynamic extension permits further hidden transitions and
-tests recovery when a destination becomes stale en route. Both use the same
-belief-update and replanning interface.
+$\lambda_d,\lambda_n$ weight their costs. \pfdbench{} provides complementary
+protocols: N1--N3 hold the target fixed during navigation to isolate query-time
+inference and evidence-guided search, whereas N4 permits further hidden
+transitions while the agent moves. Both use the same event-driven filtering and
+replanning interface.
 
 \subsection{Causal 4D Memory and History Encoding}
 \label{sec:memory_encoding}
@@ -133,53 +134,61 @@ recurring alternatives, and diffuse uncertainty in one normalized belief.
 \subsection{Predictive Embodied Agent}
 \label{sec:agent}
 
-Given a goal, the agent queries causal memory, invokes \pfdnav{}, and selects
-typed navigation or inspection tools from the belief and map costs. A frozen
-vision--language controller issues tool calls; comparisons share perception and
-low-level navigation.
+Given a goal, a frozen vision--language controller invokes memory, prediction,
+navigation, inspection, and exploration tools. An \emph{event-driven
+predict--observe--replan filter} runs after a short action chunk, sufficient new
+coverage, a material ETA or route change, target evidence, or arrival at an
+inspection viewpoint. En-route evidence can therefore redirect the first
+deliberate inspection rather than only affect later recovery.
 
-\paragraph{Belief-guided action.}
-For candidate $i$, let $\mathcal W_i$ denote reachable inspection viewpoints,
-$d(x,\mathcal W_i)$ the shortest geodesic distance from pose $x$, and
-$\widehat v_i$ expected coverage. We select
+\paragraph{Arrival-aware action selection.}
+For candidate viewpoints $\mathcal W_i$, let
+$d_{j,i}=d_{\mathrm{geo}}(x_j,\mathcal W_i)$ and $\widehat\tau_{j,i}$ be
+geodesic distance and estimated arrival-plus-inspection time. The agent selects
 \begin{equation}
-i^*=\arg\max_{i\in\mathcal C_o\setminus\mathcal I}
-\frac{b(i)\widehat v_i}{d(x,\mathcal W_i)+\lambda_{\mathrm{inspect}}},
+i_j^*=\arg\max_{i\in\mathcal C_o}
+\frac{p_{j,i}^{\mathrm{arr}}\widehat q_{j,i}^{\mathrm{new}}}
+{d_{j,i}+\lambda_t\widehat\tau_{j,i}+\lambda_{\mathrm{inspect}}},
 \label{eq:planner}
 \end{equation}
-where $\mathcal I$ contains sufficiently inspected hypotheses and
-$\lambda_{\mathrm{inspect}}>0$ accounts for inspection cost. The rule trades
-probability and coverage against travel and inspection cost. The
-$\mathrm{unknown}$ state retains mass but has no viewpoint; the navigator
-returns RGB-D evidence without privileged success flags.
+where $p_{j,i}^{\mathrm{arr}}$ comes from \cref{eq:arrival-belief} and
+$\widehat q_{j,i}^{\mathrm{new}}$ is detection probability from unseen
+coverage. If unknown-state exploration has higher utility, the agent scans an
+uncovered region and expands the candidate set.
 
-\paragraph{Evidence update and replanning.}
-At step $j$, a verified match permits stopping. For a negative view of candidate
-$r_j$, detector reliability $c_j$ and effective visibility $v_j$ define
+\paragraph{Visibility-qualified measurement update.}
+A posed RGB-D view can update every covered candidate. The agent estimates
+$\widehat r_{j,i}=P(\mathrm{detect}\mid s_{t_j}=i,\mathbf f_{j,i})$ from
+projected candidate geometry, online depth, and calibrated view features,
+without target masks, poses, or simulator visibility flags. Given no detection,
 \begin{equation}
-\ell_j(i)=P(z_j=\mathrm{notseen}\mid s_{t_j}^o=i,c_j,v_j)=
+\ell_j(i)=P(y_j=\varnothing\mid s_{t_j}=i)=
 \begin{cases}
-1-c_jv_j, & i=r_j,\\
-1, & i\neq r_j.
+1-\widehat r_{j,i}, & i\in\mathcal C_o,\\
+1, & i=\mathrm{unknown},
 \end{cases}
 \label{eq:negative}
 \end{equation}
-The posterior is
+and the measurement posterior is
 \begin{equation}
 b_j^+(i)=\frac{b_j^-(i)\ell_j(i)}
 {\sum_{u\in\widetilde{\mathcal C}_o}b_j^-(u)\ell_j(u)}.
 \label{eq:bayes}
 \end{equation}
-A clear empty view supplies strong counter-evidence; an occluded view changes
-little. Initially $b_0^-=b_q^-$, and fixed-target episodes set
-$b_{j+1}^-=b_j^+$. The agent stores the evidence and repeats planning until
-success or budget exhaustion.
+The update fires only when cumulative coverage increases by more than
+$\delta_C$, preventing correlated-frame reuse; a verified match stops.
 
-In online-dynamic episodes, prediction targets each candidate's arrival time:
+\paragraph{Posterior propagation and replanning.}
+Rather than restarting query-time prediction, \pfdnav{} propagates the latest
+posterior through $[K_\theta^{(j)}(\Delta t)]_{r,u}=
+P(s_{t_j+\Delta t}=u\mid s_{t_j}=r,\mathcal H_{\leq t_j})$:
 \begin{equation}
-b_{t+\widehat\tau_i}^-=F_\theta(H_{o,\leq t},t+\widehat\tau_i),
+b_{j,i}^{\mathrm{arr}}=b_j^+K_\theta^{(j)}(\widehat\tau_{j,i}),\qquad
+p_{j,i}^{\mathrm{arr}}=b_{j,i}^{\mathrm{arr}}(i).
 \label{eq:arrival-belief}
 \end{equation}
-where $\widehat\tau_i$ is estimated travel time and $H_{o,\leq t}$ is causal
-history. The agent replans after each action chunk from belief, cost, and new
-evidence, without a static/dynamic policy router.
+N1--N3 use identity dynamics after the query; N4 propagates to each candidate's
+ETA. Each measurement enters once, and its posterior is the next propagation
+state. Transition mass or a new viewpoint can reopen an inspected candidate;
+the agent replans when the preferred utility changes. ETA, de-duplication,
+reopening, and executable unknown semantics are in \appref{app:belief-control}.

@@ -1,11 +1,8 @@
 \section{Conclusion}
 
-We study persistent navigation when task-relevant state can change outside the
-agent's view before or during execution. \evolvingworldnav{} converts
-timestamped 4D histories into a persistence--relocation belief, plans under its
-uncertainty, and revises it with visibility-aware evidence. Across \pfdbench{},
-external benchmarks, and real robots, this closed loop improves initial
-destination selection and recovery; paired controls show its clearest advantage
-under learnable temporal structure rather than arbitrary motion. Future work
-will extend the belief model to interacting objects and continuously changing
-goals.
+We study persistent navigation under unobserved changes before and during
+execution. \evolvingworldnav{} couples a persistence--relocation belief from 4D
+histories with an event-driven predict--observe--replan filter. Across
+\pfdbench{}, external benchmarks, and robots, it improves first-inspection
+selection and recovery, especially under learnable temporal structure. Future
+work will address interacting objects and continuously changing goals.

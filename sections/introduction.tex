@@ -15,14 +15,16 @@ Persistent memories and open-vocabulary maps retain past object observations
 \citep{gu2024conceptgraphs,liu2024dynamem}, while predictive scene
 representations estimate a query-time state from historical regularities
 \citep{patel2023routine,saavedraruiz2026predictivegraphs}. Most existing
-methods therefore either retrieve the last observed state or predict a state
-at the query time. They do not explicitly couple unobserved evolution during
-the observation gap and subsequent travel with a navigation policy that tests
-and revises multiple hypotheses. Moreover, a failed inspection is often
-treated as binary negative evidence, although an occluded view should not
-eliminate the corresponding hypothesis. What remains missing is a closed loop
-that turns an uncertain belief into a cost-aware inspection and updates it in
-proportion to what was actually visible.
+methods retrieve past state or estimate state at a decision time.
+PredictiveGraphs goes further by exposing Top-$k$ navigation candidates,
+online observation updates, and an agent/tool architecture
+\citep{saavedraruiz2026predictivegraphs}. The remaining gap is not the mere
+presence of prediction or feedback, but a filtering loop for a world that can
+continue changing during execution: the posterior must be propagated to each
+candidate's arrival time, revised only by newly visible evidence, and fed back
+into prediction and replanning without double counting. An occluded view must
+not eliminate a hypothesis, while a previously empty location may become
+plausible again after further hidden evolution.
 
 Unlike online target tracking, the agent may receive no observation when a
 change occurs and must begin acting before any hypothesis can be verified. The
@@ -51,10 +53,10 @@ Persistence measures agreement with the last observation, including objects
 that leave and return. Elapsed time and routine phase can affect these
 hypotheses differently: two equally old observations need not imply the same
 current location if one query falls before a habitual activity and the other
-after it. The resulting belief retains alternatives that can guide recovery
-after an incorrect first destination. Physical inspection tests these
-hypotheses: a clear view of an empty location reduces its probability, whereas
-an obstructed view leaves more uncertainty.
+after it. The resulting belief retains alternatives that can guide action when
+the initial route becomes stale. Opportunistic and deliberate observations test
+these hypotheses: a clear view of an empty location reduces its probability,
+whereas an obstructed view leaves more uncertainty.
 
 We implement this approach in \evolvingworldnav{}, an embodied agent with
 \textbf{4D Predictive Memory} (\cref{fig:evolvingworldnav_overview}). A frozen
@@ -65,9 +67,11 @@ it encodes irregular observations with a continuous-time Transformer and
 estimates a structured persistence--relocation belief, including probability
 mass outside the known candidate set. The memory associates persistent 3D
 entities with timestamped state histories and provenance. The agent orders
-inspections using belief, expected visibility, and travel cost, then performs
-visibility-aware Bayesian updates and replans. New observations return to
-memory, and arrival-time predictions account for changes during travel.
+inspections using arrival-time belief, expected new visibility, and travel
+cost. An event-driven filter alternates short navigation chunks, visibility-
+aware measurement updates, temporal propagation, and replanning; it can reopen
+previously inspected candidates or explore when probability remains outside the
+known set.
 
 We introduce \pfdbench{} to evaluate the interaction between history,
 prediction, and action. This human-trace-grounded simulation benchmark contains
@@ -83,9 +87,8 @@ experiments focus on current-state prediction and navigation. Separate metrics
 let us examine how state-estimation quality translates into successful physical
 search under a finite action budget.
 
-On N1--N3, where the target remains fixed during navigation,
-\evolvingworldnav{} achieves 61.32\%
-first-attempt success (First-Go SR) and 86.18\% Search SR, exceeding DynaMem, the strongest evaluated
+Across the full N1--N5 navigation suite, \evolvingworldnav{} achieves 61.32\%
+First-Inspection SR and 86.18\% Search SR, exceeding DynaMem, the strongest evaluated
 baseline on both metrics, by 15.99 and 5.18 percentage points, respectively
 (\cref{tab:crossbench}). Evaluations on FindingDory, GOAT-Bench, held-out
 scenes, and physical robots examine performance beyond \pfdbench{}.
@@ -100,7 +103,7 @@ main contributions are:
     continued hidden evolution.
     \item \textbf{A structured predictive-memory agent.} We introduce
     \evolvingworldnav{}, coupling a learned persistence--relocation belief
-    with cost-aware inspection and visibility-aware evidence updates.
+    with an event-driven predict--observe--replan filter.
     \item \textbf{A benchmark for hidden world evolution.} We introduce
     \pfdbench{} with time-ordered histories and paired static/routine/random controls
     to evaluate when temporal prediction improves embodied decisions.
