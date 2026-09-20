@@ -27,6 +27,14 @@ full belief for cost-aware search; N3 adds visibility-qualified updates and
 recovery. N1--N3 fix the target after the query. N4 advances the world clock
 during execution, permitting further hidden transitions. N5 applies these protocols to held-out scenes and households.
 
+\begin{wrapfigure}{r}{0.56\textwidth}
+    \centering
+    \vspace{-8pt}
+    \includegraphics[width=\linewidth]{figures/dataset-generate.pdf}
+    \caption{Construction of \pfdbench{}.}
+    \label{fig:p4dbench-generation}
+\end{wrapfigure}
+
 VLN grounds language goals in the same histories; EQA probes current and
 historical states without future evidence. Our experiments emphasize prediction
 and navigation, with EQA as a memory diagnostic. Controlled comparisons match public
@@ -40,13 +48,6 @@ support the use of historical regularity over category frequency or spatial
 convenience.
 
 \subsection{World Construction and Past-Only Evaluation}
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=0.92\linewidth]{figures/dataset-generate.pdf}
-    \caption{Human-trace-grounded construction of \pfdbench{}.}
-    \label{fig:p4dbench-generation}
-\end{figure}
-
 Human traces constrain generation; source trajectories are not copied
 (\cref{fig:p4dbench-generation}). CASAS \citep{cook2013casas}, ARAS, and HOMER+
 \citep{patel2023routine} inform schedules and activities; HD-EPIC, ParaHome
