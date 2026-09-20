@@ -679,47 +679,48 @@ subset across three platforms; this evaluates transfer, not parity.
 \label{app:real-world-cases}
 
 The outdoor comparison in \cref{fig:real-world-car-case} isolates the effect of
-stale memory. \Cref{fig:real-world-cup-case} provides the corresponding indoor
-pair: \evolvingworldnav{} routes directly to the cup's predicted office
-location, whereas Last Seen spends its first inspection at the now-empty pantry
-rack. These traces visualize representative outcomes and do not add observations
-to the aggregate success-rate measurements.
+stale memory. The full-width indoor traces in
+\cref{fig:real-world-cup-predictive,fig:real-world-cup-last-seen} provide the
+corresponding pair: \evolvingworldnav{} routes directly to the cup's predicted
+office location, whereas Last Seen spends its first inspection at the now-empty
+pantry rack. These traces visualize representative outcomes and do not add
+observations to the aggregate success-rate measurements.
 
-\begin{figure}[H]
-\centering
-\begin{minipage}[t]{0.49\textwidth}
+\begin{figure}[!t]
     \centering
-    \includegraphics[width=\linewidth]{figures/Real_World_Case_third_2.pdf}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{figures/Real_World_Case_third_2.pdf}
+    \caption{Indoor cup search with predictive belief.}
+    \label{fig:real-world-cup-predictive}
+\end{figure}
+
+\begin{figure}[!t]
     \centering
-    \includegraphics[width=\linewidth]{figures/Real_World_Case_third_3.pdf}
-\end{minipage}
-\caption{Indoor cup search with predictive belief (left) and stale Last Seen memory (right).}
-\label{fig:real-world-cup-case}
+    \includegraphics[width=\textwidth]{figures/Real_World_Case_third_3.pdf}
+    \caption{Indoor cup search with stale Last Seen memory.}
+    \label{fig:real-world-cup-last-seen}
 \end{figure}
 
 \paragraph{Additional system execution cases.}
 Beyond predictive target search,
-\cref{fig:real-world-cases-additional} documents two
-longer-horizon executions. The indoor
-case combines navigation, person verification, document collection, and
-delivery; the outdoor case shows obstacle detection and route replanning during
-shared-bike search. They demonstrate broader system orchestration but are not
-used as quantitative evidence for the predictive-belief module.
+\cref{fig:real-world-indoor-long-horizon,fig:real-world-outdoor-long-horizon}
+document two longer-horizon executions. The indoor case combines navigation,
+person verification, document collection, and delivery; the outdoor case shows
+obstacle detection and route replanning during shared-bike search. They
+demonstrate broader system orchestration but are not used as quantitative
+evidence for the predictive-belief module.
 
-\begin{figure}[H]
-\centering
-\begin{minipage}[t]{0.49\textwidth}
+\begin{figure}[!t]
     \centering
-    \includegraphics[width=\linewidth]{figures/Real_World_Case_1.pdf}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.49\textwidth}
+    \includegraphics[width=\textwidth]{figures/Real_World_Case_1.pdf}
+    \caption{Long-horizon indoor document-delivery execution.}
+    \label{fig:real-world-indoor-long-horizon}
+\end{figure}
+
+\begin{figure}[!t]
     \centering
-    \includegraphics[width=\linewidth]{figures/Real_World_Case_2.pdf}
-\end{minipage}
-\caption{Additional indoor and outdoor long-horizon executions.}
-\label{fig:real-world-cases-additional}
+    \includegraphics[width=\textwidth]{figures/Real_World_Case_2.pdf}
+    \caption{Long-horizon outdoor shared-bike search.}
+    \label{fig:real-world-outdoor-long-horizon}
 \end{figure}
 
 \FloatBarrier
