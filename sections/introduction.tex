@@ -92,9 +92,10 @@ First-Inspection SR and 86.18\% Search SR, exceeding DynaMem, the strongest eval
 baseline on both metrics, by 15.99 and 5.18 percentage points, respectively
 (\cref{tab:crossbench}). Evaluations on FindingDory, GOAT-Bench, held-out
 scenes, and physical robots examine performance beyond \pfdbench{}.
-The paired controls show a gain over Last Seen in routine worlds, but not in
-static or random worlds (\cref{tab:worlds}). These results support predictive
-memory for worlds in which object relocations follow learnable routines. Our contributions are fourfold:
+The paired controls show that the gain over Last Seen is substantially larger
+in routine than in matched random worlds (\cref{tab:worlds}). These results
+support predictive memory when object relocations contain learnable temporal
+structure. Our contributions are fourfold:
 \begin{itemize}[leftmargin=*,itemsep=1mm]
     \item \textbf{Evolving-World Navigation:}
     We formulate navigation under hidden world evolution, where states may change outside the agent's view and during execution.

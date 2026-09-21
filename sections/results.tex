@@ -86,19 +86,21 @@ hidden transition process while holding the scene and query fixed.
 \toprule
 \textbf{Method} & \textbf{Static SR} & \textbf{Routine SR} & \textbf{Random SR} & \makecell{\textbf{Routine gain}\\\textbf{over Last Seen}}\\
 \midrule
-Last Seen & \textbf{100.00} & 38.49 & \textbf{34.21} & --\\
+Last Seen & \textbf{100.00} & 38.49 & 23.19 & --\\
 Markov Transition & 80.22 & 32.57 & 20.64 & $-5.92$\\
-Transformer Direct & 69.79 & 48.82 & 31.39 & $+10.33$\\
+Transformer Direct & 69.79 & 48.82 & \textbf{31.39} & $+10.33$\\
 \rowcolor{tblours}\textbf{\pfdnav{}} & 82.19 & \textbf{60.85} & 30.12 & \textbf{$+22.36$}\\
 \bottomrule
 \end{tabular}
 \end{wraptable}
 
 Routine gain is measured relative to Last Seen.
-\pfdnav{} gains 22.36 routine-world points over Last Seen but not under
-matched random motion. This localizes the predictive advantage to learnable
-temporal structure rather than arbitrary dynamics; staleness and budget
-diagnostics appear in \cref{fig:predictive-memory}.
+\pfdnav{} gains 22.36 routine-world points over Last Seen, compared with a
+smaller 6.93-point gain under matched random motion, where it also trails
+Transformer Direct. This concentration of improvement in routine worlds
+localizes the predictive advantage to learnable temporal structure rather than
+arbitrary dynamics; staleness and budget diagnostics appear in
+\cref{fig:predictive-memory}.
 
 \paragraph{Generalization and physical deployment.}
 Across MP3D, HM3D, Habitat-GS, InteriorGS, and HSSD, \evolvingworldnav{} leads
