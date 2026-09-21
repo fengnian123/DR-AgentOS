@@ -25,6 +25,13 @@
 \setlength{\intextsep}{2pt}
 \setlength{\abovecaptionskip}{4pt}
 \setlength{\belowcaptionskip}{2pt}
+% Keep ICLR's readable hierarchy while avoiding a full blank line between
+% compact experimental paragraphs and run-in paragraph headings.
+\setlength{\parskip}{0.2pc}
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {0.8ex plus 0.25ex minus 0.15ex}{-1em}{\normalfont\normalsize\bfseries}}
+\makeatother
 % Keep tables compact while preserving a small, consistent gap before the
 % following text.  The padding lives inside the float, so it follows the table
 % even when LaTeX moves the float to the top of another page.
