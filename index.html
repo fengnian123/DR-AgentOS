@@ -9,9 +9,11 @@
   <link rel="stylesheet" href="layout-fixes.css" />
   <link rel="stylesheet" href="world-explorer.css" />
   <link rel="stylesheet" href="site-design.css" />
+  <link rel="stylesheet" href="site-polish.css" />
   <script src="world-explorer.js" defer></script>
 </head>
 <body>
+  <div class="site-background" aria-hidden="true"><span class="background-orbit background-orbit-one"></span><span class="background-orbit background-orbit-two"></span><span class="background-crosses"></span></div>
   <header class="site-header">
     <div class="page-width header-inner">
       <a href="#top" class="site-name">EvolvingWorldNav</a>
@@ -22,9 +24,21 @@
   <main id="top" class="page-width">
     <section class="paper-heading">
       <h1><span class="title-project">EvolvingWorld<span class="title-nav">Nav</span><span class="title-colon">:</span></span> <span class="title-description">Predictive 4D Belief for<br class="desktop" /> Persistent Navigation in Evolving Worlds</span></h1>
-      <p class="authors">Anonymous authors</p>
-      <p class="affiliation">ICLR 2027 anonymous submission</p>
-      <div class="paper-links"><a href="main.pdf" target="_blank" rel="noreferrer">Paper</a><a href="https://github.com/fengnian123/DR-AgentOS" target="_blank" rel="noreferrer">Code</a><a href="#bibtex">BibTeX</a><a href="#explorer" class="explore-link">Explore the method <span>↓</span></a></div>
+      <div class="paper-links" aria-label="Project resources">
+        <a href="main.pdf" target="_blank" rel="noreferrer" class="resource-button"><span class="button-symbol">↗</span><span class="button-copy"><strong>Paper</strong><small>Read the manuscript</small></span></a>
+        <a href="https://github.com/fengnian123/DR-AgentOS" target="_blank" rel="noreferrer" class="resource-button"><span class="button-symbol">⌘</span><span class="button-copy"><strong>Code</strong><small>GitHub repository</small></span></a>
+        <a href="#bibtex" class="resource-button"><span class="button-symbol">{ }</span><span class="button-copy"><strong>BibTeX</strong><small>Citation entry</small></span></a>
+        <a href="#explorer" class="resource-button explore-link"><span class="button-symbol">↓</span><span class="button-copy"><strong>Explore the method</strong><small>Interactive illustration</small></span></a>
+      </div>
+      <section class="hssd-demo-strip" aria-labelledby="hssd-demo-title">
+        <div class="hssd-demo-heading"><span class="hssd-demo-kicker">HSSD SCENES</span><h2 id="hssd-demo-title">Demo videos</h2><span class="hssd-demo-note">Four illustrative navigation episodes</span></div>
+        <div class="hssd-video-grid">
+          <figure class="hssd-video-card"><div class="hssd-video-frame"><video src="videos/HSSD/hssd_demo1_predictive_navigation.mp4" autoplay muted loop playsinline controls preload="metadata"></video><span class="hssd-video-label">01 · Predictive navigation</span></div><figcaption>Current-state belief</figcaption></figure>
+          <figure class="hssd-video-card"><div class="hssd-video-frame"><video src="videos/HSSD/hssd_demo2_belief_search.mp4" autoplay muted loop playsinline controls preload="metadata"></video><span class="hssd-video-label">02 · Belief-guided search</span></div><figcaption>Alternative hypotheses</figcaption></figure>
+          <figure class="hssd-video-card"><div class="hssd-video-frame"><video src="videos/HSSD/hssd_demo3_evidence_replanning.mp4" autoplay muted loop playsinline controls preload="metadata"></video><span class="hssd-video-label">03 · Evidence replanning</span></div><figcaption>Visibility-aware update</figcaption></figure>
+          <figure class="hssd-video-card"><div class="hssd-video-frame"><video src="videos/HSSD/hssd_demo4_predictive_memory.mp4" autoplay muted loop playsinline controls preload="metadata"></video><span class="hssd-video-label">04 · Predictive memory</span></div><figcaption>Temporal 4D memory</figcaption></figure>
+        </div>
+      </section>
     </section>
 
     <figure class="main-figure">
@@ -99,11 +113,11 @@
 
     <section id="bibtex" class="paper-section bibtex"><h2>BibTeX</h2><pre>@inproceedings{evolvingworldnav2027,
   title     = {EvolvingWorldNav: Predictive 4D Belief for Persistent Navigation in Evolving Worlds},
-  author    = {Anonymous authors},
+  author    = {EvolvingWorldNav authors},
   booktitle = {International Conference on Learning Representations},
   year      = {2027}
 }</pre></section>
   </main>
-  <footer><div class="page-width">EvolvingWorldNav · ICLR 2027 anonymous submission</div></footer>
+  <footer><div class="page-width">EvolvingWorldNav</div></footer>
 </body>
 </html>
