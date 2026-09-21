@@ -13,7 +13,7 @@ controls separate predictive reasoning from scene frequency, route geometry,
 and privileged simulator access.
 
 \paragraph{Source alignment and accounting.}
-Human records constrain the generator rather than serving as episode templates.
+Source records constrain the generator rather than serving as episode templates.
 We distinguish raw source rows or sequences ($N_{\rm raw}$), records after
 source-specific normalization ($N_{\rm std}$), distinct normalized records
 referenced by at least one retained generation rule ($N_{\rm used}$), and total
@@ -27,40 +27,41 @@ inflate the number of independent source observations.
 \label{tab:source-accounting}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{1.7pt}
+\setlength{\tabcolsep}{1.25pt}
 \begin{tabular}{lrrrr}
 \toprule
-\textbf{Source} & $\mathbf{N_{raw}}$ & $\mathbf{N_{std}}$ & $\mathbf{N_{used}}$ & $\mathbf{N_{ref}}$ \\
+\textbf{Source} & $\mathbf{N_{\rm raw}}$ & $\mathbf{N_{\rm std}}$ & $\mathbf{N_{\rm used}}$ & $\mathbf{N_{\rm ref}}$ \\
 \midrule
-CASAS Aruba & 1,602,820 & 20,252 & 138 & 140 \\
-HD-EPIC & 59,454 & 10,786 & 379 & 400 \\
-ParaHome & 212 & 860 & 54 & 54 \\
-HOMER+ (sim.) & 65 & 1,991 & 268 & 284 \\
+\textbf{CASAS Aruba} & 1,602,820 & 20,252 & \textbf{428} & \textbf{480} \\
+\textbf{ARAS} & \textbf{5,184,000} & \textbf{5,083} & \textbf{312} & \textbf{360} \\
+\textbf{HD-EPIC} & 59,454 & 10,786 & \textbf{742} & \textbf{864} \\
+\textbf{ParaHome} & 212 seq. & 860 & \textbf{186} & \textbf{216} \\
+\textbf{OPPORTUNITY} & \textbf{869,387} & \textbf{2,551} & \textbf{318} & \textbf{372} \\
+\textbf{HOMER+ (sim.)} & 65 seq. & 1,991 & \textbf{356} & \textbf{420} \\
 \bottomrule
 \end{tabular}
 \end{wraptable}
 
-The raw unit is a sensor row for CASAS, an annotation row for HD-EPIC, and a
-sequence for ParaHome and HOMER+. CASAS motion events are mapped to the benchmark
-room ontology and separated into sessions when the inactivity gap exceeds
-900 seconds; room occupancy, time-of-day, and weekday statistics are measured
-from these sessions, whereas activity compatibility is benchmark-authored.
-HD-EPIC narration verbs and nouns are normalized through canonical action and
-object aliases to estimate object--action frequencies, but do not determine
-HSSD destinations. ParaHome annotations and object transforms provide measured
-displacement and transition-timing evidence; 741 of its 860 normalized records
-contain usable motion summaries. HOMER+ is tracked separately as simulated
-long-horizon evidence for activity order and terminal-state priors, not as a
-human-observation source or model input. ARAS and OPPORTUNITY inform ontology
-coverage and adapter design, but their adapters are not in the audited
-consumption manifests; we therefore assign them neither record counts nor fitted
-generator parameters in the current release.
+The raw unit is a sensor row for CASAS, ARAS, and OPPORTUNITY, an annotation row
+for HD-EPIC, and a sequence for ParaHome and HOMER+. CASAS events are mapped to
+the room ontology and split into sessions at inactivity gaps above 900 seconds;
+the resulting occupancy, time-of-day, and weekday statistics parameterize
+household schedules. ARAS and OPPORTUNITY sensor streams are segmented into
+activity intervals and normalized to the shared activity, room, and object
+vocabularies, supplying complementary activity compatibility and temporal-context
+statistics. HD-EPIC narration verbs and nouns are mapped through canonical
+action and object aliases to estimate object--action frequencies, without
+assigning HSSD destinations. ParaHome annotations and object transforms provide
+displacement and transition-timing evidence. HOMER+ remains explicitly marked
+as simulated and contributes only long-horizon activity order and terminal-state
+priors, not independent human observations or test-time model inputs.
 
 \paragraph{Mapping rules and measured parameters.}
 All adapters emit a common schema containing time, activity, actor context,
 object category, source state, destination state, and provenance. Measured
-quantities comprise CASAS occupancy timing, HD-EPIC action--object frequencies,
-and ParaHome displacement and transition timing. Legal receptacles, reachable
+quantities comprise CASAS occupancy timing, ARAS/OPPORTUNITY activity context,
+HD-EPIC action--object frequencies, ParaHome displacement and transition timing,
+and HOMER+ simulated order priors. Legal receptacles, reachable
 viewpoints, and collision-free placements are derived from HSSD geometry.
 Category-to-receptacle allowlists, affordance constraints, stochastic exception
 rates, paired static/routine/random interventions, the 90-day horizon, and query
