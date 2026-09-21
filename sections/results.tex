@@ -166,8 +166,6 @@ enable efficient recovery. Removing evidence updates produces the largest Search
 SR loss (42.02 points) and 6.48 inspections, validating the event-driven
 predict--observe--replan loop rather than one-shot prediction.
 
-Prediction uses 322 changed-only temporal and 644 change-balanced LOSO queries;
-Top-1 is in percent and Ours is five-seed mean $\pm$ standard deviation.
 
 \begin{table}[!htbp]
 \caption{Current-state prediction on temporal and LOSO splits.}
@@ -204,8 +202,5 @@ prior remains below ours on both splits, indicating that the gain is not merely
 category--location frequency but transferable temporal structure. Together with
 the component results, this supports the paper's central claim: predictive
 history proposes useful states, structured uncertainty preserves recovery
-options, and online evidence closes the navigation loop. Further calibration,
-update, predictor, VLM, and component diagnostics are in
-\appref{fig:belief-calibration,%
-tab:evidence-update-ablation,tab:predictors-full,tab:foundation_models,%
-app:fine-grained-ablation}.
+options, and online evidence closes the navigation loop. More ablation experiment results are provided in
+\appref{app:experimental-results}.
