@@ -12,18 +12,63 @@ factors fixed while varying the hidden transition mechanism. Together, these
 controls separate predictive reasoning from scene frequency, route geometry,
 and privileged simulator access.
 
-\paragraph{Source alignment and provenance.}
-The generator combines longitudinal smart-home records from CASAS
-\citep{cook2013casas} and ARAS with multi-week activity and object-location
-sequences from HOMER+ \citep{patel2023routine}. HD-EPIC provides fine-grained
-egocentric action traces, and ParaHome provides reconstructed human--object
-interactions \citep{perrett2025hdepic,kim2025parahome}; OPPORTUNITY supplies
-complementary evidence. A common event schema records time, activity, actor
-context, object category, source state, destination state, and evidence
-provenance. Source statistics constrain schedules, activity--object
-associations, transition timing, and placement tendencies. No source trajectory
-is copied verbatim into simulation, and unsupported quantities are labeled
-benchmark-authored rather than measured human behavior.
+\paragraph{Source alignment and accounting.}
+Human records constrain the generator rather than serving as episode templates.
+We distinguish raw source rows or sequences ($N_{\rm raw}$), records after
+source-specific normalization ($N_{\rm std}$), distinct normalized records
+referenced by at least one retained generation rule ($N_{\rm used}$), and total
+rule references with reuse allowed ($N_{\rm ref}$). Table~\ref{tab:source-accounting}
+reports counts from the audited consumption manifests; reuse therefore does not
+inflate the number of independent source observations.
+
+\begin{wraptable}[11]{r}{0.54\linewidth}
+\vspace{-0.8\baselineskip}
+\caption{Audited source contributions.}
+\label{tab:source-accounting}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{1.7pt}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Source} & $\mathbf{N_{raw}}$ & $\mathbf{N_{std}}$ & $\mathbf{N_{used}}$ & $\mathbf{N_{ref}}$ \\
+\midrule
+CASAS Aruba & 1,602,820 & 20,252 & 138 & 140 \\
+HD-EPIC & 59,454 & 10,786 & 379 & 400 \\
+ParaHome & 212 & 860 & 54 & 54 \\
+HOMER+ (sim.) & 65 & 1,991 & 268 & 284 \\
+\bottomrule
+\end{tabular}
+\end{wraptable}
+
+The raw unit is a sensor row for CASAS, an annotation row for HD-EPIC, and a
+sequence for ParaHome and HOMER+. CASAS motion events are mapped to the benchmark
+room ontology and separated into sessions when the inactivity gap exceeds
+900 seconds; room occupancy, time-of-day, and weekday statistics are measured
+from these sessions, whereas activity compatibility is benchmark-authored.
+HD-EPIC narration verbs and nouns are normalized through canonical action and
+object aliases to estimate object--action frequencies, but do not determine
+HSSD destinations. ParaHome annotations and object transforms provide measured
+displacement and transition-timing evidence; 741 of its 860 normalized records
+contain usable motion summaries. HOMER+ is tracked separately as simulated
+long-horizon evidence for activity order and terminal-state priors, not as a
+human-observation source or model input. ARAS and OPPORTUNITY inform ontology
+coverage and adapter design, but their adapters are not in the audited
+consumption manifests; we therefore assign them neither record counts nor fitted
+generator parameters in the current release.
+
+\paragraph{Mapping rules and measured parameters.}
+All adapters emit a common schema containing time, activity, actor context,
+object category, source state, destination state, and provenance. Measured
+quantities comprise CASAS occupancy timing, HD-EPIC action--object frequencies,
+and ParaHome displacement and transition timing. Legal receptacles, reachable
+viewpoints, and collision-free placements are derived from HSSD geometry.
+Category-to-receptacle allowlists, affordance constraints, stochastic exception
+rates, paired static/routine/random interventions, the 90-day horizon, and query
+sampling are benchmark-authored and labeled as such. Thus no source trajectory
+is copied verbatim and no source count is expanded into a claimed number of
+independent human observations. The final manifest spans 54 scenes and 4,860
+scene-days, producing approximately 239.19k dynamic state changes and 803.68k
+task instances after physical-validity, observability, and leakage audits.
 
 \paragraph{Household generation and behavioral checks.}
 For each HSSD scene \citep{khanna2024hssd}, resident schedules, room preferences,
