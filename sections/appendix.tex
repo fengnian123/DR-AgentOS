@@ -209,6 +209,47 @@ Habitat-GS, SAGE-Bench on InteriorGS, and \pfdbench{} on HSSD. Scores are never
 pooled across these heterogeneous tasks, and published values are transferred
 only when split, sensors, actions, and success rules match.
 
+\paragraph{Result provenance and comparison scope.}
+The entries in \cref{tab:crossbench,tab:domains} come from two explicitly
+separated sources. A cell marked \textsuperscript{PR} is transcribed from the
+cited paper only when the benchmark version, evaluation split, metric, and
+success rule match; the marker applies to that cell rather than to an entire
+method row. Every unmarked baseline entry is reproduced by us. Missing values
+are left unreported rather than inferred from another task or checkpoint.
+Accordingly, \cref{tab:crossbench} evaluates memory and prediction under each
+benchmark's task definition, whereas \cref{tab:domains} measures
+cross-environment system performance under native navigation tasks. Neither
+table is interpreted as a single architecture-controlled ablation; causal
+attribution to our predictive belief is instead provided by the paired-world
+control and component ablations.
+
+\paragraph{Test-time information boundary.}
+All reproduced methods receive only information public in the target
+benchmark. On \pfdbench{}, observations are truncated at the current decision
+time. Count and Markov baselines use only the target category, public time, and
+latest supported state; structured memories such as HOV-SG and DynaMem replay
+the same causal RGB-D and poses; predictive models receive public state or edge
+histories and the legal candidate graph. Released navigation agents consume
+only their native RGB-D/video window, goal specification, and proprioception.
+The paper-reported FindingDory cell specifically uses the cited release's
+Qwen2.5-VL-3B checkpoint and native 96-frame history; it is not recomputed with
+our planner. No reproduced method receives the private current state, future
+observations, query-time activity, target pose, oracle viewpoint, or simulator
+visibility flags. Oracle rows, where present, are diagnostics and are excluded
+from fair rankings.
+
+\paragraph{Training and model selection.}
+Non-parametric baselines are estimated from the public training split, with
+smoothing or time bins fixed on validation. Internal neural baselines use the
+same event tokens, candidate encoder, training scenes, and validation rule as
+\pfdnav{}. External predictive architectures that require target-domain fitting
+are trained only on \pfdbench{} days 0--79 and selected on days 80--84; days
+85--89 remain test-only. When an official checkpoint exists for a native
+benchmark, we retain that checkpoint and its prescribed observation window.
+Task-adapted systems are labeled separately from zero-shot systems in
+\cref{tab:domains}; interface conversion is not counted as navigation-policy
+training.
+
 \paragraph{Prediction splits.}
 Each scene history follows a 90-day chronological split: days 0--79 are used
 for training, days 80--84 for validation, and days 85--89 for testing. Temporal
@@ -230,14 +271,20 @@ failures. Indoor/outdoor balance, platform specifications, and condition-wise
 breakdowns are provided in \appref{app:real-world}.
 
 \paragraph{Reporting controls.}
-Within a comparison, methods share detectors, candidate states, inspection
-viewpoints, and budgets. Released navigation agents retain their native policy;
-memory-only and prediction-only systems are attached to the shared planner so
-that temporal reasoning is not confounded with a stronger perception or control
-stack. Results are stratified by world variant, staleness, transition class,
-mobility regime, and generalization split. Paired routine/static/random episodes
-retain scene, query, and marginal placement factors while changing only the
-hidden transition mechanism.
+We use two method-preserving adaptation regimes. Memory-only and
+prediction-only systems retain their native representation or predictor, map
+their outputs onto the legal candidate states, and use the shared planner,
+inspection viewpoints, and action budget; this isolates temporal reasoning
+from low-level control. End-to-end navigation agents retain their released
+perception, mapping, and policy, with adapters limited to sensor conventions,
+task-goal formatting, action vocabulary, and \texttt{STOP} semantics. We do not
+add our VLM planner or predictive belief to those agents. Their cross-domain
+scores therefore measure full-system compatibility, while the controlled
+\pfdbench{} and real-robot comparisons support module-level claims. Results are
+stratified by world variant, staleness, transition class, mobility regime, and
+generalization split. Paired routine/static/random episodes retain scene,
+query, and marginal placement factors while changing only the hidden
+transition mechanism.
 
 \section{Benchmark Construction and Evaluation Protocol}
 \label{app:benchmark-protocol}
