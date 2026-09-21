@@ -4,14 +4,9 @@
 \evolvingworldnav{} turns timestamped 3D histories into a current-state belief
 and revises it from opportunistic and deliberate RGB-D evidence; its \pfdnav{} core separates
 persistence from relocation (\cref{fig:p4dnav_method}).
-
-\begin{figure*}[!htbp]
-    \centering
-    \includegraphics[width=\textwidth]{figures/method.pdf}
-    \caption{\evolvingworldnav{} couples persistent 4D memory, predictive belief,
-    and an embodied agent that updates and replans from stepwise evidence.}
-    \label{fig:p4dnav_method}
-\end{figure*}
+The resulting loop treats navigation as sequential belief revision: predictions
+propose destinations, while embodied observations determine whether to continue,
+redirect, or explore.
 
 \subsection{Problem Formulation}
 \label{sec:problem}
@@ -47,6 +42,14 @@ protocols: N1--N3 hold the target fixed during navigation to isolate query-time
 inference and evidence-guided search, whereas N4 permits further hidden
 transitions while the agent moves. Both use the same event-driven filtering and
 replanning interface.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/method.pdf}
+    \caption{\evolvingworldnav{} couples persistent 4D memory, predictive belief,
+    and an embodied agent that updates and replans from stepwise evidence.}
+    \label{fig:p4dnav_method}
+\end{figure}
 
 \subsection{Causal 4D Memory and History Encoding}
 \label{sec:memory_encoding}

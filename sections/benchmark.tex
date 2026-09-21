@@ -30,14 +30,6 @@ visibility-qualified updates and recovery. N1--N3 fix the target after the
 query. N4 advances the world clock during execution, permitting further hidden
 transitions. N5 applies these protocols to held-out scenes and households.
 
-\begin{wrapfigure}{r}{0.56\textwidth}
-    \centering
-    \vspace{-8pt}
-    \includegraphics[width=\linewidth]{figures/dataset-generate.pdf}
-    \caption{Construction of \pfdbench{}.}
-    \label{fig:p4dbench-generation}
-\end{wrapfigure}
-
 VLN grounds language goals in the same histories; EQA probes current and
 historical states without future evidence. Our experiments emphasize prediction
 and navigation, with EQA as a memory diagnostic. Controlled comparisons match public
@@ -66,6 +58,14 @@ personal, and irregular regimes test persistence, activity regularity,
 owner-specific habits, and uncertainty (\cref{tab:mobility-regimes}); labels
 are hidden. Habitat replay ensures semantically valid, collision-free placements
 and reachable inspection viewpoints.
+
+\begin{wrapfigure}[18]{r}{0.50\textwidth}
+    \centering
+    \vspace{-6pt}
+    \includegraphics[width=\linewidth]{figures/dataset-generate.pdf}
+    \caption{Construction of \pfdbench{}.}
+    \label{fig:p4dbench-generation}
+\end{wrapfigure}
 
 Patrols collect visibility-qualified RGB-D using only maps, time, travel cost,
 and observed history. Queries expose only observations available by the query

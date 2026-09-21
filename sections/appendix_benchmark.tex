@@ -21,12 +21,13 @@ rule references with reuse allowed ($N_{\rm ref}$). Table~\ref{tab:source-accoun
 reports counts from the audited consumption manifests; reuse therefore does not
 inflate the number of independent source observations.
 
-\begin{table}[H]
-\caption{Audited source contributions to \pfdbench{} generation.}
+\begin{wraptable}[11]{r}{0.54\linewidth}
+\vspace{-0.8\baselineskip}
+\caption{Audited source contributions.}
 \label{tab:source-accounting}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.6pt}
+\setlength{\tabcolsep}{1.7pt}
 \begin{tabular}{lrrrr}
 \toprule
 \textbf{Source} & $\mathbf{N_{raw}}$ & $\mathbf{N_{std}}$ & $\mathbf{N_{used}}$ & $\mathbf{N_{ref}}$ \\
@@ -37,7 +38,7 @@ ParaHome & 212 & 860 & 54 & 54 \\
 HOMER+ (sim.) & 65 & 1,991 & 268 & 284 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{wraptable}
 
 The raw unit is a sensor row for CASAS, an annotation row for HD-EPIC, and a
 sequence for ParaHome and HOMER+. CASAS motion events are mapped to the benchmark
