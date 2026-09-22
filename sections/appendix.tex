@@ -725,34 +725,34 @@ subset across three platforms; this evaluates transfer, not parity.
 \subsection{Qualitative Cases}
 \label{app:real-world-cases}
 
-The outdoor comparison in \cref{fig:real-world-car-case} isolates the effect of
-stale memory. The full-width indoor traces in
-\cref{fig:real-world-cup-predictive,fig:real-world-cup-last-seen} provide the
-corresponding pair: \evolvingworldnav{} routes directly to the cup's predicted
-office location, whereas Last Seen spends its first inspection at the now-empty
-pantry rack. These traces visualize representative outcomes and do not add
-observations to the aggregate success-rate measurements.
+The outdoor comparison in \cref{fig:real-world-car-case} isolates stale memory
+in a car-search task: Last Seen revisits the previous entrance-side parking
+location and observes that the target is absent, whereas \evolvingworldnav{}
+reaches its current location. The two-row indoor comparison in
+\cref{fig:real-world-cup-comparison} shows the same failure mode for a cup:
+\evolvingworldnav{} routes to the predicted office location, while Last Seen
+first inspects the now-empty pantry rack. These traces visualize representative
+outcomes and do not add observations to the aggregate success-rate measurements.
 
-\begin{figure}[!t]
+\begin{figure*}[!t]
     \centering
-    \includegraphics[width=\textwidth]{figures/Real_World_Case_third_2.pdf}
-    \caption{Indoor cup search with predictive belief.}
-    \label{fig:real-world-cup-predictive}
-\end{figure}
-
-\begin{figure}[!t]
-    \centering
-    \includegraphics[width=\textwidth]{figures/Real_World_Case_third_3.pdf}
-    \caption{Indoor cup search with stale Last Seen memory.}
-    \label{fig:real-world-cup-last-seen}
-\end{figure}
+    \includegraphics[width=0.92\textwidth]{figures/Real_World_Case_third_2.pdf}
+    \vspace{2pt}
+    \includegraphics[width=0.92\textwidth]{figures/Real_World_Case_third_3.pdf}
+    \caption{Indoor cup search with predictive belief (top) and stale Last Seen memory (bottom).}
+    \label{fig:real-world-cup-comparison}
+\end{figure*}
+\FloatBarrier
 
 \paragraph{Additional system execution cases.}
 Beyond predictive target search,
 \cref{fig:real-world-indoor-long-horizon,fig:real-world-outdoor-long-horizon}
 document two longer-horizon executions. The indoor case combines navigation,
-person verification, document collection, and delivery; the outdoor case shows
-obstacle detection and route replanning during shared-bike search. They
+person verification, document collection, and delivery. Because the LYNX M20
+has no manipulator, after the person is verified, a human places the documents
+on the robot; the robot then autonomously transports them to the meeting room.
+The outdoor case shows obstacle detection and route replanning during
+shared-bike search. They
 demonstrate broader system orchestration but are not used as quantitative
 evidence for the predictive-belief module.
 

@@ -17,12 +17,14 @@ combine persistent histories, executable placements, and controlled dynamics.
     \label{fig:p4dbench}
 \end{wrapfigure}
 
-Grouped by task modality, the pool comprises current-state prediction (11\%),
-object navigation (27\%), vision-and-language navigation (VLN; 19\%), and
-embodied question answering (EQA; 43\%)
-\citep{majumdar2024openeqa,sakamoto2024map}. The complementary protocol-level
-partition in \cref{fig:p4dbench} is N1 (13.51\%), N2 (13.37\%), N3 (13.27\%),
-N4 (26.52\%), N5 (3.34\%), and EQA (43.36\%). Prediction evaluates a calibrated
+At the task-modality level shown in \cref{fig:evolvingworldnav_overview}, the
+pool comprises current-state prediction (26\%), object navigation (30\%),
+vision-and-language navigation (VLN; 17\%), and embodied question answering
+(EQA; 27\%) \citep{majumdar2024openeqa,sakamoto2024map}. The complementary
+protocol-export accounting in \cref{fig:p4dbench} is N1 (13.51\%), N2
+(13.37\%), N3 (13.27\%), N4 (26.52\%), N5 (3.34\%), and EQA (29.99\%). In this
+second view, VLN-conditioned episodes are assigned to their corresponding
+navigation protocol rather than shown as a separate wedge. Prediction evaluates a calibrated
 region/receptacle belief independently of control; navigation uses the same
 target--time queries (\cref{fig:p4dbench,tab:tasks}). N1 inspects the Top-1
 destination; N2 uses the full belief for cost-aware search; N3 adds
