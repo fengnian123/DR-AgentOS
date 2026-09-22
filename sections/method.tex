@@ -140,9 +140,24 @@ recurring alternatives, and diffuse uncertainty in one normalized belief.
 Given a goal, a frozen vision--language controller invokes memory, prediction,
 navigation, inspection, and exploration tools. An \emph{event-driven
 predict--observe--replan filter} runs after a short action chunk, sufficient new
-coverage, a material ETA or route change, target evidence, or arrival at an
-inspection viewpoint. En-route evidence can therefore redirect the first
-deliberate inspection rather than only affect later recovery.
+coverage, an ETA change, target evidence, or arrival. At current epoch $t_j$,
+the encoder produces $\mathbf h_j$ and a row-normalized transition operator
+\begin{equation}
+[K_\theta^{(j)}(\Delta t)]_{r,u}=\operatorname{softmax}_{u}
+f_\theta(\mathbf h_j,\mathbf g_r,\mathbf g_u,\phi_\Delta(\Delta t)).
+\label{eq:transition-kernel}
+\end{equation}
+It shares the history and candidate encoders with \cref{eq:history-encoder,eq:pointer}
+but has a separate transition head trained by row-wise cross-entropy on
+chronological training-state pairs (\appref{app:belief-control}). The filter
+initializes $b_0^-=b_q^-$. After a chunk from $t_j$ to $t_{j+1}$ it predicts the
+new current-time prior before using the new observation:
+\begin{equation}
+b_{j+1}^-=b_j^+K_\theta^{(j)}(t_{j+1}-t_j).
+\label{eq:filter-predict}
+\end{equation}
+Hence $b_j^\pm$ is the current-time filtering belief, distinct from each
+candidate's arrival-time forecast.
 
 \paragraph{Arrival-aware action selection.}
 For candidate viewpoints $\mathcal W_i$, let
@@ -184,20 +199,23 @@ b_j^+(i)=\frac{b_j^-(i)\ell_j(i)}
 {\sum_{u\in\widetilde{\mathcal C}_o}b_j^-(u)\ell_j(u)}.
 \label{eq:bayes}
 \end{equation}
-The update fires only when cumulative coverage increases by more than
-$\delta_C=0.05$, preventing correlated-frame reuse; a verified match stops.
+Within one evidence round, the update fires only when previously unused surface
+coverage increases by more than $\delta_C=0.05$; its likelihood is computed
+from that incremental region rather than the whole overlapping frame. Dynamic
+reopening starts a new time-valid round, so a later observation from the same
+viewpoint can supply evidence about a state that may have changed. A verified
+match stops.
 
 \paragraph{Posterior propagation and replanning.}
-Rather than restarting query-time prediction, \pfdnav{} propagates the latest
-posterior through $[K_\theta^{(j)}(\Delta t)]_{r,u}=
-P(s_{t_j+\Delta t}=u\mid s_{t_j}=r,\mathcal H_{\leq t_j})$:
+For action selection, the current posterior is forecast separately to each
+candidate's ETA rather than replacing the current-time filter:
 \begin{equation}
 b_{j,i}^{\mathrm{arr}}=b_j^+K_\theta^{(j)}(\widehat\tau_{j,i}),\qquad
 p_{j,i}^{\mathrm{arr}}=b_{j,i}^{\mathrm{arr}}(i).
 \label{eq:arrival-belief}
 \end{equation}
-N1--N3 use identity dynamics after the query; N4 propagates to each candidate's
-ETA. Each measurement enters once, and its posterior is the next propagation
-state. Transition mass or a new viewpoint can reopen an inspected candidate;
-the agent replans when the preferred utility changes. ETA, de-duplication,
-reopening, and executable unknown semantics are in \appref{app:belief-control}.
+N1--N3 use identity dynamics; N4 applies
+\cref{eq:filter-predict,eq:arrival-belief}. Each epoch executes, propagates to
+now, updates once from new evidence, forecasts candidate arrivals, and replans.
+Transition mass or a new time-valid evidence round can reopen a candidate;
+complete pseudocode and de-duplication are in \appref{app:belief-control}.

@@ -84,36 +84,85 @@ without a separate change label or oracle mobility type.
 \subsection{Evidence Updates and Online Prediction}
 \label{app:belief-control}
 
+\paragraph{Transition-kernel parameterization and training.}
+The transition operator in \cref{eq:transition-kernel} is not inferred from a
+single marginal belief. It is an additional row-conditional prediction head
+that shares the continuous-time history encoder and candidate embeddings with
+the query-time predictor. Its training set contains chronological tuples
+$(H_{\leq t_a},s_{t_a},\Delta t,s_{t_a+\Delta t})$ extracted only from training
+world histories. For each tuple, the known source state selects one row and the
+future state supervises
+\begin{equation}
+\mathcal L_{\mathrm{trans}}=-\log
+[K_\theta(\Delta t\mid H_{\leq t_a})]_{s_{t_a},s_{t_a+\Delta t}},\qquad
+\mathcal L=\mathcal L_{\mathrm{state}}+\lambda_K\mathcal L_{\mathrm{trans}}.
+\label{eq:transition-loss}
+\end{equation}
+Horizons are sampled from the empirical action-chunk and candidate-arrival
+range. The softmax over destination states makes every row sum to one. No
+transition label, future state, or mobility tag is available at test time. In
+N1--N3, where the target is fixed after the query, $K$ is the identity; learned
+propagation is activated only for N4.
+
 \paragraph{Decision epochs and ETA.}
-The filter begins with $b_0^-=b_q^-$. An epoch is triggered after a short
-action chunk, when a view adds sufficient candidate coverage, when the route or
-ETA changes materially, when target evidence is obtained, or when the robot
-reaches an inspection viewpoint. For candidate $i$, the navigation backend
-estimates
+The filter begins with $b_0^-=b_q^-$ and $b_0^+=b_0^-$ when no query-time
+measurement is available. An epoch is triggered after a short action chunk,
+when a view adds sufficient candidate coverage, when the route or ETA changes
+materially, when target evidence is obtained, or when the robot reaches an
+inspection viewpoint. After a chunk of observed duration
+$\Delta t_j=t_{j+1}-t_j$, \cref{eq:filter-predict} first produces the prior at
+the new current time. For candidate $i$, the navigation backend then estimates
 \begin{equation}
 \widehat\tau_{j,i}=\frac{d_{\mathrm{geo}}(x_j,\mathcal W_i)}{\widehat v_j}
 +\tau_{\mathrm{inspect}}(i),\qquad
 \widehat v_j=\alpha\widehat v_{j-1}+(1-\alpha)\frac{\Delta d_j}{\Delta t_j}.
 \label{eq:eta}
 \end{equation}
-All ETAs are recomputed after obstruction or replanning. The posterior from
-\cref{eq:bayes} is propagated directly by \cref{eq:arrival-belief}; the
-predictor is not restarted from the query-time prior.
+All ETAs are recomputed after obstruction or replanning. Candidate-specific
+arrival beliefs are forecasts from the current posterior, not filtering states
+at the current time, and never replace $b_j^+$ unless their horizon is actually
+executed.
 
-\paragraph{Coverage-gated evidence without leakage.}
-Let $C_j(i)$ be the union of candidate surface samples observed through epoch
-$j$. A no-detection event is created only if
-$\Delta C_j(i)=C_j(i)-C_{j-1}(i)>\delta_C$, with $\delta_C=0.05$. Candidate
+\paragraph{Complete event-driven filter.}
+The implementation follows the same ordering at every decision epoch:
+\begin{enumerate}[leftmargin=1.55em,itemsep=0pt,topsep=2pt]
+    \item Initialize $t_0=t_q$, $b_0^-=b_q^-$, incorporate any valid
+    query-time measurement once to obtain $b_0^+$, and initialize an evidence
+    ledger for every candidate.
+    \item From $b_j^+$, forecast each $b_{j,i}^{\mathrm{arr}}$ to its own ETA,
+    score known candidates and \texttt{EXPLORE}, and select the highest-utility
+    action.
+    \item Execute only a short action chunk and record its actual elapsed time,
+    displacement, pose, and RGB-D evidence.
+    \item Propagate to the new current time:
+    $b_{j+1}^-=b_j^+K_\theta^{(j)}(t_{j+1}-t_j)$.
+    \item Create measurements only for candidates whose evidence ledger admits
+    new information; apply \cref{eq:bayes} once per evidence identifier to
+    obtain $b_{j+1}^+$. Stop on a verified positive detection.
+    \item Update speed and ETAs, forecast all candidate-specific arrival
+    beliefs from $b_{j+1}^+$, reopen eligible states, and replan if the preferred
+    action changes; otherwise execute the next short chunk.
+\end{enumerate}
+This explicitly separates the current-time filter
+$b_j^-\rightarrow b_j^+$ from the counterfactual arrival forecasts
+$\{b_{j,i}^{\mathrm{arr}}\}_i$.
+
+\paragraph{Time-valid evidence rounds without leakage.}
+Candidate $i$ maintains an evidence-round index $m(i)$ and
+$C_j^{(m)}(i)$, the union of surface samples observed within that round. A
+no-detection event is created only if the previously unused coverage satisfies
+$\Delta C_j^{(m)}(i)>\delta_C$, with $\delta_C=0.05$. Candidate
 surface samples from 4D memory are projected into the live camera, and online
 depth marks samples as visible when they lie in the frustum and agree with the
 measured depth. The resulting online-estimated coverage and other view features
 form $\mathbf f_{j,i}$ for the calibrated detector model $g_\phi$ in
-\cref{eq:negative}. One view can therefore update several candidates with
-different strengths. Opportunistic views and deliberate inspections use the
-same rule, although the latter usually provide more coverage. A candidate is
-counted as a sufficiently covered inspection when
-$C_j(i)\geq\tau_{\mathrm{cov}}=0.70$; this designation does not permanently
-remove it from the candidate set.
+\cref{eq:negative}. Crucially, $\widehat r_{j,i}$ is evaluated on the newly
+admitted surface samples and rays, not on the entire overlapping image. One
+view can update several candidates with different strengths. Opportunistic
+views and deliberate inspections use the same rule, although the latter usually
+provide more coverage. A candidate is counted as a sufficiently covered
+inspection when $C_j^{(m)}(i)\geq\tau_{\mathrm{cov}}=0.70$; this designation
+does not permanently remove it from the candidate set.
 
 Every measurement has a unique evidence identifier and is incorporated once.
 Its RGB-D frame and pose remain in memory as provenance, but its likelihood is
@@ -121,6 +170,11 @@ not multiplied again or reintroduced as an independent history token into the
 current filter. Ground-truth target masks, poses, unoccluded fractions, and
 simulator visibility flags are retained only by the private evaluator; an
 oracle-visibility diagnostic is reported separately from fair comparisons.
+Incremental masking and evidence identifiers do not assert that video frames
+are statistically independent; they prevent direct reuse of the same surface
+evidence. The remaining dependence is the filter's conditional-measurement
+approximation and is absorbed by the validation-fitted calibrator. We never
+multiply repeated whole-view detection probabilities from overlapping frames.
 
 \paragraph{Reopening candidates and executing unknown.}
 There is no permanent exclusion set. Each candidate stores cumulative coverage,
@@ -136,6 +190,14 @@ exceeds $\tau_{\mathrm{return}}=0.05$, or a new viewpoint offers
 $\Delta C(i)>\delta_C=0.05$. Thus a weak or occluded view supports multi-view
 reinspection, and a location verified empty can regain mass after sufficient
 world evolution.
+
+Reopening by a new viewpoint alone retains the current round, so only genuinely
+new geometry is admitted. Reopening caused by propagated belief or predicted
+return after elapsed time starts round $m(i)+1$ and resets only that round's
+coverage gate; the earlier coverage map and negative observations remain in
+the provenance ledger. Consequently, the same viewpoint can provide a new
+measurement after the world may have changed, while adjacent frames within one
+state-validity interval cannot repeatedly suppress the same hypothesis.
 
 The $\mathrm{unknown}$ state invokes an executable \texttt{EXPLORE} action with
 \begin{equation}
@@ -165,7 +227,10 @@ The Oracle Activity diagnostic may use the hidden activity and source location b
 \paragraph{Prediction model and optimization.}
 The history encoder uses three Transformer layers, hidden width 128, four
 attention heads, maximum history length $K=64$, and dropout 0.1. Candidate
-encoders are shared across scenes. We optimize with AdamW at learning rate
+encoders are shared across scenes. The transition scorer $f_\theta$ is a
+two-layer width-128 MLP with GELU activation; it shares the history and
+candidate encoders but not the persistence, relocation, or transition output
+heads. We set $\lambda_K=1$ in \cref{eq:transition-loss}. We optimize with AdamW at learning rate
 $3\times10^{-4}$, weight decay $10^{-2}$, and batch size 64 for at most 100
 epochs. Gradients are clipped to an $\ell_2$ norm of 1.0. Early stopping uses
 patience 10 on validation NLL, and the checkpoint with the lowest validation
@@ -349,6 +414,14 @@ found. Excess path is $L_i-L_i^*$ for fixed-during-navigation episodes. For
 online-dynamic episodes, the oracle is trajectory aware and may intercept the
 target; we therefore report both success within the common budget and
 $L_i-L_{i,\mathrm{dyn}}^*$.
+Dynamic SR is computed only on N4 episodes with at least one target transition
+between query and termination. Online Recovery SR conditions further on a
+transition that invalidates the currently selected destination and records
+eventual success after online evidence and replanning. Revisit Success is the
+percentage of dynamically reopened candidate visits that recover the target.
+N4 episodes in which evolution is enabled but no target transition is realized
+form a separate no-transition slice and are not mixed into these dynamic
+metrics.
 
 Calibration metrics operate on the full candidate belief before navigation and after each update. ECE bins maximum confidence, Brier score evaluates all candidates, and true-state rank avoids hiding useful changes below Top-1. Search-cost curves plot success against allowed inspections and travelled distance rather than reporting one arbitrary budget.
 
@@ -582,9 +655,28 @@ selection.
 \label{fig:predictive-memory}
 \end{figure}
 
+\begin{table}[!htbp]
+\caption{Paired-world SR and routine gain (\%).}
+\label{tab:worlds}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Method} & \textbf{Static SR} & \textbf{Routine SR} & \textbf{Random SR} &
+\makecell{\textbf{Routine gain}\\\textbf{over Last Seen}}\\
+\midrule
+Last Seen & \textbf{84.38} & 38.49 & 23.19 & --\\
+Markov Transition & 80.22 & 32.57 & 20.64 & $-5.92$\\
+Direct Transformer & 69.79 & 48.82 & \textbf{31.39} & $+10.33$\\
+\rowcolor{tblours}\textbf{\pfdnav{}} & 82.19 & \textbf{60.85} & 30.12 & \textbf{$+22.36$}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \paragraph{Paired-world control.}
 \Cref{tab:worlds} holds scenes and queries fixed while changing only the world
-transition mechanism. Last Seen reaches 100.00 SR in static worlds but falls to
+transition mechanism. Last Seen reaches 84.38 SR in static worlds but falls to
 38.49 under routine evolution, exposing the failure of stale memory. In contrast,
 \pfdnav{} reaches 60.85 routine-world SR, improving by 22.36 points over Last
 Seen and by 12.03 points over Transformer Direct. Under matched random motion,
@@ -598,6 +690,25 @@ search shortcut.
 how performance changes with temporal staleness, inspection budget, and hidden
 mobility type. These episode-level diagnostics are not inferred from aggregate
 success rates.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.96\textwidth]{figures/behavior_shift_trace_grounding.pdf}
+\caption{Recovery under behavior shift and temporal grounding to held-out traces.}
+\label{fig:behavior-shift-grounding}
+\end{figure*}
+
+\paragraph{Behavior-shift and trace-grounding diagnostic.}
+\Cref{fig:behavior-shift-grounding} tests whether the learned regularities are
+limited to the benchmark generator's nominal timing. Online Recovery SR falls
+for all methods under phase offsets, return delays, destination shifts, and
+their combination, but \evolvingworldnav{} remains above Last Seen and
+PredictiveGraphs in every condition. The duration CDF further shows that the
+generated transition durations track the broad temporal scale of held-out real
+traces without exactly reproducing them. This diagnostic supports robustness to
+moderate behavior shift and temporal grounding beyond a single generator
+setting; it is not presented as evidence of unrestricted out-of-distribution
+generalization.
 
 \section{Real-World Evaluation}
 \label{app:real-world-eval}
