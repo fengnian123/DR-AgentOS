@@ -24,11 +24,12 @@ matched LYNX M20 trials per method.
 
 \paragraph{Real-world setup.}
 We evaluate on the DEEP Robotics LYNX M20 as the primary quantitative
-platform, with X30 and Lite3 used for transfer. Platform-specific perception
-and low-level navigation are wrapped by a common interface, while all methods
-receive identical pre-query histories, candidate locations, start conditions,
-and robot-specific control stacks. Each 360-second episode uses a stationary
-target and requires online confirmation within three inspections.
+platform over 64 matched trials, with X30 and Lite3 evaluated on matched
+32-block transfer subsets. Platform-specific perception and low-level
+navigation are wrapped by a common interface, while all methods receive
+identical pre-query histories, candidate locations, start conditions, and
+robot-specific control stacks. Each 360-second episode requires online
+confirmation within three inspections.
 
 \paragraph{Controllers and baselines.}
 Our main method uses a frozen GPT-5.6-Luna controller in a zero-shot setting:

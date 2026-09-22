@@ -327,10 +327,11 @@ private transition label is available at inference time.
 
 \paragraph{Real-world protocol.}
 LYNX M20 is the primary quantitative platform, with X30 and Lite3 used for
-transfer. Each method receives identical pre-query history, candidate locations,
-start condition, perception interface, and robot-specific low-level stack.
-Targets remain stationary during each 360-second search episode, and success
-requires autonomous online confirmation within three inspections. Missed
+transfer. The primary M20 comparison uses 64 matched trials, whereas X30 and
+Lite3 use matched 32-block transfer subsets. Each method receives identical
+pre-query history, candidate locations, start condition, perception interface,
+and robot-specific low-level stack. Success requires autonomous online
+confirmation within three inspections during a 360-second episode. Missed
 detections, navigation failures, timeouts, and human interventions count as
 failures. Indoor/outdoor balance, platform specifications, and condition-wise
 breakdowns are provided in \appref{app:real-world}.
@@ -805,7 +806,7 @@ condition-wise view separates benefits from routine modeling from improvements
 that could be explained by generic search alone.
 
 \par\medskip
-\begin{wraptable}[7]{r}{0.60\linewidth}
+\begin{wraptable}[10]{r}{0.60\linewidth}
 \vspace{-0.7\baselineskip}
 \centering
 \caption{Cross-platform navigation transfer.}
@@ -830,8 +831,10 @@ Platform & Method & First-Inspection SR & Search SR & Dist. (m) \\
 
 \paragraph{Recovery and cross-platform transfer.}
 After failed first inspections, \evolvingworldnav{} recovered 9/37 M20
-episodes (24.3\%). \Cref{tab:real-transfer} reports gains on a matched 16-block
-subset across three platforms; this evaluates transfer, not parity.
+episodes (24.3\%). \Cref{tab:real-transfer} reports the matched 32-block
+transfer comparison for X30 and Lite3 alongside the corresponding M20 subset;
+the primary M20 result still uses all 64 trials. This evaluates transfer, not
+platform parity.
 
 \subsection{Qualitative Cases}
 \label{app:real-world-cases}
