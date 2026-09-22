@@ -1,111 +1,93 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Long-lived robots must distinguish what they remember from what is still true.
-A bowl observed in a cabinet yesterday may be beside the sink when a task starts, even though the robot has witnessed no change. 
-Retrieving the earlier observation correctly can therefore send the robot to the wrong destination.
-The bowl may move again while the robot is en route, making even an initially
-correct prediction stale before arrival. 
-Searching from scratch discards
-accumulated experience, while treating the last observation as current can
-waste travel and inspection effort. 
-Persistent navigation requires both retaining historical evidence and assessing its relevance to the current task.
+Robots deployed for extended periods do not act on snapshots of the world.
+Human activity continually changes task-relevant state, often outside the
+robot's view. A medication box remembered on a bedside table may have returned
+to a cabinet before a request arrives; even a correct query-time prediction may
+become stale while the robot is traveling. The robot therefore acts not on the
+world itself, but on an internal state assembled from partial observations made
+minutes, hours, or days earlier. Long-term autonomy requires distinguishing
+\emph{what was observed} from \emph{what is likely true when action reaches it}.
 
-Persistent memories and open-vocabulary maps retain past object observations
-\citep{gu2024conceptgraphs,liu2024dynamem}, while predictive scene
-representations estimate a query-time state from historical regularities
-\citep{patel2023routine,saavedraruiz2026predictivegraphs}. Most existing
-methods retrieve past state or estimate state at a decision time.
-PredictiveGraphs goes further by exposing Top-$k$ navigation candidates,
-online observation updates, and an agent/tool architecture
-\citep{saavedraruiz2026predictivegraphs}. The remaining gap is not the mere
-presence of prediction or feedback, but a filtering loop for a world that can
-continue changing during execution: the posterior must be propagated to each
-candidate's arrival time, revised only by newly visible evidence, and fed back
-into prediction and replanning without double counting. An occluded view must
-not eliminate a hypothesis, while a previously empty location may become
-plausible again after further hidden evolution.
+Persistent memories and open-vocabulary maps retain object-centric experience
+\citep{gu2024conceptgraphs,liu2024dynamem}; predictive representations infer
+unobserved states from temporal regularities
+\citep{patel2023routine,saavedraruiz2026predictivegraphs}. PredictiveGraphs also
+provides Top-$k$ candidates and incorporates observations collected during
+navigation \citep{saavedraruiz2026predictivegraphs}. These are important
+ingredients, yet a distinct decision problem remains when action duration
+advances the hidden world. Candidate locations have different arrival times;
+each action delays the next observation; and the resulting evidence must feed
+back into prediction without being counted twice. The missing capability is
+thus not prediction or online feedback alone, but closed-loop navigation that
+continuously predicts, tests, and revises multiple hypotheses as the world
+evolves.
 
-Unlike online target tracking, the agent may receive no observation when a
-change occurs and must begin acting before any hypothesis can be verified. The
-challenge is therefore not only to maintain a current map, but to decide which
-uncertain world state is worth testing and how strongly a failed inspection
-should alter subsequent action.
+This view yields concrete requirements. Memory must preserve timestamped
+history rather than overwrite it with a nominal current map. The agent must
+separate whether the last state still holds from where the object may have
+moved, retain alternatives instead of committing to a single destination, and
+forecast each alternative at its expected inspection time. Evidence must also
+be interpreted conditionally: a clear empty view should suppress a hypothesis,
+whereas occlusion should preserve uncertainty. Finally, an inspected location
+cannot be excluded forever because later hidden evolution may make it plausible
+again. Actions therefore serve both navigation and active state estimation.
 
-We study \emph{persistent navigation in evolving worlds} through
-portable-object navigation, namely navigation for movable objects whose
-locations may change over time. Given a target, intermittent observations,
-candidate locations, and a finite action budget, the agent must locate and
-visually verify the target without access to hidden transitions or its current
-ground-truth state. \pfdbench{} evaluates two complementary execution settings.
-In N1--N3, the target is fixed after the query, isolating query-time state
-inference, belief-guided search, and evidence-based recovery without further
-target motion. In N4, the world clock continues during execution and additional
-hidden transitions may occur while the agent is en route, testing arrival-time
-prediction and replanning. Only evidence available at each decision time may
-inform the agent; unlike continuous target tracking, neither setting reveals a
-transition when it occurs.
+We formalize this problem as \emph{Evolving-World Navigation}: locating and
+visually verifying task-relevant entities from intermittent histories while
+their latent states may change outside observation, both before a query and
+during execution. To isolate complementary capabilities, we design one setting
+that fixes the target after the query and tests query-time inference,
+belief-guided search, and evidence-based recovery, and another that continues
+the world clock during navigation to test arrival-time prediction and
+replanning. Neither setting reveals hidden transitions; only causal observations
+along the executed trajectory may update the agent.
 
-Our approach separates two questions: \emph{does the object occupy its last
-observed location, and if not, where might it be?} We factorize the current-state
-belief into a persistence probability and a distribution over alternatives.
-Persistence measures agreement with the last observation, including objects
-that leave and return. Elapsed time and routine phase can affect these
-hypotheses differently: two equally old observations need not imply the same
-current location if one query falls before a habitual activity and the other
-after it. The resulting belief retains alternatives that can guide action when
-the initial route becomes stale. Opportunistic and deliberate observations test
-these hypotheses: a clear view of an empty location reduces its probability,
-whereas an obstructed view leaves more uncertainty.
+We instantiate this formulation with \evolvingworldnav{}
+(\cref{fig:evolvingworldnav_overview}). A frozen, zero-shot vision--language
+controller invokes memory, prediction, inspection, exploration, and navigation
+tools. Its learned \pfdnav{} module encodes irregular, timestamped 3D entity
+histories and factorizes belief into persistence at the last observed state,
+relocation among alternatives, and residual mass outside the known set. An
+event-driven predict--observe--replan filter then propagates this posterior to
+candidate-specific arrival times, executes short action chunks, updates from
+new visibility-aware RGB-D evidence, and replans. Time-valid evidence rounds
+avoid repeated use of correlated frames while allowing previously inspected
+states to reopen after further evolution.
 
-We implement this approach in \evolvingworldnav{}, an embodied agent with
-\textbf{4D Predictive Memory} (\cref{fig:evolvingworldnav_overview}). A frozen
-vision--language controller invokes memory, prediction, inspection, and
-navigation tools, while the learned predictor supplies the current-state
-belief. Within \evolvingworldnav{}, \pfdnav{} serves as this predictive module:
-it encodes irregular observations with a continuous-time Transformer and
-estimates a structured persistence--relocation belief, including probability
-mass outside the known candidate set. The memory associates persistent 3D
-entities with timestamped state histories and provenance. The agent orders
-inspections using arrival-time belief, expected new visibility, and travel
-cost. An event-driven filter alternates short navigation chunks, visibility-
-aware measurement updates, temporal propagation, and replanning; it can reopen
-previously inspected candidates or explore when probability remains outside the
-known set.
+Existing benchmarks do not jointly expose stale histories, hidden transitions,
+and the physical cost of testing uncertain states. We therefore introduce
+\pfdbench{}, a human-trace-grounded simulation benchmark with 54 evolving scenes
+and 803.68k tasks spanning state prediction, object navigation,
+vision-and-language navigation, and embodied question answering. Its paired
+static, routine, and random worlds hold scene and query factors fixed while
+varying temporal structure, separating predictive reasoning from location
+frequency or spatial convenience.
 
-We introduce \pfdbench{} to evaluate the interaction between history,
-prediction, and action. This human-trace-grounded simulation benchmark contains
-54 scenes and 803.68k task instances across current-state prediction, object
-navigation, vision-and-language navigation, and embodied question answering.
-Human traces constrain executable scene histories rather than serve as copied
-trajectories. Paired static, routine, and random worlds hold scene and query
-factors fixed while varying the hidden transition process. The random control
-matches legal candidates and marginal movement statistics while removing
-temporal dependencies, testing whether historical regularities improve
-decisions beyond location frequency and spatial convenience. Our primary
-experiments focus on current-state prediction and navigation. Separate metrics
-let us examine how state-estimation quality translates into successful physical
-search under a finite action budget.
+Experiments connect prediction quality to embodied outcomes. Across the full
+navigation suite, \evolvingworldnav{} reaches 61.32\% First-Inspection SR and
+86.18\% Search SR, exceeding DynaMem by 15.99 and 14.24 points
+(\cref{tab:crossbench}). On episodes with execution-time target motion, it
+improves Dynamic SR by 18.4 points over PredictiveGraphs
+(\cref{tab:n4-online}); component ablations isolate the contributions of
+structured belief and online evidence revision. Cross-benchmark, frozen-VLM,
+held-out-scene, and physical-robot evaluations test whether these gains extend
+beyond one simulator. Paired controls show the clearest advantage under
+learnable routines rather than matched random motion, supporting the scientific
+claim that historical regularity is useful when maintained as revisable belief.
 
-Across the full N1--N5 navigation suite, \evolvingworldnav{} achieves 61.32\%
-First-Inspection SR and 86.18\% Search SR, exceeding DynaMem, the strongest evaluated
-baseline on both metrics, by 15.99 and 14.24 percentage points, respectively
-(\cref{tab:crossbench}). Evaluations on FindingDory, GOAT-Bench, held-out
-scenes, and physical robots examine performance beyond \pfdbench{}.
-The paired controls show that the gain over Last Seen is substantially larger
-in routine than in matched random worlds (\cref{tab:worlds}). These results
-support predictive memory when object relocations contain learnable temporal
-structure. Our contributions are fourfold:
-\begin{itemize}[leftmargin=*,itemsep=1mm]
+Our contributions are fourfold:
+\begin{itemize}[leftmargin=*,itemsep=0.6mm,topsep=1mm]
     \item \textbf{Evolving-World Navigation:}
-    We formulate navigation under hidden world evolution, where states may change outside the agent's view and during execution.
+    We formulate navigation under hidden changes before and during execution.
 
     \item \textbf{Predictive 4D Belief Agent:}
-    We introduce \evolvingworldnav{}, coupling structured state prediction with an event-driven predict--observe--replan filter.
+    \evolvingworldnav{} couples structured prediction with event-driven belief revision.
 
     \item \textbf{P4D-Bench:}
-    We establish a large-scale benchmark with 54 evolving scenes and 803.68k tasks for controlled evaluation of predictive navigation.
+    We provide 54 evolving scenes and 803.68k controlled evaluation tasks.
 
     \item \textbf{Comprehensive Validation:}
-    Extensive simulation and real-robot experiments demonstrate consistent gains across environments, benchmarks, and frozen VLMs.
+    Simulation and real-robot studies validate the core claims across settings and VLMs.
 \end{itemize}

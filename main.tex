@@ -77,32 +77,29 @@
 \maketitle
 
 \begin{abstract}
-Object-level memory enables robots to remember where objects were previously observed, but these locations can become outdated when objects are moved outside the robot's view. Finding such objects requires reasoning about whether they remain at their last observed locations, where they may have moved, and how that belief should change as the world continues evolving during navigation. We propose \evolvingworldnav{}, an embodied agent for persistent object-goal navigation that transforms timestamped 3D entity histories into beliefs about current object locations. A continuous-time Transformer learns persistence and relocation patterns from irregular observations. Within a frozen vision--language control loop, an event-driven filter propagates the posterior to candidate-specific arrival times, executes short navigation chunks, incorporates only newly visible evidence, and replans without permanently discarding previously inspected states. Visibility is estimated from online RGB-D rather than privileged target state, distinguishing confirmed absence from inconclusive views. To support evaluation, we introduce \pfdbench{}, a human-trace-grounded simulation benchmark comprising \textbf{54} scenes and \textbf{803.68k} task instances for reasoning and navigation under unobserved changes. Across its navigation suite, \evolvingworldnav{} achieves \textbf{61.32\%} First-Inspection SR and \textbf{86.18\%} Search SR, outperforming the strongest evaluated baseline by \textbf{15.99} and \textbf{14.24} percentage points, respectively. Controlled evaluations show that predictive gains are greatest when object movements exhibit learnable temporal structure, highlighting the importance of explicit uncertainty and active evidence gathering when history alone is insufficient.
-
-% A robot can remember an object correctly and still navigate to the wrong place
-% when the world continues to evolve during navigation and the change occurs
-% outside its view. Recent memory and mapping methods retain spatial experience,
-% while predictive scene representations and routine models anticipate
-% object-state changes; the challenge is to turn intermittent observations into
-% navigation decisions that retain alternative location hypotheses and
-% incorporate new evidence. We introduce \evolvingworldnav{}, an embodied agent
-% for persistent navigation in evolving worlds that turns timestamped 3D entity
-% histories into a belief over current object locations. A continuous-time
-% Transformer learns this persistence--relocation belief from irregular
-% observations, separating whether the last observed state remains valid from
-% where the object may have moved. Within a frozen vision--language control loop,
-% the agent balances candidate probability against inspection cost, then updates
-% its belief and replans using visibility-aware evidence that distinguishes an
-% empty location from an inconclusive view. We also introduce \pfdbench{}, a
-% human-trace-grounded simulation benchmark with \textbf{54} scenes and
-% \textbf{803.68k} task instances for evaluating inference and action under
-% hidden world evolution. On its navigation evaluation, \evolvingworldnav{}
-% achieves \textbf{61.32\%} First-Inspection SR and \textbf{86.18\%} search
-% success, exceeding the strongest evaluated baseline by \textbf{15.99} and
-% \textbf{14.24} percentage points, respectively. Controlled evaluations show that
-% predictive gains are largest under learnable temporal structure, motivating
-% explicit uncertainty modeling and evidence gathering when history alone is
-% insufficient.
+Long-lived embodied agents rarely act on a fresh snapshot: objects may move
+outside their view, so a correctly retrieved memory can describe a world that
+no longer exists. This problem persists during execution---a prediction that is
+correct when a task begins may be stale when the robot arrives. We study
+navigation from partial, temporally stale histories, where the agent must infer
+the latent current state, act under uncertainty, and revise that inference as
+time and evidence accumulate. Our key insight is that memory should provide
+temporal evidence about the present rather than be treated as the present. We
+introduce \evolvingworldnav{}, which converts timestamped 3D entity histories
+into a structured persistence--relocation belief and carries that uncertainty
+through action. Within a frozen, zero-shot vision--language control loop, an
+event-driven filter propagates beliefs to candidate-specific arrival times,
+incorporates only newly informative RGB-D evidence, and replans while allowing
+previously inspected states to become plausible again. We further introduce
+\pfdbench{}, a human-trace-grounded benchmark with \textbf{54} evolving scenes
+and \textbf{803.68k} tasks for controlled evaluation of hidden world evolution.
+Across its navigation suite, \evolvingworldnav{} attains \textbf{61.32\%}
+First-Inspection SR and \textbf{86.18\%} Search SR, exceeding the strongest
+evaluated baseline by \textbf{15.99} and \textbf{14.24} points. Paired controls
+show that the advantage is largest under learnable temporal structure, while
+ablations isolate the value of maintaining uncertainty and updating it from
+visibility-aware evidence. These results position predictive belief revision,
+rather than static recall, as a foundation for persistent embodied autonomy.
 \end{abstract}
 
 \raggedbottom
@@ -121,6 +118,7 @@ Object-level memory enables robots to remember where objects were previously obs
 \input{sections/results}
 \input{sections/conclusion}
 
+\clearpage
 \bibliographystyle{iclr2027_conference}
 \bibliography{main}
 

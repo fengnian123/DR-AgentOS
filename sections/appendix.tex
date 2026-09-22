@@ -656,12 +656,15 @@ selection.
 \label{fig:predictive-memory}
 \end{figure}
 
-\begin{table}[!htbp]
+\par\medskip
+\begin{wraptable}[8]{r}{0.60\linewidth}
+\vspace{-0.7\baselineskip}
 \caption{Paired-world SR and routine gain (\%).}
 \label{tab:worlds}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{2.6pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Method} & \textbf{Static SR} & \textbf{Routine SR} & \textbf{Random SR} &
@@ -673,7 +676,8 @@ Direct Transformer & 69.79 & 48.82 & \textbf{31.39} & $+10.33$\\
 \rowcolor{tblours}\textbf{\pfdnav{}} & 82.19 & \textbf{60.85} & 30.12 & \textbf{$+22.36$}\\
 \bottomrule
 \end{tabular}
-\end{table}
+}
+\end{wraptable}
 
 \paragraph{Paired-world control.}
 \Cref{tab:worlds} holds scenes and queries fixed while changing only the world
