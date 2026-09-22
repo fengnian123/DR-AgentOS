@@ -2,33 +2,29 @@
 \label{sec:method}
 
 \evolvingworldnav{} turns timestamped 3D histories into a current-state belief
-and revises it from opportunistic and deliberate RGB-D evidence; its \pfdnav{} core separates
-persistence from relocation (\cref{fig:p4dnav_method}).
-The resulting loop treats navigation as sequential belief revision: predictions
-propose destinations, while embodied observations determine whether to continue,
-redirect, or explore.
+and revises it with opportunistic or deliberate RGB-D evidence. Its \pfdnav{}
+core separates persistence from relocation, while the agent predicts, observes,
+replans, or explores (\cref{fig:p4dnav_method}).
+This makes navigation a sequence of belief revisions: predictions propose
+destinations, and embodied observations determine whether to continue or redirect.
 
 \subsection{Problem Formulation}
 \label{sec:problem}
 
-We formalize portable-object navigation to connect hidden world evolution,
-predictive belief, and physical action. Let an environment contain a
-navigable space $\mathcal X$, persistent entities $\mathcal O$, and candidate
-states $\mathcal C_o$ for each target $o\in\mathcal O$. Each state is a valid
-receptacle or region with inspection viewpoints. Before query time $t_q$, the
-agent has collected only a partial history
+Let an environment contain a navigable space $\mathcal X$, persistent entities
+$\mathcal O$, and candidate states $\mathcal C_o$ for each target
+$o\in\mathcal O$; every state is a valid receptacle or region with inspection
+viewpoints. Before query time $t_q$, the agent has only the causal history
 \begin{equation}
 \mathcal H_{\leq t_q}=\{(I_k,D_k,\xi_k,t_k)\mid t_k\leq t_q\},
 \end{equation}
-where $I_k,D_k,\xi_k$ denote RGB, depth, and camera pose. The true query-time
-state $s_{t_q}^o\in\widetilde{\mathcal C}_o$ is hidden, where
-$\widetilde{\mathcal C}_o=\mathcal C_o\cup\{\mathrm{unknown}\}$ includes
-unmapped states. Later transitions outside the agent's view are also hidden.
+where $I_k,D_k,\xi_k$ are RGB, depth, and camera pose. The hidden state
+$s_{t_q}^o\in\widetilde{\mathcal C}_o=\mathcal C_o\cup\{\mathrm{unknown}\}$
+may be unmapped, and later out-of-view transitions are also hidden.
 
-An episode provides a target, query time, initial pose $x_0$, causal memory,
-and a finite action budget. At step $j$, the agent acts and observes $z_j$;
-success requires stopping near a valid viewpoint with the target visible and
-correctly identified.
+An episode specifies a target, query time, initial pose $x_0$, causal memory,
+and a finite action budget. After acting, the agent observes $z_j$; success
+requires stopping at a valid viewpoint with the target visible and identified.
 The objective is
 \begin{equation}
 \pi^*=\arg\max_{\pi}\;\mathbb E_{\pi}\!\left[
@@ -36,12 +32,12 @@ The objective is
 \right],
 \label{eq:objective}
 \end{equation}
-where $L$ is travel distance, $N_{\mathrm{inspect}}$ counts inspections, and
-$\lambda_d,\lambda_n$ weight their costs. \pfdbench{} provides complementary
-protocols: N1--N3 hold the target fixed during navigation to isolate query-time
-inference and evidence-guided search, whereas N4 permits further hidden
-transitions while the agent moves. Both use the same event-driven filtering and
-replanning interface.
+where $L$ is travel distance and $N_{\mathrm{inspect}}$ counts inspections.
+The weights $\lambda_d$ and $\lambda_n$ trade success against travel and
+inspection cost.
+We evaluate a fixed-target protocol that isolates query-time inference and
+search, plus a continuing-evolution protocol with hidden execution-time
+transitions; both use the same event-driven filtering and replanning interface.
 
 \begin{figure}[H]
     \centering
@@ -54,9 +50,9 @@ replanning interface.
 \subsection{Causal 4D Memory and History Encoding}
 \label{sec:memory_encoding}
 The 4D memory registers RGB-D observations in a shared frame and associates
-persistent entities across views using semantics, geometry, time, and source
-confidence. Frozen open-vocabulary models provide semantic support
-\citep{liu2024grounding,ravi2025sam,radford2021learning}. Memory is materialized
+entities using semantics, geometry, time, and source confidence. Frozen
+open-vocabulary models provide semantic support
+\citep{liu2024grounding,ravi2025sam,radford2021learning}; memory is materialized
 causally from versioned deltas:
 \begin{equation}
 \mathcal M_{\leq t}=\operatorname{Materialize}(\Delta\mathcal M_0,\ldots,\Delta\mathcal M_t)
@@ -65,25 +61,23 @@ causally from versioned deltas:
 \end{equation}
 where $\mathcal G_t$ stores semantic--spatial relations, $\mathcal V_t$ stores
 time-valid entity versions, and $\mathcal B_t$ stores observation provenance.
-An observed change appends a time-valid version without erasing identity or
-history, and every query excludes future evidence. Projection, association, and
-versioning details appear in \appref{app:memory-details}.
+An observed change appends a version without erasing identity or history, and
+every query excludes future evidence. Projection, association, and versioning
+are detailed in \appref{app:memory-details}.
 
 \paragraph{Target-conditioned history and continuous time.}
-For target $o$, a typed memory query resolves its persistent identity and returns
-the most recent $K$ causal events
+For target $o$, a typed query returns the most recent $K$ causal events
 \begin{equation}
 H_o=\{e_k=(o_k,s_k,t_k,z_k,c_k,v_k)\}_{k=1}^{K},
 \label{eq:history}
 \end{equation}
-where $o_k,t_k$ denote the entity and observation time;
-$s_k$ identifies the observed or inspected candidate state;
-$z_k\in\{\mathrm{seen},\mathrm{notseen}\}$ is the evidence type; $c_k$ is
-perception confidence; and $v_k$ measures whether that state was adequately
-visible. Context events share entities, receptacles, regions, or time windows
-with the target; hidden labels are excluded. Candidate encodings combine
-context, function, geometry, and identity, while \texttt{unknown} absorbs
-unmapped states.
+where $o_k,t_k$ identify the entity and observation time, $s_k$ is the observed
+or inspected candidate state, and
+$z_k\in\{\mathrm{seen},\mathrm{notseen}\}$ is the evidence type. The terms
+$c_k,v_k$ encode confidence and adequate visibility. Context events share an
+entity, receptacle, region, or time window with the target; hidden labels remain
+excluded. Candidate encodings capture function and geometry, while
+\texttt{unknown} absorbs unmapped states.
 
 Each event token combines semantic, evidence, and temporal features:
 \begin{align}
@@ -104,8 +98,8 @@ labels.
 
 \subsection{Persistence--Relocation Belief}
 \label{sec:belief_model}
-We predict whether the last observed state holds and where the target is
-otherwise. Let $s_{\mathrm{last}}$ be the last positive state, guaranteed by
+We predict whether the last observation persists and, otherwise, where the
+target moved. Let $s_{\mathrm{last}}$ be the last positive state, guaranteed by
 episode validity (\appref{app:audit}). The persistence branch predicts
 \begin{equation}
 \rho_q=P(s_{t_q}^o=s_{\mathrm{last}}\mid H_o,t_q)
@@ -138,20 +132,20 @@ recurring alternatives, and diffuse uncertainty in one normalized belief.
 \label{sec:agent}
 
 Given a goal, a frozen vision--language controller invokes memory, prediction,
-navigation, inspection, and exploration tools. An \emph{event-driven
-predict--observe--replan filter} runs after a short action chunk, sufficient new
-coverage, an ETA change, target evidence, or arrival. At current epoch $t_j$,
-the encoder produces $\mathbf h_j$ and a row-normalized transition operator
+navigation, inspection, and exploration tools. An event-driven filter runs
+after a short action chunk, new coverage, an ETA change, target evidence, or
+arrival. At epoch $t_j$, the encoder produces $\mathbf h_j$ and the row-normalized
+transition operator
 \begin{equation}
 [K_\theta^{(j)}(\Delta t)]_{r,u}=\operatorname{softmax}_{u}
 f_\theta(\mathbf h_j,\mathbf g_r,\mathbf g_u,\phi_\Delta(\Delta t)).
 \label{eq:transition-kernel}
 \end{equation}
-It shares the history and candidate encoders with \cref{eq:history-encoder,eq:pointer}
-but has a separate transition head trained by row-wise cross-entropy on
-chronological training-state pairs (\appref{app:belief-control}). The filter
-initializes $b_0^-=b_q^-$. After a chunk from $t_j$ to $t_{j+1}$ it predicts the
-new current-time prior before using the new observation:
+It shares the history and candidate encoders in
+\cref{eq:history-encoder,eq:pointer}, while a separate transition head is
+trained with row-wise cross-entropy on chronological state pairs
+(\appref{app:belief-control}). Initializing $b_0^-=b_q^-$, a completed chunk
+predicts the next current-time prior before incorporating the new observation:
 \begin{equation}
 b_{j+1}^-=b_j^+K_\theta^{(j)}(t_{j+1}-t_j).
 \label{eq:filter-predict}
@@ -199,11 +193,11 @@ b_j^+(i)=\frac{b_j^-(i)\ell_j(i)}
 {\sum_{u\in\widetilde{\mathcal C}_o}b_j^-(u)\ell_j(u)}.
 \label{eq:bayes}
 \end{equation}
-Within one evidence round, the update fires only when previously unused surface
-coverage increases by more than $\delta_C=0.05$; its likelihood is computed
-from that incremental region rather than the whole overlapping frame. Dynamic
-reopening starts a new time-valid round, so a later observation from the same
-viewpoint can supply evidence about a state that may have changed. A verified
+Within an evidence round, updating requires more than $\delta_C=0.05$ new
+surface coverage. Its likelihood uses only that incremental region rather than
+the full overlapping frame, preventing adjacent video frames from repeatedly
+counting the same evidence. Dynamic reopening starts a new time-valid round,
+allowing the same viewpoint to test a state that may have changed. A verified
 match stops.
 
 \paragraph{Posterior propagation and replanning.}
@@ -214,8 +208,8 @@ b_{j,i}^{\mathrm{arr}}=b_j^+K_\theta^{(j)}(\widehat\tau_{j,i}),\qquad
 p_{j,i}^{\mathrm{arr}}=b_{j,i}^{\mathrm{arr}}(i).
 \label{eq:arrival-belief}
 \end{equation}
-N1--N3 use identity dynamics; N4 applies
-\cref{eq:filter-predict,eq:arrival-belief}. Each epoch executes, propagates to
-now, updates once from new evidence, forecasts candidate arrivals, and replans.
-Transition mass or a new time-valid evidence round can reopen a candidate;
-complete pseudocode and de-duplication are in \appref{app:belief-control}.
+The fixed-target protocol uses identity dynamics, while continuing evolution
+applies \cref{eq:filter-predict,eq:arrival-belief}. Each epoch propagates to now,
+updates once from new evidence, forecasts candidate arrivals, and replans.
+Transition mass or a new time-valid round can reopen a candidate; complete
+pseudocode and de-duplication are in \appref{app:belief-control}.
