@@ -2,8 +2,8 @@
 \label{sec:method}
 
 \evolvingworldnav{} turns timestamped 3D histories into a current-state belief
-and revises it from opportunistic and deliberate RGB-D evidence; its \pfdnav{} core separates
-persistence from relocation (\cref{fig:p4dnav_method}).
+and revises it using opportunistic and deliberate RGB-D evidence. Its \pfdnav{}
+core separates persistence from relocation (\cref{fig:p4dnav_method}).
 The resulting loop treats navigation as sequential belief revision: predictions
 propose destinations, while embodied observations determine whether to continue,
 redirect, or explore.
@@ -104,8 +104,8 @@ labels.
 
 \subsection{Persistence--Relocation Belief}
 \label{sec:belief_model}
-We predict whether the last observed state holds and where the target is
-otherwise. Let $s_{\mathrm{last}}$ be the last positive state, guaranteed by
+We predict whether the last observed state still holds and, if not, where the
+target is. Let $s_{\mathrm{last}}$ be the last positive state, guaranteed by
 episode validity (\appref{app:audit}). The persistence branch predicts
 \begin{equation}
 \rho_q=P(s_{t_q}^o=s_{\mathrm{last}}\mid H_o,t_q)
@@ -138,11 +138,12 @@ recurring alternatives, and diffuse uncertainty in one normalized belief.
 \label{sec:agent}
 
 Given a goal, a frozen vision--language controller invokes memory, prediction,
-navigation, inspection, and exploration tools. An \emph{event-driven
-predict--observe--replan filter} runs after a short action chunk, sufficient new
-coverage, a material ETA or route change, target evidence, or arrival at an
-inspection viewpoint. En-route evidence can therefore redirect the first
-deliberate inspection rather than only affect later recovery.
+navigation, inspection, and exploration tools. An event-driven
+predict--observe--replan filter runs after a short action chunk or when new
+coverage is sufficient, the ETA or route changes substantially, target evidence
+is observed, or the agent reaches an inspection viewpoint. En-route evidence can
+therefore redirect the first deliberate inspection rather than only affect
+later recovery.
 
 \paragraph{Arrival-aware action selection.}
 For candidate viewpoints $\mathcal W_i$, let
@@ -184,8 +185,9 @@ b_j^+(i)=\frac{b_j^-(i)\ell_j(i)}
 {\sum_{u\in\widetilde{\mathcal C}_o}b_j^-(u)\ell_j(u)}.
 \label{eq:bayes}
 \end{equation}
-The update fires only when cumulative coverage increases by more than
-$\delta_C=0.05$, preventing correlated-frame reuse; a verified match stops.
+The update is applied only when cumulative coverage increases by more than
+$\delta_C=0.05$, preventing correlated-frame reuse. The agent stops after a
+verified match.
 
 \paragraph{Posterior propagation and replanning.}
 Rather than restarting query-time prediction, \pfdnav{} propagates the latest
@@ -199,5 +201,6 @@ p_{j,i}^{\mathrm{arr}}=b_{j,i}^{\mathrm{arr}}(i).
 N1--N3 use identity dynamics after the query; N4 propagates to each candidate's
 ETA. Each measurement enters once, and its posterior is the next propagation
 state. Transition mass or a new viewpoint can reopen an inspected candidate;
-the agent replans when the preferred utility changes. ETA, de-duplication,
-reopening, and executable unknown semantics are in \appref{app:belief-control}.
+the agent replans when the preferred utility changes. Details on ETA,
+de-duplication, reopening, and executable semantics for the unknown state appear
+in \appref{app:belief-control}.

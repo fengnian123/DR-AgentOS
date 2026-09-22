@@ -2,7 +2,7 @@
 \label{sec:benchmark}
 
 \pfdbench{} evaluates decisions from time-ordered observation histories while the
-world changes outside observation. Its 54 scenes and 803.68k task instances
+world changes outside the agent's view. Its 54 scenes and 803.68k task instances
 combine persistent histories, executable placements, and controlled dynamics.
 
 \subsection{Tasks and Controlled Dynamics}
@@ -35,7 +35,7 @@ historical states without future evidence. Our experiments emphasize prediction
 and navigation, with EQA as a memory diagnostic. Controlled comparisons match public
 observations, candidates, geometry, starts, controllers, and budgets.
 
-Paired \emph{static}, \emph{routine}, and \emph{random} worlds share public setup
+Paired static, routine, and random worlds share public setup
 variables. Static preserves the last supported state; routine follows household
 dynamics; random matches legal candidates and marginal movement statistics while
 removing temporal dependencies. Improvements specific to routine worlds thus

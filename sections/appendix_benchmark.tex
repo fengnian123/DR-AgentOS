@@ -66,7 +66,7 @@ and HOMER+ simulated order priors. Legal receptacles, reachable
 viewpoints, and collision-free placements are derived from HSSD geometry.
 Category-to-receptacle allowlists, affordance constraints, stochastic exception
 rates, paired static/routine/random interventions, the 90-day horizon, and query
-sampling are benchmark-authored and labeled as such. Thus no source trajectory
+sampling are benchmark-authored and labeled as such. No source trajectory
 is copied verbatim and no source count is expanded into a claimed number of
 independent human observations. The final manifest spans 54 scenes and 4,860
 scene-days, producing approximately 239.19k dynamic state changes and 803.68k
@@ -124,12 +124,12 @@ executability, and research relevance. The target category or instance must be
 instantiated in the private world state (or explicitly belong to a valid
 not-found track), candidate states and viewpoints must be reachable, and the
 action budget must permit a meaningful search. Language goals must identify the
-intended object without answer-correlated names or future-state hints. Finally,
-each task is checked to ensure that it probes the paper's setting---stale
-observations, hidden evolution, predictive belief, or visibility-aware evidence
-updates---rather than reducing to a static or trivially solvable navigation
-case. Reviewers assign accept, revise, or reject decisions; disagreements are
-resolved by majority vote, while unresolved or high-risk cases are adjudicated
+intended object without answer-correlated names or future-state hints. Each task
+is also checked to ensure that it probes stale observations, hidden evolution,
+predictive belief, or visibility-aware evidence updates, rather than reducing
+to a static or trivially solvable navigation case. Reviewers assign accept,
+revise, or reject decisions; disagreements are resolved by majority vote,
+while unresolved or high-risk cases are adjudicated
 by the supervisor. Rejected cases are regenerated or removed, and the audit log
 records the decision and reason for every retained item.
 

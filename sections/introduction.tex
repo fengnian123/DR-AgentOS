@@ -18,9 +18,8 @@ representations estimate a query-time state from historical regularities
 methods retrieve past state or estimate state at a decision time.
 PredictiveGraphs goes further by exposing Top-$k$ navigation candidates,
 online observation updates, and an agent/tool architecture
-\citep{saavedraruiz2026predictivegraphs}. The remaining gap is not the mere
-presence of prediction or feedback, but a filtering loop for a world that can
-continue changing during execution: the posterior must be propagated to each
+\citep{saavedraruiz2026predictivegraphs}. A remaining challenge is to account
+for changes during execution: the posterior must be propagated to each
 candidate's arrival time, revised only by newly visible evidence, and fed back
 into prediction and replanning without double counting. An occluded view must
 not eliminate a hypothesis, while a previously empty location may become
@@ -32,9 +31,9 @@ challenge is therefore not only to maintain a current map, but to decide which
 uncertain world state is worth testing and how strongly a failed inspection
 should alter subsequent action.
 
-We study \emph{persistent navigation in evolving worlds} through
-portable-object navigation, namely navigation for movable objects whose
-locations may change over time. Given a target, intermittent observations,
+We study persistent navigation in evolving worlds through
+portable-object navigation, in which target locations can change over time.
+Given a target, intermittent observations,
 candidate locations, and a finite action budget, the agent must locate and
 visually verify the target without access to hidden transitions or its current
 ground-truth state. \pfdbench{} evaluates two complementary execution settings.
@@ -46,8 +45,8 @@ prediction and replanning. Only evidence available at each decision time may
 inform the agent; unlike continuous target tracking, neither setting reveals a
 transition when it occurs.
 
-Our approach separates two questions: \emph{does the object occupy its last
-observed location, and if not, where might it be?} We factorize the current-state
+Our approach separates two questions: does the object occupy its last
+observed location, and if not, where might it be? We factorize the current-state
 belief into a persistence probability and a distribution over alternatives.
 Persistence measures agreement with the last observation, including objects
 that leave and return. Elapsed time and routine phase can affect these
@@ -77,8 +76,8 @@ We introduce \pfdbench{} to evaluate the interaction between history,
 prediction, and action. This human-trace-grounded simulation benchmark contains
 54 scenes and 803.68k task instances across current-state prediction, object
 navigation, vision-and-language navigation, and embodied question answering.
-Human traces constrain executable scene histories rather than serve as copied
-trajectories. Paired static, routine, and random worlds hold scene and query
+We use human traces to constrain executable scene histories without copying
+their trajectories. Paired static, routine, and random worlds hold scene and query
 factors fixed while varying the hidden transition process. The random control
 matches legal candidates and marginal movement statistics while removing
 temporal dependencies, testing whether historical regularities improve
@@ -104,8 +103,8 @@ structure. Our contributions are fourfold:
     We introduce \evolvingworldnav{}, coupling structured state prediction with an event-driven predict--observe--replan filter.
 
     \item \textbf{P4D-Bench:}
-    We establish a large-scale benchmark with 54 evolving scenes and 803.68k tasks for controlled evaluation of predictive navigation.
+    We introduce a benchmark with 54 evolving scenes and 803.68k tasks for controlled evaluation of predictive navigation.
 
-    \item \textbf{Comprehensive Validation:}
-    Extensive simulation and real-robot experiments demonstrate consistent gains across environments, benchmarks, and frozen VLMs.
+    \item \textbf{Evaluation:}
+    Simulation and real-robot experiments show consistent gains across environments, benchmarks, and frozen VLMs.
 \end{itemize}

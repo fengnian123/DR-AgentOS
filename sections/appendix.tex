@@ -2,8 +2,7 @@
 \label{app:method-details}
 
 This section gives the formal episode interface, memory representation, baseline
-specification, and implementation details that support the method described in
-the main paper.
+specification, and implementation details for the method in the main paper.
 
 \subsection{Formal Episode Interface}
 \label{app:episode}
@@ -210,13 +209,13 @@ pooled across these heterogeneous tasks, and published values are transferred
 only when split, sensors, actions, and success rules match.
 
 \paragraph{Result provenance and comparison scope.}
-The entries in \cref{tab:crossbench,tab:domains} come from two explicitly
-separated sources. A cell marked \textsuperscript{PR} is transcribed from the
-cited paper only when the benchmark version, evaluation split, metric, and
+The entries in \cref{tab:crossbench,tab:domains} come from two sources. A cell
+marked \textsuperscript{PR} is transcribed from the cited paper only when the
+benchmark version, evaluation split, metric, and
 success rule match; the marker applies to that cell rather than to an entire
 method row. Every unmarked baseline entry is reproduced by us. Missing values
 are left unreported rather than inferred from another task or checkpoint.
-Accordingly, \cref{tab:crossbench} evaluates memory and prediction under each
+\Cref{tab:crossbench} evaluates memory and prediction under each
 benchmark's task definition, whereas \cref{tab:domains} measures
 cross-environment system performance under native navigation tasks. Neither
 table is interpreted as a single architecture-controlled ablation; causal
@@ -355,8 +354,8 @@ Calibration metrics operate on the full candidate belief before navigation and a
 \section{Additional Experimental Results}
 \label{app:experimental-results}
 
-This section provides extended quantitative results omitted from the main paper
-for space constraints.
+This section provides additional quantitative results omitted from the main
+paper because of space constraints.
 
 \input{sections/appendix_results}
 
@@ -382,13 +381,13 @@ unscaled.
 \makecell{\textbf{Distance (m)}\\\textbf{$\downarrow$}} &
 \makecell{\textbf{Recovery SR (\%)}\\\textbf{$\uparrow$}}\\
 \midrule
-\rowcolor{tblnav}\multicolumn{4}{c}{\emph{Navigation and persistent memory}}\\
+\rowcolor{tblnav}\multicolumn{4}{c}{Navigation and persistent memory}\\
 VLFM \citep{yokoyama2024vlfm} & 4.85 & 18.72 & 22.41\\
 LagMemo GLUE \citep{zhou2025lagmemo} & 3.92 & 13.24 & 45.62\\
 HOV-SG \citep{werby2024hovsg} & 3.36 & 12.08 & 51.24\\
 DynaMem \citep{liu2024dynamem} & 2.51 & 11.59 & 63.93\\
 \midrule
-\rowcolor{tblpredict}\multicolumn{4}{c}{\emph{Predictive world and state modeling}}\\
+\rowcolor{tblpredict}\multicolumn{4}{c}{Predictive world and state modeling}\\
 SLaTe-PRO \citep{patel2023routine} & 4.40 & 14.58 & 29.00\\
 SGM+NEP \citep{kurenkov2023dynamic} & 4.08 & \textbf{7.42} & 27.56\\
 FlowMaps \citep{argenziano2026flowmaps} & 4.66 & 16.51 & 20.27\\
@@ -402,11 +401,10 @@ PredictiveGraphs \citep{saavedraruiz2026predictivegraphs} & 3.71 & 10.48 & 17.96
 \evolvingworldnav{} requires the fewest inspections (2.18) and achieves the
 highest Recovery SR (68.42\%), improving over DynaMem by 4.49 points after an
 unsuccessful first inspection. SGM+NEP travels the shortest average distance
-(7.42\,m), while \evolvingworldnav{} remains close at 8.36\,m. Together with
+(7.42\,m), compared with 8.36\,m for \evolvingworldnav{}. Alongside
 the First-Inspection, Search SR, and SPL results in \cref{tab:crossbench}, these
-complementary metrics show that the gain is not only higher eventual success:
-retained uncertainty and evidence updating reduce redundant inspections and
-support recovery when the initial prediction is wrong.
+metrics show that retained uncertainty and evidence updating reduce redundant
+inspections and support recovery when the initial prediction is wrong.
 
 \begin{table}[H]
 \caption{VLM robustness on P4D-Bench.}
@@ -499,7 +497,7 @@ the same stepwise filter used for opportunistic views. Causal memory initially
 assigns probability 0.62 to the last-seen coffee table. The frozen logistic
 calibrator maps the online view features $\mathbf f_{j,i}$ to
 $\widehat r_{j,i}=0.931$; when the target is not detected, the likelihood at
-that state is therefore 0.069. The posterior consequently shifts from $(0.62,0.25,0.13)$ to
+that state is 0.069. The posterior shifts from $(0.62,0.25,0.13)$ to
 $(0.10,0.59,0.31)$ and the planner selects the kitchen island next. The inspected
 state retains nonzero mass, reflecting residual perceptual uncertainty rather
 than an irreversible deletion.
@@ -538,10 +536,10 @@ every unsuccessful inspection. This irreversible rule performs worst across all
 four metrics, showing that an apparent miss is insufficient evidence when the
 view is partially occluded or perception is uncertain. Bayesian updating lowers
 NLL from 2.838 to 1.497 without discarding hypotheses outright. Adding
-calibrated view-conditioned likelihoods produce the best mean rank (4.96),
+calibrated view-conditioned likelihoods produces the best mean rank (4.96),
 Top-1 accuracy (66.93\%), and ECE
 (0.130), while its NLL remains within 0.033 of the uncalibrated Bayesian update.
-The result supports viewpoint-conditioned negative evidence as the most reliable
+These results support viewpoint-conditioned negative evidence as the most reliable
 input to the observe--update--replan loop.
 
 \subsubsection{Predictor Architecture}
@@ -568,8 +566,8 @@ $\mathbf{1.4925\pm0.0867}$\\
 
 All three predictors use the same observation tokens and candidate encoder.
 The Direct Transformer normalizes candidate logits directly, whereas the
-structured model separates persistence from relocation. This controlled view
-therefore isolates architectural factorization from memory content and action
+structured model separates persistence from relocation. This comparison
+isolates architectural factorization from memory content and action
 selection.
 
 \subsection{Evolution-Aware Diagnostics}
@@ -585,12 +583,12 @@ selection.
 \paragraph{Paired-world control.}
 \Cref{tab:worlds} holds scenes and queries fixed while changing only the world
 transition mechanism. Last Seen reaches 100.00 SR in static worlds but falls to
-38.49 under routine evolution, exposing the failure of stale memory. In contrast,
+38.49 under routine evolution, showing the effect of stale memory.
 \pfdnav{} reaches 60.85 routine-world SR, improving by 22.36 points over Last
 Seen and by 12.03 points over Transformer Direct. Under matched random motion,
 the gain over Last Seen contracts to 6.93 points and \pfdnav{} trails
-Transformer Direct by 1.27 points. This contrast localizes its main advantage
-to learnable temporal regularity rather than a scene-frequency or generic
+Transformer Direct by 1.27 points. Its main advantage thus lies in
+learnable temporal regularity rather than a scene-frequency or generic
 search shortcut.
 
 \paragraph{Effect of memory staleness and inspection budget.}
@@ -602,9 +600,8 @@ success rates.
 \section{Real-World Evaluation}
 \label{app:real-world-eval}
 
-This section reports the physical evaluation, first describing the robot
-platforms and then disaggregating the measured M20 results by environment,
-temporal condition, and qualitative case.
+This section describes the robot platforms, reports M20 results by environment
+and temporal condition, and presents qualitative cases.
 
 \subsection{Robot Platforms}
 \label{app:robot-platforms}
@@ -639,8 +636,8 @@ methods executed on the same platform.
 \label{app:real-world}
 
 Table~\ref{tab:real-domain} separates indoor and outdoor trials. The outdoor
-setting has longer routes and lower success for all methods, while the direction
-of the \evolvingworldnav{} gain is consistent across both environments.
+setting has longer routes and lower success for all methods.
+\evolvingworldnav{} improves performance in both environments.
 
 \begin{table}[H]
 \caption{LYNX M20 results by environment.}
@@ -690,8 +687,8 @@ Retrieval + Reasoning & 62.5 & 43.8 & 25.0 & 18.8 \\
 \Cref{tab:real-condition} shows that predictive memory is most useful when
 recurring changes provide a usable historical signal. Last Seen remains strong
 when nothing changes, whereas all methods degrade as regularity weakens. The
-condition-wise view separates benefits from routine modeling from improvements
-that could be explained by generic search alone.
+breakdown by condition separates the benefits of routine modeling from
+improvements that could be explained by generic search alone.
 
 \par\medskip
 \begin{wraptable}[7]{r}{0.60\linewidth}
