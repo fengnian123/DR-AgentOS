@@ -140,13 +140,19 @@ Across five simulators, ours leads seven of ten metrics (\cref{tab:domains}).
 On 64 matched M20 trials, \cref{tab:real-main} improves both success and
 efficiency; details are in \appref{app:real-world-eval}.
 
+Across these evaluations, the gains appear at three levels: cross-benchmark
+results improve initial destination selection, N4 isolates recovery under
+execution-time motion, and robot trials translate the same belief interface
+into shorter paths and fewer inspections. Their agreement argues against the
+gain coming from benchmark-specific exploration or a stronger controller alone.
+
 \subsection{Ablation Studies}
 \label{sec:ablations}
 
 \paragraph{Core components.}
-\begin{figure}[!t]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\columnwidth]{figures/core_component_ablation_grouped.pdf}
+    \includegraphics[width=\columnwidth]{figures/core_component_ablation_grouped.pdf}
     \caption{Core component ablation; error bars show five-seed standard deviations.}
     \label{fig:module_ablation}
 \end{figure}
@@ -161,6 +167,11 @@ factorization. Top-1-only search loses 22.41 Search SR points, while removing
 evidence updates loses 42.02 points and raises inspections to 6.48. Thus the
 gain comes from retaining alternatives and revising them online, not from a
 single stronger guess or a larger search budget.
+The pattern separates the roles of the components: predictive belief chooses
+where inspection begins, the full distribution preserves fallback hypotheses,
+and evidence updating converts new views into route changes. Because No
+Evidence Update uses the same predictor, its gap isolates the action-time
+filter rather than improved offline state classification.
 
 
 \begin{wraptable}{r}{0.64\linewidth}
