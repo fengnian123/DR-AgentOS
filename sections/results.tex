@@ -71,7 +71,7 @@ before termination.
 
 \begin{figure}[!t]
     \centering
-    \includegraphics[width=0.87\linewidth]{figures/P4D_CaseStudy.pdf}
+    \includegraphics[width=\linewidth]{figures/P4D_CaseStudy.pdf}
     \caption{Predictive, last-seen, and nearest-first search on \pfdbench{}.}
     \label{fig:p4d_case_study}
 \end{figure}
@@ -106,14 +106,8 @@ test the execution-time contribution: current-time propagation and time-valid
 evidence rounds let the agent recover after a target moves, while candidate
 reopening turns revisits into useful actions rather than permanent exclusions.
 
-\paragraph{Generalization and physical deployment.}
-Across five simulators, \evolvingworldnav{} leads seven of ten native metrics,
-with specialized exceptions on R2R-CE and SAGE-Bench SPL
-(\cref{tab:domains}). The 64 matched M20 trials share histories, candidates,
-perception, and low-level control.
-
-\begin{wraptable}{r}{0.63\linewidth}
-\vspace{-0.8\baselineskip}
+\begin{wraptable}[7]{r}{0.63\linewidth}
+\vspace{-0.7\baselineskip}
 \caption{Primary LYNX M20 search results.}
 \label{tab:real-main}
 \centering
@@ -141,9 +135,10 @@ Retrieval + Reasoning & 26.6 & 37.5 & 17.1 & 50.3 & 281 & 2.03 \\
 }
 \end{wraptable}
 
-The robot results improve both success and efficiency, ruling out exhaustive
-search as the source of the gain; further breakdowns are in
-\appref{app:real-world-eval}.
+\paragraph{Generalization and physical deployment.}
+Across five simulators, ours leads seven of ten metrics (\cref{tab:domains}).
+On 64 matched M20 trials, \cref{tab:real-main} improves both success and
+efficiency; details are in \appref{app:real-world-eval}.
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
@@ -157,27 +152,15 @@ search as the source of the gain; further breakdowns are in
 \end{figure}
 
 The full agent reaches 62.17 First-Inspection SR, 85.33 Search SR, and 70.87
-SPL with 3.95 inspections (\cref{fig:module_ablation}). Removing predictive
-belief collapses First-Inspection SR to 12.51, while using only the latest
-observation lowers Search SR by 20.91 points; both show that long-term history
-guides the initial destination. Direct candidate prediction loses 13.84
-First-Inspection and 15.75 Search SR points, isolating the structured
-persistence--relocation belief. Top-1-only search loses 22.41 Search SR points,
-and removing evidence updates loses 42.02 points, confirming that retained
-alternatives and online correction drive recovery rather than exhaustive search.
-The especially large update ablation separates closed-loop navigation from raw
-predictor quality: an informative prior is insufficient if contradicted
-evidence cannot redirect the route. The Top-1-only result likewise shows that
-the agent benefits from preserving calibrated alternatives, not merely from
-choosing a better first destination.
-The two success metrics further localize these effects. Latest Observation Only
-retains moderate First-Inspection SR but degrades subsequent search, indicating
-that a plausible initial destination does not replace temporally persistent
-evidence. Conversely, No Evidence Update lowers First-Inspection SR because
-opportunistic observations collected en route can change which location becomes
-the first sufficiently covered inspection. Its 6.48 inspections, compared with
-3.95 for the full agent, also shows that revision reduces repeated physical
-verification rather than recovering through a larger search budget.
+SPL with 3.95 inspections (\cref{fig:module_ablation}). Without predictive
+belief, First-Inspection SR falls to 12.51; Latest Observation Only loses 20.91
+Search SR points, showing that temporally persistent history guides both the
+initial destination and recovery. Direct candidate prediction loses 13.84/15.75
+First-Inspection/Search points, supporting the persistence--relocation
+factorization. Top-1-only search loses 22.41 Search SR points, while removing
+evidence updates loses 42.02 points and raises inspections to 6.48. Thus the
+gain comes from retaining alternatives and revising them online, not from a
+single stronger guess or a larger search budget.
 
 
 \begin{wraptable}{r}{0.64\linewidth}
@@ -212,10 +195,7 @@ Shared semantic prior & 36.02 & 0.5957 & 1.5766 & 59.47 & 0.7462 & 1.0448\\
 \paragraph{Prediction and controller robustness.}
 Against the Direct Transformer, ours gains 4.08/9.47 Top-1 points and reduces
 NLL by 0.2367/0.3379 on temporal/LOSO splits. It also exceeds the semantic
-prior, supporting temporal structure beyond location frequency; additional
-ablations are in \appref{app:experimental-results}. The larger LOSO improvement
-indicates that the shared candidate representation transfers temporal structure
-to unseen scenes rather than memorizing scene-specific destination frequencies.
-The concurrent NLL reduction matters for action: sharper Top-1 accuracy alone
-would not justify multi-hypothesis search, whereas better likelihood assigns
-more useful mass to alternatives that the filter can test after a failed route.
+prior, supporting temporal structure beyond location frequency. The larger LOSO
+gain indicates transfer beyond scene-specific destination statistics, while the
+lower NLL provides more useful alternatives for recovery. Additional ablations
+are in \appref{app:experimental-results}.
