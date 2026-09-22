@@ -1,45 +1,33 @@
 \section{Related Work}
 \label{sec:related_work}
 
-\paragraph{Embodied navigation and agent control.}
-Embodied navigation combines semantic perception, spatial reasoning, and action,
-while open-vocabulary maps and scene graphs ground language goals in metric or
-structured space
+\paragraph{Navigation, memory, and changing worlds.}
+Embodied navigation combines perception, spatial reasoning, and action;
+open-vocabulary maps and scene graphs ground language in structured space
 \citep{anderson2018evaluation,savva2019habitat,chaplot2020objectnav,
 xin2026agentvln,huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg,
 Li_2026_CVPR,huang2026msgnav}. Foundation-model agents combine maps, tools, and
 navigation skills
 \citep{yokoyama2024vlfm,long2024instructnav,ziliotto2025tango,
-li2026agenticnav,zheng2021cos,ginting2024seek,zhang2025apexnav}. We study
-navigation when past observations become stale through unobserved changes
-before or during execution.
-
-\paragraph{Persistent memory and changing worlds.}
-Memory benchmarks evaluate navigation across tasks
+li2026agenticnav,zheng2021cos,ginting2024seek,zhang2025apexnav}, while lifelong
+benchmarks evaluate navigation and question answering across tasks
 \citep{khanna2024goatbench,yadav2025findingdory} and episodic question answering
-\citep{majumdar2024openeqa}; 4D memories support spatiotemporal retrieval
-\citep{sohn2025r4,gorlo2026describe}. Dynamic mapping filters moving content or
-updates maps from observations
-\citep{bescos2018dynaslam,narayana2020lifelong,liu2024dynamem}. Predictive
-navigation infers locations from partial histories, temporal filters, or
-multimodal continuous placements
+\citep{majumdar2024openeqa}. Dynamic maps and 4D memories support updates and
+spatiotemporal retrieval
+\citep{sohn2025r4,gorlo2026describe,bescos2018dynaslam,
+narayana2020lifelong,liu2024dynamem}.
+
+\paragraph{Predictive memory and human routines.}
+Predictive navigation infers locations from partial histories or continuous
+placements
 \citep{kurenkov2023dynamic,saavedraruiz2026predictivegraphs,
 argenziano2026flowmaps}. PredictiveGraphs already combines future-state
-prediction, Top-$k$ navigation, online observations, and agent tools. Our focus
-is complementary: a stepwise filtering formulation for continued hidden
-evolution during execution, in which a posterior is propagated to arrival
-times, updated once from newly visible evidence, and allowed to reopen earlier
-hypotheses. The belief also separates persistence from relocation and retains
-executable mass outside the mapped candidate set.
-
-\paragraph{Human routines and hidden world evolution.}
-HOMER/HOMER+ capture household object-use routines, STREAK studies continual
-adaptation across household contexts, and personalized navigation exploits user
-habits
+prediction, Top-$k$ navigation, online observations, and agent tools; our
+complementary focus is an arrival-time filtering loop for continued hidden
+evolution, with time-valid evidence and candidate reopening. HOMER/HOMER+,
+STREAK, and personalized navigation model household routines or context drift
 \citep{patel2023homer,patel2023routine,bartoli2025streak,zhang2026ucon}.
 HD-EPIC and ParaHome provide human--object interaction traces
 \citep{perrett2025hdepic,kim2025parahome}. \pfdbench{} uses human traces and
-separately tracked simulated routine evidence to constrain executable scene
-histories while exposing only observations available by the query time.
-Its paired static, routine, and random worlds control scene and query factors
-to test whether temporal regularities improve search beyond location frequencies.
+separately tracked simulated evidence to constrain executable histories; paired
+worlds test temporal regularity beyond location frequency.
