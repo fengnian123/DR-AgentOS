@@ -11,3 +11,6 @@
 
 # macOS
 .DS_Store
+
+# Large website media is stored on the website-media branch
+videos/**/*.mp4
