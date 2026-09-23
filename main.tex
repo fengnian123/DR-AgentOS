@@ -84,17 +84,17 @@ decisions and reduce the need to reconstruct familiar scenes for every task.
 However, remembered observations need not describe the current world:
 objects may move outside the agent's view, even while it travels toward a
 predicted destination. Despite advances in memory retrieval and state
-prediction, existing methods do not jointly account for continued hidden world
+prediction, existing methods do not account for continued hidden world
 evolution during navigation and visibility-conditioned belief revision.
 We study navigation under hidden world evolution, where
 an agent must infer the latent current state from irregular histories and revise
-its decisions as time and evidence accumulate. We introduce
+its decisions as time and evidence accumulate. We present 
 \textbf{\evolvingworldnav{}}, an embodied agent that turns timestamped 3D entity
 histories into a structured belief over whether the last observed state
 persists or the target has relocated. A frozen, zero-shot vision--language
 controller acts on this belief, while an event-driven filter forecasts states
 at candidate arrival times, incorporates newly informative, visibility-aware
-RGB-D evidence, and replans as the world evolves. We also introduce
+RGB-D evidence, and replans as the world evolves. We futher introduce
 \textbf{\evolvingworldbench{}}, a human-trace-grounded benchmark that evaluates state
 prediction and embodied decisions under controlled changes before and during
 navigation. Across simulation benchmarks and physical robot trials,
