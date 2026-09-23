@@ -1,9 +1,9 @@
 \subsection{Cross-Environment Navigation}
 
-SR and SPL are reported in percent for all environments.
+SR and SPL are reported as percentages for all environments.
 
 \begin{table}[H]
-\caption{Cross-environment navigation.}
+\caption{Cross-environment navigation (best values in bold).}
 \label{tab:domains}
 \centering
 \scriptsize
@@ -24,18 +24,18 @@ SR and SPL are reported in percent for all environments.
 \textbf{Method} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} &
 \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL} & \textbf{SR} & \textbf{SPL}\\
 \midrule
-\rowcolor{tblmemory}\multicolumn{11}{c}{\emph{Navigation-trained or task-adapted}}\\
+\rowcolor{tblmemory}\multicolumn{11}{c}{Navigation-trained or task-adapted}\\
 MTU3D \citep{zhu2025move} & 8.8 & 6.5 & \paperreported{40.8} & \paperreported{12.1} & 75.8 & 72.7 & 25.9 & 15.6 & 35.2 & 30.7\\
 NaVid \citep{zhang2024navid} & \paperreported{37.4} & \paperreported{35.9} & 60.3 & 36.0 & 15.3 & 13.4 & 17.4 & 15.1 & 31.0 & 22.6\\
 Uni-NaVid \citep{zhang2024uninavid} & \paperreported{47.0} & \paperreported{42.7} & \paperreported{39.5} & \paperreported{19.8} & 15.9 & 13.2 & 26.4 & 23.1 & 55.3 & 41.7\\
-NaVILA \citep{cheng2024navila} & \paperreported{54.0} & \paperreported{49.0} & 18.3 & 9.7 & 78.4 & 77.5 & 39.0 & \textbf{34.0} & 35.2 & 30.7\\
+NaVILA \citep{cheng2024navila} & \paperreported{54.0} & \textbf{\paperreported{49.0}} & 18.3 & 9.7 & 78.4 & 77.5 & 39.0 & \textbf{34.0} & 35.2 & 30.7\\
 \midrule
-\rowcolor{tblnav}\multicolumn{11}{c}{\emph{Zero-shot navigation or task adapters}}\\
+\rowcolor{tblnav}\multicolumn{11}{c}{Zero-shot navigation or task adapters}\\
 HSGM \citep{Li_2026_CVPR} & \paperreported{47.9} & \paperreported{32.8} & 40.0 & 32.5 & 37.2 & 35.3 & 11.8 & 9.4 & 17.0 & 12.5\\
 VLFM \citep{yokoyama2024vlfm} & 12.0 & 9.6 & \paperreported{35.2} & \paperreported{19.6} & 53.0 & 42.2 & 24.4 & 18.8 & 35.0 & 25.8\\
 AO-Planner \citep{chen2025affordances} & \paperreported{25.5} & \paperreported{16.6} & 30.9 & 22.0 & 76.6 & 74.7 & 27.4 & 19.7 & 37.0 & 29.3\\
 TANGO \citep{ziliotto2025tango} & 14.3 & 9.87 & \paperreported{35.5} & \paperreported{19.5} & 35.8 & 33.5 & 22.7 & 14.7 & 31.0 & 23.3\\
-Uni-LaViRA \citep{ding2026uni} & \textbf{\paperreported{60.7}} & \textbf{\paperreported{47.7}} & \paperreported{60.0} & \paperreported{40.5} & 81.3 & 77.7 & 35.6 & 28.7 & 65.2 & 39.4\\
+Uni-LaViRA \citep{ding2026uni} & \textbf{\paperreported{60.7}} & \paperreported{47.7} & \paperreported{60.0} & \paperreported{40.5} & 81.3 & 77.7 & 35.6 & 28.7 & 65.2 & 39.4\\
 MSGNav \citep{huang2026msgnav} & 11.6 & 9.4 & \paperreported{48.3} & \paperreported{27.0} & 37.2 & 34.8 & 23.5 & 17.5 & 26.7 & 19.6\\
 \rowcolor{tblours}\textbf{\evolvingworldnav{} (ours)} & 55.8 & 43.1 &
 \textbf{64.2} & \textbf{51.7} & \textbf{86.2} & \textbf{79.8} &
@@ -46,26 +46,29 @@ MSGNav \citep{huang2026msgnav} & 11.6 & 9.4 & \paperreported{48.3} & \paperrepor
 \vspace{1pt}
 
 \parbox{\textwidth}{\scriptsize
-\textsuperscript{PR} Paper-reported under the cited native protocol; unmarked
-baseline scores are our reproductions under the method-preserving protocol in
+\textsuperscript{PR} Scores reported in the cited papers under their native
+protocols. Unmarked baseline scores are from our reproductions under the
+method-preserving protocol in
 \appref{app:experimental-setup}.}
 \end{table}
 
 \subsection{Full Prediction Results and Calibration}
 \label{app:full-prediction-results}
 
-The temporal split contains 322 changed-only queries and LOSO contains 644
-change-balanced queries. Ours reports mean $\pm$ standard deviation over five
-seeds; Top-1 is a percentage, while MRR and NLL are unscaled.
+The temporal split contains 322 changed-only queries, and the LOSO split
+contains 644 change-balanced queries. For our model, we report the mean $\pm$
+standard deviation over five seeds. Top-1 is reported as a percentage; MRR and
+NLL are unscaled.
 
-\Cref{fig:belief-calibration} compares reliability (left) with the distribution
-of predictions across confidence bins (right), showing how evidence updating
-changes both calibration and confidence concentration.
+\Cref{fig:belief-calibration} shows reliability (left) and the distribution of
+predictions across confidence bins (right) before and after evidence updates.
+These plots show how the updates affect calibration and the concentration of
+predictions across confidence levels.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.92\textwidth]{figures/calibration_current_state_belief_2panel.pdf}
-    \caption{Calibration and confidence distributions of current-state beliefs before and after evidence updating.}
+    \caption{Calibration and confidence distributions of current-state beliefs before and after evidence updates.}
     \label{fig:belief-calibration}
 \end{figure}
 
@@ -73,7 +76,7 @@ changes both calibration and confidence concentration.
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
-\caption{Full current-state prediction results.}
+\caption{Full current-state prediction results (best values in bold).}
 \label{tab:predictors-full}
 
 \resizebox{\linewidth}{!}{%
@@ -170,7 +173,7 @@ Direct Transformer
 
 Shared semantic prior
 & 36.02
-& \textbf{0.5957}
+& 0.5957
 & 1.5766
 & 59.47
 & 0.7462

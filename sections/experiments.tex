@@ -2,34 +2,34 @@
 \label{sec:experiments}
 
 We test whether predictive 4D memory improves current-state inference,
-embodied search, and recovery from contradicted beliefs. Controlled
-\evolvingworldbench{} and robot comparisons share public histories, legal candidates,
-inspection viewpoints, low-level control, and action budgets. Cross-environment
-evaluations instead retain each released agent's native policy and are used as
-system-level generalization evidence, not as a component-level causal
-comparison. Further protocol, implementation, and analysis details are
-summarized in Appendices~A--D.
+embodied search, and recovery when observations contradict prior beliefs.
+Controlled comparisons on \evolvingworldbench{} and robots hold public
+histories, legal candidates, inspection viewpoints, low-level control, and
+action budgets fixed across methods. Cross-environment evaluations retain the
+native policy of each released agent and provide evidence of system-level
+generalization rather than component-level causal effects. Appendices~A--D
+provide further protocol, implementation, and analysis details.
 
 \subsection{Setup}
 \label{sec:setup}
 
 \paragraph{Datasets.}
-Our primary evaluation uses the complete \evolvingworldbench{} N1--N5 suite for
-First-Inspection navigation, belief-guided search, evidence-aware replanning,
-online dynamics, and cross-scene transfer. FindingDory
+Our primary evaluation uses the complete \evolvingworldbench{} N1--N5 suite,
+which covers First-Inspection navigation, belief-guided search, evidence-aware
+replanning, online dynamics, and cross-scene transfer. FindingDory
 \citep{yadav2025findingdory} and GOAT-Bench \citep{khanna2024goatbench} test
 long-horizon memory and repeated-goal navigation. We additionally evaluate one
 native task in each of MP3D, HM3D, Habitat-GS, and InteriorGS, and run 64
 matched LYNX M20 trials per method.
 
 \paragraph{Real-world setup.}
-We evaluate on the DEEP Robotics LYNX M20 as the primary quantitative
-platform over 64 matched trials, with X30 and Lite3 evaluated on matched
-32-block transfer subsets. Platform-specific perception and low-level
-navigation are wrapped by a common interface, while all methods receive
-identical pre-query histories, candidate locations, start conditions, and
-robot-specific control stacks. Each 360-second episode requires online
-confirmation within three inspections.
+The DEEP Robotics LYNX M20 is the primary platform for quantitative evaluation,
+with 64 matched trials. X30 and Lite3 are evaluated on matched 32-block
+transfer subsets. Platform-specific perception and low-level navigation use a
+common interface. Within each platform, all methods share identical pre-query
+histories, candidate locations, start conditions, and control stacks. Each
+360-second episode requires online confirmation of the target within three
+inspections.
 
 \paragraph{Controllers and baselines.}
 Our main method uses a frozen GPT-5.6-Luna controller in a zero-shot setting:
@@ -37,11 +37,12 @@ the VLM receives no navigation-task fine-tuning and invokes the fixed memory,
 prediction, inspection, exploration, and navigation tools. The prompt, tool
 interface, and inference budget remain fixed within each comparison. Baselines
 span navigation, structured memory, and predictive world models; paired runs
-with GPT-4o, GPT-5.5, GPT-5.6-Luna, and Qwen2.5-VL-3B/32B test controller
-dependence.
+with GPT-4o, GPT-5.5, GPT-5.6-Luna, and Qwen2.5-VL-3B/32B assess dependence
+on the controller.
 
 \paragraph{Metrics.}
-Prediction uses Top-1, MRR, NLL, ECE, and true-state rank. Navigation uses SR,
-SPL, First-Inspection SR, Recovery SR, inspection count, distance, and time. Main
-comparisons report five-seed variation; paired static, routine, and random
-worlds isolate learnable temporal structure. 
+We evaluate prediction using Top-1, MRR, NLL, ECE, and true-state rank, and
+navigation using SR, SPL, First-Inspection SR, Recovery SR, inspection count,
+distance, and time. For the main comparisons, we report variation across five
+seeds. Paired static, routine, and random worlds isolate the contribution of
+learnable temporal structure.

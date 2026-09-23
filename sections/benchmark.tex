@@ -1,9 +1,10 @@
 \section{EvolvingWorld-Bench: Evaluating Navigation in Evolving Worlds}
 \label{sec:benchmark}
 
-\evolvingworldbench{} evaluates decisions from time-ordered observation histories while the
-world changes outside observation. Its 54 scenes and 803.68k task instances
-combine persistent histories, executable placements, and controlled dynamics.
+\evolvingworldbench{} evaluates decisions based on time-ordered observation
+histories while unobserved changes occur in the world. Across 54 scenes,
+803.68k task instances combine persistent histories, executable placements,
+and controlled dynamics.
 
 \subsection{Tasks and Controlled Dynamics}
 
@@ -16,16 +17,17 @@ combine persistent histories, executable placements, and controlled dynamics.
     \label{fig:p4dbench}
 \end{wrapfigure}
 
-At the task-modality level shown in \cref{fig:evolvingworldnav_overview}, the
-pool comprises current-state prediction (17\%), object navigation (27\%),
+Grouped by task modality (\cref{fig:evolvingworldnav_overview}), the task pool
+comprises current-state prediction (17\%), object navigation (27\%),
 vision-and-language navigation (VLN; 26\%), and embodied question answering
-(EQA; 30\%) \citep{majumdar2024openeqa,sakamoto2024map}. The complementary
-protocol-export accounting in \cref{fig:p4dbench} is N1 (13.51\%), N2
+(EQA; 30\%) \citep{majumdar2024openeqa,sakamoto2024map}. The protocol exports
+in \cref{fig:p4dbench} provide a complementary breakdown: N1 (13.51\%), N2
 (13.37\%), N3 (13.27\%), N4 (26.52\%), N5 (3.34\%), and EQA (29.99\%). In this
-second view, VLN-conditioned episodes are assigned to their corresponding
-navigation protocol rather than shown as a separate wedge. Prediction evaluates a calibrated
-region/receptacle belief independently of control; navigation uses the same
-target--time queries (\cref{fig:p4dbench,tab:tasks}). N1 inspects the Top-1
+breakdown, VLN-conditioned episodes are assigned to the corresponding
+navigation protocol rather than counted separately. The prediction task
+evaluates a calibrated belief over regions or receptacles independently of
+control; navigation uses the same target--time queries
+(\cref{fig:p4dbench,tab:tasks}). N1 inspects the Top-1
 destination; N2 uses the full belief for cost-aware search; N3 adds
 visibility-qualified updates and recovery. N1--N3 fix the target after the
 query. N4 advances the world clock during execution, permitting further hidden
@@ -33,15 +35,16 @@ transitions. N5 applies these protocols to held-out scenes and households.
 
 VLN grounds language goals in the same histories; EQA probes current and
 historical states without future evidence. Our experiments emphasize prediction
-and navigation, with EQA as a memory diagnostic. Controlled comparisons match public
-observations, candidates, geometry, starts, controllers, and budgets.
+and navigation, with EQA used to assess memory. Controlled comparisons use
+matched public observations, candidate sets, geometry, initial poses,
+controllers, and budgets.
 
-Paired \emph{static}, \emph{routine}, and \emph{random} worlds share public setup
-variables. Static preserves the last supported state; routine follows household
-dynamics; random matches legal candidates and marginal movement statistics while
-removing temporal dependencies. Improvements specific to routine worlds thus
-support the use of historical regularity over category frequency or spatial
-convenience.
+Paired static, routine, and random worlds share public setup variables. Static
+worlds preserve the last supported state, and routine worlds follow household
+dynamics. Random worlds match legal candidates and marginal movement statistics
+while removing temporal dependencies. Improvements specific to routine worlds
+thus support reliance on historical regularity rather than category frequency
+or spatial convenience.
 
 \subsection{World Construction and Past-Only Evaluation}
 \begin{wrapfigure}{r}{0.50\textwidth}
@@ -62,20 +65,21 @@ Event records preserve source identifiers and distinguish measured,
 environment-derived, simulated, and benchmark-authored quantities
 (\appref{app:benchmark-construction}).
 
-Across 54 HSSD scenes \citep{khanna2024hssd}, household habits and stochastic
-exceptions generate chronological histories. Stable, routine,
+Chronological histories across 54 HSSD scenes \citep{khanna2024hssd} are
+generated from household habits and stochastic exceptions. The stable, routine,
 personal, and irregular regimes test persistence, activity regularity,
-owner-specific habits, and uncertainty (\cref{tab:mobility-regimes}); labels
-are hidden. Habitat replay ensures semantically valid, collision-free placements
-and reachable inspection viewpoints.
+owner-specific habits, and uncertainty (\cref{tab:mobility-regimes}); regime
+labels remain hidden from the agent. Habitat replay ensures semantically valid,
+collision-free placements and reachable inspection viewpoints.
 
-Patrols collect visibility-qualified RGB-D using only maps, time, travel cost,
-and observed history. Queries expose only observations available by the query
-time, the last supported
-state, elapsed/calendar time, candidates, and spatial context; current states,
-transitions, activities, mobility labels, and oracle viewpoints remain private.
-Splits group complete temporal sequences, paired worlds, and near-duplicate
-query/transition groups. Audits cover temporal/metadata leakage, split overlap,
-paired-world consistency, physical validity, and patrol access to hidden state.
+Patrols collect visibility-qualified RGB-D observations using only maps, time,
+travel cost, and observed history. Queries expose only observations available
+by the query time, the last supported state, elapsed and calendar time,
+candidates, and spatial context; current states, transitions, activities,
+mobility labels, and oracle viewpoints remain private. Complete temporal
+sequences, paired worlds, and groups of near-duplicate queries and transitions
+are kept together within data splits. Audits assess temporal and metadata
+leakage, split overlap, paired-world consistency, physical validity, and patrol
+access to hidden state.
 Stratification covers mobility, transition, staleness, spatial difficulty, and
 generalization.

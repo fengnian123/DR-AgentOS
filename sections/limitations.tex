@@ -1,15 +1,30 @@
 \section{Limitations}
 
-Although \evolvingworldnav{} is motivated by general task-relevant world evolution, the current predictive model is operationalized primarily through discrete portable-object states; structural reconfiguration and changing traversability require richer state and action models. \pfdnav{} also assumes reliable entity association and an available set of candidate receptacles and inspection viewpoints; pose drift, missed detections, identity switches, or missing candidates can corrupt both prediction and navigation. Its discrete belief represents arbitrary continuous placements less directly than continuous generative models. The source datasets are complementary rather than jointly observed, so \evolvingworldbench{} episodes are human-trace-grounded simulations, not reconstructions of one household. N1--N3 isolate query-time inference by fixing the target during navigation, while N4 evaluates further hidden transitions during execution; broader interacting-object dynamics remain future work. Finally, visibility-aware updates reduce weak negative evidence but cannot guarantee recovery when beliefs and perception fail together or routines shift.
+\evolvingworldnav{} is motivated by general task-relevant world evolution, but
+the current predictive model primarily represents discrete states of portable
+objects. Structural reconfiguration and changing traversability require richer
+state and action models. \pfdnav{} also assumes reliable entity association
+and an available set of candidate receptacles and inspection viewpoints. Pose
+drift, missed detections, identity switches, or missing candidates can corrupt
+both prediction and navigation. The discrete belief represents arbitrary
+continuous placements less directly than continuous generative models. The
+source datasets contain complementary observations collected independently.
+Episodes in \evolvingworldbench{} are therefore simulations grounded in human
+traces rather than reconstructions of a single household. N1--N3 isolate
+query-time inference by fixing the target during navigation, while N4 evaluates
+further hidden transitions during execution. Broader interacting-object
+dynamics remain future work. Visibility-aware updates reduce the influence of
+weak negative evidence but cannot guarantee recovery when beliefs and
+perception fail together or routines shift.
 
 The real-world evaluation covers indoor and outdoor environments and three
 physical robot platforms, but does not represent unrestricted long-term
 deployment. Targets may change between observation sessions but remain
-stationary during each individual search episode; continuously moving targets
-would additionally require online tracking and motion prediction. Moreover,
-all three evaluated platforms are from the same manufacturer, and the current
+stationary during each individual search episode. Continuously moving targets
+would additionally require online tracking and motion prediction. All three
+evaluated platforms are from the same manufacturer, and the current
 study does not establish transfer to substantially different sensing,
-localization, or control stacks. Finally, real-world performance still depends
+localization, or control stacks. Real-world performance still depends
 on the underlying perception and navigation systems: localization errors,
 missed detections, and navigation failures can prevent task completion even
 when the high-level belief is correct.
