@@ -5,14 +5,168 @@
   if (!root) return;
   const $ = id => root.querySelector(`#ex-${id}`);
   const scenes = {
-    kitchen: {name:'Kitchen', object:'mug', id:'023', appearance:'White ceramic mug', locations:['Table','Cabinet','Sink','Unknown'], prior:[.15,.65,.10,.10], relation:'Supported by table · near plate', pattern:'Repeated morning use makes the cabinet a plausible destination. After 48 hours, the old table observation carries less weight.', activity:'Breakfast and cleanup may move the mug.', recovered:'Sink', shape:'mug'},
-    living: {name:'Living room', object:'remote', id:'041', appearance:'Slim graphite remote', locations:['Sofa','Drawer','Side table','Unknown'], prior:[.18,.60,.14,.08], relation:'On sofa · near cushion', pattern:'The remote is often put away after use. The drawer is a stronger hypothesis than its two-day-old sofa location.', activity:'Tidying may move the remote from the sofa.', recovered:'Side table', shape:'remote'},
-    office: {name:'Office', object:'notebook', id:'067', appearance:'Blue clothbound notebook', locations:['Desk','Shelf','Meeting table','Unknown'], prior:[.20,.58,.15,.07], relation:'On desk · near keyboard', pattern:'End-of-day storage favors the shelf. The desk observation becomes less reliable as meetings and work sessions pass.', activity:'A meeting may move the notebook.', recovered:'Meeting table', shape:'notebook'},
-    bedroom: {name:'Bedroom', object:'phone', id:'089', appearance:'Dark phone in a pale case', locations:['Desk','Nightstand','Dresser','Unknown'], prior:[.12,.68,.12,.08], relation:'On desk · beside lamp', pattern:'Overnight charging favors the nightstand. Elapsed time weakens the original desk observation without ruling it out.', activity:'Charging and morning routines may move the phone.', recovered:'Dresser', shape:'phone'}
-  };
+  "living": {
+    "name": "Living & kitchen",
+    "sceneId": "104348511_171513654",
+    "image": "assets/explorer/hssd_104348511_topdown.png",
+    "imageSize": [
+      1300,
+      1500
+    ],
+    "crop": [
+      120,
+      100,
+      1080,
+      1080
+    ],
+    "object": "mug",
+    "id": "023",
+    "appearance": "Illustrative ceramic mug",
+    "locations": [
+      "Dining table",
+      "Coffee table",
+      "Kitchen island",
+      "Unknown"
+    ],
+    "prior": [
+      0.15,
+      0.65,
+      0.1,
+      0.1
+    ],
+    "relation": "Supported by dining table",
+    "pattern": "In this illustrative routine, a used mug is likely to move toward the living area. The coffee table is the first inspection hypothesis.",
+    "activity": "Daily use may move the target between surfaces.",
+    "recovered": "Kitchen island",
+    "shape": "mug",
+    "anchors": [
+      [
+        1030,
+        870
+      ],
+      [
+        686,
+        408
+      ],
+      [
+        487,
+        985
+      ]
+    ],
+    "start": [
+      361,
+      661
+    ],
+    "routes": [
+      [
+        [
+          361,
+          661
+        ],
+        [
+          468,
+          457
+        ]
+      ],
+      [
+        [
+          468,
+          457
+        ],
+        [
+          528.5,
+          695.3
+        ],
+        [
+          719.1,
+          870.6
+        ],
+        [
+          788,
+          1007
+        ]
+      ]
+    ]
+  },
+  "dining": {
+    "name": "Dining & kitchen",
+    "sceneId": "102344280",
+    "image": "assets/explorer/hssd_102344280_topdown.png",
+    "imageSize": [
+      1400,
+      900
+    ],
+    "crop": [
+      240,
+      170,
+      1150,
+      585
+    ],
+    "object": "bowl",
+    "id": "041",
+    "appearance": "Illustrative ceramic bowl",
+    "locations": [
+      "Center table",
+      "Dining table",
+      "Kitchen sink",
+      "Unknown"
+    ],
+    "prior": [
+      0.15,
+      0.65,
+      0.1,
+      0.1
+    ],
+    "relation": "Supported by center table",
+    "pattern": "In this illustrative routine, a bowl is likely to move to the dining table. A fresh inspection tests that hypothesis.",
+    "activity": "Daily use may move the target between surfaces.",
+    "recovered": "Kitchen sink",
+    "shape": "bowl",
+    "anchors": [
+      [
+        1040,
+        470
+      ],
+      [
+        493,
+        423
+      ],
+      [
+        945.4,
+        644.1
+      ]
+    ],
+    "start": [
+      720,
+      310
+    ],
+    "routes": [
+      [
+        [
+          720,
+          310
+        ],
+        [
+          650,
+          429
+        ]
+      ],
+      [
+        [
+          650,
+          429
+        ],
+        [
+          926.9,
+          558.3
+        ]
+      ]
+    ]
+  }
+};
   let shown = [0.15,0.65,0.10,0.10], beliefFrame = 0, story = false, storyRun = 0;
   const initial = [.96,.02,.01,.01];
-  let key = 'kitchen', hours = 48, stage = 'predict', busy = false, generation = 0;
+  let key = 'living', hours = 48, stage = 'predict', busy = false, generation = 0;
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const delay = ms => new Promise(resolve => setTimeout(resolve, reduced.matches ? 0 : ms));
   function beliefs() {
@@ -37,33 +191,12 @@
     for(let i=0;i<remaining;i++) values[order[i].i]++;
     return values;
   }
-  const project = (x,y,z=0) => [345+(x-y)*.82,68+(x+y)*.45-z];
-  const pts = vertices => vertices.map(v=>project(...v).join(',')).join(' ');
-  const polygon = (v,fill,stroke='#5d5d5d') => `<polygon points="${pts(v)}" fill="${fill}" stroke="${stroke}" stroke-width=".7" stroke-linejoin="round"/>`;
-  function box(x,y,w,d,h,color='#7e7e7e',base=0) {
-    return polygon([[x,y+d,base],[x+w,y+d,base],[x+w,y+d,h+base],[x,y+d,h+base]],'#525252')+
-      polygon([[x+w,y,base],[x+w,y+d,base],[x+w,y+d,h+base],[x+w,y,h+base]],'#454545')+
-      polygon([[x,y,h+base],[x+w,y,h+base],[x+w,y+d,h+base],[x,y+d,h+base]],color);
+  function mapLayout() {
+    const [x,y,w,h]=scenes[key].crop, scale=Math.min(660/w,500/h);
+    return {x,y,w,h,scale,left:(720-w*scale)/2,top:(600-h*scale)/2};
   }
-  function surface(x,y,w,d,h,type) {
-    let out=box(x,y,w,d,h);
-    if(type==='table') {
-      out='';for(const [a,b] of [[x+7,y+7],[x+w-13,y+7],[x+7,y+d-13],[x+w-13,y+d-13]])out+=box(a,b,6,6,h-6,'#646464');
-      out+=box(x,y,w,d,6,'#9b9b9b',h-6);
-      out+=box(x+15,y+15,24,18,2,'#c6c6c6',h);
-    } else if(type==='sofa') {
-      out=box(x,y,w,d,15,'#828282')+box(x,y,w,12,36,'#919191',15)+box(x,y,12,d,25,'#919191',15)+box(x+w-12,y,12,d,25,'#919191',15);
-      for(let i=0;i<3;i++)out+=box(x+15+i*(w-30)/3,y+17,(w-35)/3,d-24,10,'#a4a4a4',15);
-    } else if(type==='sink') {
-      out+=polygon([[x+10,y+10,h+.5],[x+w-10,y+10,h+.5],[x+w-10,y+d-10,h+.5],[x+10,y+d-10,h+.5]],'#434343','#bdbdbd');
-      const [a,b]=project(x+w/2,y+7,h);out+=`<path d="M${a} ${b}v-14q0-8 7-8t7 8" fill="none" stroke="#c1c1c1" stroke-width="2"/>`;
-    } else if(type==='cabinet') {
-      for(let i=1;i<3;i++){const a=project(x+i*w/3,y+d,4),b=project(x+i*w/3,y+d,h-4);out+=`<path d="M${a.join(' ')}L${b.join(' ')}" stroke="#929292" stroke-width=".8"/>`;}
-      for(let i=0;i<3;i++){const a=project(x+(i+.5)*w/3,y+d,h-12);out+=`<path d="M${a.join(' ')}v6" stroke="#c4c4c4" stroke-width="1.5"/>`;}
-    } else if(type==='shelf') {
-      for(let i=0;i<5;i++)out+=box(x+10+i*12,y+6,8,d-12,12+i%2*6,['#a2a2a2','#b2b2b2','#777777'][i%3],h);
-    }
-    return '<g opacity=".35" filter="url(#ex-contact-shadow)">'+polygon([[x-5,y+4,.4],[x+w+12,y+4,.4],[x+w+12,y+d+16,.4],[x-5,y+d+16,.4]],'#141414','#141414')+'</g>'+out;
+  function mapPoint([x,y]) {
+    const m=mapLayout();return [m.left+(x-m.x)*m.scale,m.top+(y-m.y)*m.scale];
   }
   // A small articulated 3D model projected into the same coordinates as the room.
   // Diagonal leg pairs share a trot phase; heading follows the path tangent.
@@ -103,35 +236,17 @@
     $('robot-status').textContent=text;root.dataset.robotState=mode;
   }
   function buildScene() {
-    const s=scenes[key];
+    const s=scenes[key],m=mapLayout();
     $('task').textContent=`Find the ${s.object}`;
-    const furnitureTypes=key==='living'?['sofa','shelf','table']:key==='office'?['table','shelf','table']:key==='bedroom'?['table','table','shelf']:['table','cabinet','sink'];
-    let room=polygon([[0,0,-9],[420,0,-9],[420,340,-9],[0,340,-9]],'#262626');
-    room+=box(0,0,420,340,8,'url(#ex-floor-metal)',-8);
-    for(let x=30;x<420;x+=30)room+=`<polyline points="${pts([[x,0],[x,340]])}" fill="none" stroke="#5a5a5a" stroke-opacity=".25" stroke-width=".5"/>`;
-    for(let y=30;y<340;y+=30)room+=`<polyline points="${pts([[0,y],[420,y]])}" fill="none" stroke="#5a5a5a" stroke-opacity=".25" stroke-width=".5"/>`;
-    room+=box(0,0,420,5,58,'#6b6b6b')+box(0,0,5,340,58,'#6b6b6b');
-    room+=polygon([[5,45,20],[5,150,20],[5,150,49],[5,45,49]],'#7a7a7a','#a6a6a6');
-    room+=polygon([[5,95,20],[5,96,20],[5,96,49],[5,95,49]],'#b6b6b6');
-    room+=polygon([[68,104,.5],[250,104,.5],[250,241,.5],[68,241,.5]],'#555555','#686868');
-    room+=surface(285,20,100,52,52,furnitureTypes[1]);
-    room+=surface(80,115,125,77,37,furnitureTypes[0]);
-    room+=surface(312,212,75,65,42,furnitureTypes[2]);
-    // Quiet contextual details distinguish each authored environment.
-    if(key==='bedroom')room+=box(20,240,140,70,22,'#9d9d9d')+box(23,242,33,64,8,'#c2c2c2',22);
-    else if(key==='office')room+=box(92,120,45,5,27,'#3a3a3a',37);
-    else if(key==='kitchen')room+=box(180,18,64,48,46,'#888888')+box(188,26,19,18,2,'#434343',46)+box(214,26,19,18,2,'#434343',46);
-    else room+=box(30,240,100,45,12,'#696969');
-    // Planter with a sculpted crown, placed away from candidate regions.
-    room+=box(360,305,22,22,20,'#7c7c7c');
-    const plant=project(371,316,35);room+=`<ellipse cx="${plant[0]}" cy="${plant[1]}" rx="14" ry="21" fill="#828282"/><path d="M${plant[0]} ${plant[1]+20}v-30" stroke="#adadad" fill="none"/>`;
-    const locs=[[142,155,37],[335,45,52],[350,245,42]];
-    const overlays=locs.map(([x,y,z],i)=>{const [a,b]=project(x,y,z);return `<g><ellipse id="ex-halo-${i}" class="ex-halo" cx="${a}" cy="${b}" rx="70" ry="37" fill="url(#ex-glow)"/><ellipse cx="${a}" cy="${b}" rx="31" ry="17" fill="none" stroke="#bfbfbf" stroke-opacity=".35" stroke-dasharray="2 4"/><path d="M${a} ${b-10}v-32" stroke="#adadad" stroke-width=".7"/><rect class="ex-location-chip" x="${a-54}" y="${b-84}" width="108" height="41" rx="5"/><text class="ex-location-label" x="${a}" y="${b-67}">${s.locations[i]}</text><text class="ex-probability" id="ex-prob-${i}" x="${a}" y="${b-50}"></text></g>`;}).join('');
-    $('map').setAttribute('viewBox','0 0 720 485');
-    $('map').innerHTML=`<title id="ex-map-title">${s.name} spatial belief map</title><desc id="ex-map-desc"></desc><defs><filter id="ex-contact-shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="4"/></filter><linearGradient id="ex-robot-metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f5f5f5"/><stop offset=".45" stop-color="#bcbcbc"/><stop offset="1" stop-color="#ececec"/></linearGradient><linearGradient id="ex-floor-metal" x2="0.8" y2="1"><stop stop-color="#535353"/><stop offset="1" stop-color="#343434"/></linearGradient><radialGradient id="ex-glow"><stop stop-color="#cbcbcb" stop-opacity=".7"/><stop offset="1" stop-color="#bfbfbf" stop-opacity="0"/></radialGradient><filter id="room-shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="22" stdDeviation="15" flood-color="#151515" flood-opacity=".6"/></filter></defs><g class="ex-room-enter"><g filter="url(#room-shadow)">${room}</g>${overlays}<path id="ex-route" fill="none" stroke="#cbcbcb" stroke-width="2" stroke-linecap="round" opacity="0"/><g id="ex-agent" aria-label="Articulated quadruped inspection robot"></g><g id="ex-scan"><ellipse class="ex-scan" rx="50" ry="28"/></g><g id="ex-object"><circle r="12" fill="#e0e0e0"/><path d="M-4-5H3V4H-4Z M3-3H6V1H3" fill="none" stroke="#525252" stroke-width="1.5"/></g></g>`;
+    const overlays=s.anchors.map((point,i)=>{
+      const [a,b]=mapPoint(point),labelX=Math.min(648,Math.max(72,a)),labelY=b-44;
+      return `<g><ellipse id="ex-halo-${i}" class="ex-halo" cx="${a}" cy="${b}" rx="55" ry="36" fill="url(#ex-glow)"/><circle cx="${a}" cy="${b}" r="17" fill="none" stroke="#fff" stroke-opacity=".65" stroke-dasharray="2 4"/><circle cx="${a}" cy="${b}" r="3" fill="#fff"/><path d="M${a} ${b-18}L${labelX} ${labelY+13}" stroke="#ddd" stroke-width="1"/><rect class="ex-location-chip" x="${labelX-66}" y="${labelY-24}" width="132" height="43" rx="6"/><text class="ex-location-label" x="${labelX}" y="${labelY-7}">${s.locations[i]}</text><text class="ex-probability" id="ex-prob-${i}" x="${labelX}" y="${labelY+10}"></text></g>`;
+    }).join('');
+    $('map').setAttribute('viewBox','0 0 720 600');
+    $('map').innerHTML=`<title id="ex-map-title">HSSD ${s.sceneId}: ${s.name}</title><desc id="ex-map-desc"></desc><defs><linearGradient id="ex-robot-metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f5f5f5"/><stop offset=".45" stop-color="#bcbcbc"/><stop offset="1" stop-color="#ececec"/></linearGradient><radialGradient id="ex-glow"><stop stop-color="#fff" stop-opacity=".65"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><g class="ex-room-enter"><rect x="${m.left-1}" y="${m.top-1}" width="${m.w*m.scale+2}" height="${m.h*m.scale+2}" rx="2" fill="#181818" stroke="#666"/><svg class="ex-captured-scene" style="width:${m.w*m.scale}px;height:${m.h*m.scale}px;overflow:hidden;aspect-ratio:auto" x="${m.left}" y="${m.top}" width="${m.w*m.scale}" height="${m.h*m.scale}" viewBox="${s.crop.join(' ')}"><image href="${s.image}" width="${s.imageSize[0]}" height="${s.imageSize[1]}"/></svg><path id="ex-route-shadow" fill="none" stroke="#171717" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0"/><path id="ex-route" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>${overlays}<g id="ex-agent" aria-label="Illustrative quadruped inspection robot"></g><g id="ex-scan"><ellipse class="ex-scan" rx="45" ry="30"/></g><g id="ex-object"><circle r="12" fill="#eee" stroke="#292929" stroke-width="1.5"/><path d="M-4-5H3V4H-4Z M3-3H6V1H3" fill="none" stroke="#525252" stroke-width="1.5"/></g></g>`;
     $('distribution').innerHTML=s.locations.map((name,i)=>`<div class="ex-bar" id="ex-bar-${i}"><div class="ex-bar-label"><span>${name}</span><strong id="ex-value-${i}"></strong></div><div class="ex-track"><i id="ex-fill-${i}"></i></div></div>`).join('');
-    if(s.shape!=='mug')$('object').innerHTML='<rect x="-7" y="-10" width="14" height="20" rx="3" fill="#d9d9d9" stroke="#606060"/><path d="M-4-5H4M-4-1H4M-4 3H1" stroke="#787878"/>';
-    $('robot-preview').innerHTML=quadruped(-.35);
+    if(s.shape==='bowl')$('object').innerHTML='<circle r="12" fill="#eee" stroke="#292929" stroke-width="1.5"/><path d="M-7-2Q-6 7 0 7Q6 7 7-2Z" fill="#999" stroke="#333" stroke-width="1.2"/>';
+    $('robot-preview').innerHTML=quadruped(-.35);$('scene-source').textContent=`HSSD ${s.sceneId}`;$('scene-source').href=s.image;
     shown=beliefs();
     root.querySelectorAll('[data-scene]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scene===key)));
   }
@@ -140,7 +255,7 @@
     const s=scenes[key], p=beliefs(), pc=percentages(p), leader=p.indexOf(Math.max(...p));
     animateBelief(p);
     $('map-clock').textContent=`DAY ${String(1+Math.floor((9+hours)/24)).padStart(2,'0')} / ${String((9+hours)%24).padStart(2,'0')}:00`;
-    $('map-desc').textContent=`${s.name}. ${s.locations.map((n,i)=>`${n}: ${pc[i]}%`).join(', ')}. ${stage==='found'?'Object recovered.':hours===0?'Object directly observed.':'Object location unobserved.'}`;
+    $('map-desc').textContent=`HSSD ${s.sceneId}; captured scene with illustrative beliefs and robot. ${s.locations.map((n,i)=>`${n}: ${pc[i]}%`).join(', ')}. ${stage==='found'?'Object recovered.':hours===0?'Object directly observed.':'Object location unobserved.'}`;
     $('time').value=hours; $('time').setAttribute('aria-valuetext',`${hours} hours since observation`); $('elapsed').textContent=hours===0?'Just observed':`${hours} hours`;
     root.querySelectorAll('[data-time]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.time)===hours)));
     $('phase').textContent=busy?'Inspecting':stage==='found'?'Target recovered':stage==='updated'?'Belief updated':hours===0?'Direct observation':hours<48?'Time elapsing':'Current query';
@@ -153,13 +268,13 @@
     $('action').disabled=busy;
     $('action').innerHTML=busy?'Navigating & inspecting… <span>···</span>':stage==='found'?'Replay this scenario <span>↺</span>':stage==='updated'?`Inspect ${s.recovered.toLowerCase()} <span>→</span>`:hours<48?'Advance to current query <span>→</span>':`Inspect ${s.locations[1].toLowerCase()} <span>→</span>`;
     $('action-hint').textContent=stage==='updated'?'Inspect another plausible location to resolve uncertainty.':stage==='found'?'Evidence closes the loop. Memory stays current.':'Follow the belief. Gather new evidence.';
-    $('object').setAttribute('transform',`translate(${(stage==='found'?project(350,245,51):project(142,155,45)).join(' ')})`);
+    $('object').setAttribute('transform',`translate(${(mapPoint(s.anchors[stage==='found'?2:0])).join(' ')})`);
     $('object').style.opacity=hours===0||stage==='found'?'1':'0';
     const active=busy?1:stage==='found'?3:stage==='updated'?2:0;
     root.querySelectorAll('[data-step]').forEach(el=>{el.dataset.active=String(Number(el.dataset.step)<=active);if(Number(el.dataset.step)===active)el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});
     $('status').textContent=busy?`Moving to the ${stage==='updated'?s.recovered.toLowerCase():s.locations[1].toLowerCase()} to gather evidence…`:stage==='found'?`Target found at the ${s.recovered.toLowerCase()}. The agent’s memory now contains a fresh observation.`:stage==='updated'?`${s.locations[1]} checked · target not detected · posterior renormalized across all candidates.`:hours===0?`Day 1 · ${s.object} observed on the ${s.locations[0].toLowerCase()}.`:`${hours} hours without direct observation. ${hours===48?'Inspect the leading hypothesis to see how evidence changes the belief.':'Move through time to see the belief evolve.'}`;
     $('memory-name').textContent=`${s.object} · object_${s.id}`;
-    $('memory-content').innerHTML=`<div><h4>IDENTITY</h4><p>object_${s.id}<br>${s.appearance}<br>First observed: Day 1, 09:00</p></div><div><h4>OBSERVATION HISTORY</h4><p>Day 1 · ${s.locations[0]} · confidence 0.96<br>${hours>0?`Following ${hours}h · no direct observation`:'Fresh observation'}${stage==='updated'||stage==='found'?`<br>Day 3 · ${s.locations[1]} · negative evidence`:''}${stage==='found'?`<br>Day 3, 09:15 · ${s.recovered} · detected`:''}</p></div><div><h4>RELATIONS & PROVENANCE</h4><p>${stage==='found'?`Located at ${s.recovered}`:s.relation}<br>Source: authored illustrative scenario<br>${stage==='updated'?'P(s | no detection) ∝ P(no detection | s) P(s)':'Persistent identity · versioned observations'}</p></div>`;
+    $('memory-content').innerHTML=`<div><h4>IDENTITY</h4><p>object_${s.id}<br>${s.appearance}<br>First observed: Day 1, 09:00</p></div><div><h4>OBSERVATION HISTORY</h4><p>Day 1 · ${s.locations[0]} · confidence 0.96<br>${hours>0?`Following ${hours}h · no direct observation`:'Fresh observation'}${stage==='updated'||stage==='found'?`<br>Day 3 · ${s.locations[1]} · negative evidence`:''}${stage==='found'?`<br>Day 3, 09:15 · ${s.recovered} · detected`:''}</p></div><div><h4>RELATIONS & PROVENANCE</h4><p>${stage==='found'?`Located at ${s.recovered}`:s.relation}<br>Scene: HSSD ${s.sceneId}<br>Beliefs and target: illustrative scenario<br>${stage==='updated'?'P(s | no detection) ∝ P(no detection | s) P(s)':'Persistent identity · versioned observations'}</p></div>`;
   }
   function paintBelief(values) {
     shown=values;const rounded=percentages(values),leader=values.indexOf(Math.max(...values));
@@ -175,18 +290,19 @@
     const tick=now=>{const t=Math.min(1,(now-start)/700),ease=1-Math.pow(1-t,4);paintBelief(from.map((v,i)=>v+(target[i]-v)*ease));if(t<1)beliefFrame=requestAnimationFrame(tick);};
     beliefFrame=requestAnimationFrame(tick);
   }
-  function stopStory(){storyRun++;story=false;$('play').textContent='▶ Play story';$('play').setAttribute('aria-pressed','false');}
+  function stopStory(){storyRun++;story=false;$('play').textContent='▶ Start demonstration';$('play').setAttribute('aria-pressed','false');}
   function reset(time=48, keepStory=false) {
     if(!keepStory)stopStory();
     generation++;busy=false;stage='predict';hours=time;
     robotHeading=-Math.PI/2;poseRobot();
-    $('route').style.opacity=0;$('agent').setAttribute('transform',`translate(${project(230,305).join(' ')})`);
+    $('route').style.opacity=0;$('route-shadow').style.opacity=0;$('agent').setAttribute('transform',`translate(${mapPoint(scenes[key].start).join(' ')})`);
     $('scan').querySelector('ellipse').classList.remove('scanning');render();
   }
   function travel(path,token) {
     return new Promise(resolve=>{
       const route=$('route');route.setAttribute('d',path);route.style.opacity=1;
-      const length=route.getTotalLength();route.style.strokeDasharray=length;route.style.strokeDashoffset=length;
+      const shadow=$('route-shadow');shadow.setAttribute('d',path);shadow.style.opacity='.75';
+      const length=route.getTotalLength();shadow.style.strokeDasharray=length;shadow.style.strokeDashoffset=length;route.style.strokeDasharray=length;route.style.strokeDashoffset=length;
       const start=performance.now(),duration=reduced.matches?0:2600;
       robotState('Walking · route tracking','walking');
       let last= start;
@@ -202,7 +318,7 @@
         const delta=Math.atan2(Math.sin(heading-robotHeading),Math.cos(heading-robotHeading));
         robotHeading+=delta*(reduced.matches?1:1-Math.exp(-Math.min(60,now-last)/85));last=now;
         poseRobot(length*ease*.12,t>0&&t<1&&!reduced.matches);
-        $('agent').setAttribute('transform',`translate(${point.x} ${point.y})`);route.style.strokeDashoffset=length*(1-ease);
+        $('agent').setAttribute('transform',`translate(${point.x} ${point.y})`);route.style.strokeDashoffset=length*(1-ease);shadow.style.strokeDashoffset=length*(1-ease);
         if(t<1)requestAnimationFrame(frame);else resolve(true);
       }
       requestAnimationFrame(frame);
@@ -213,13 +329,13 @@
     if(stage==='found'){reset();return;}
     if(hours<48){reset();return;}
     const token=++generation,recovering=stage==='updated';busy=true;render();
-    const point=v=>project(...v).join(' ');
-    const path=recovering?`M${point([300,110])} Q${point([255,130])} ${point([260,195])} T${point([285,260])}`:`M${point([230,305])} L${point([230,220])} Q${point([230,110])} ${point([300,110])}`;
+    // Keep the measured NavMesh waypoints; rounded line joins don't cut corners.
+    const path=scenes[key].routes[recovering?1:0].map((v,i)=>`${i?'L':'M'}${mapPoint(v).join(' ')}`).join(' ');
     if(!await travel(path,token))return;
     robotState('Stationary · visual scan','scanning');
     $('phase').textContent='Scanning';$('action').innerHTML='Acquiring visual evidence… <span>◌</span>';
     $('status').textContent=`Inspecting the ${recovering?scenes[key].recovered.toLowerCase():scenes[key].locations[1].toLowerCase()} · checking target visibility.`;
-    $('scan').setAttribute('transform',`translate(${project(...(recovering?[350,245,42]:[335,45,52])).join(' ')})`);
+    $('scan').setAttribute('transform',`translate(${mapPoint(scenes[key].anchors[recovering?2:1]).join(' ')})`);
     $('scan').querySelector('ellipse').classList.add('scanning');
     await delay(1100);if(token!==generation)return;
     $('scan').querySelector('ellipse').classList.remove('scanning');stage=recovering?'found':'updated';busy=false;render();
@@ -232,7 +348,7 @@
   $('action').addEventListener('click',()=>{stopStory();inspect();});
   $('play').addEventListener('click',async()=>{
     if(story){reset(hours);return;}
-    reset(0);const run=++storyRun;story=true;$('play').textContent='Ⅱ Stop story';$('play').setAttribute('aria-pressed','true');
+    reset(0);const run=++storyRun;story=true;$('play').textContent='Ⅱ Stop demonstration';$('play').setAttribute('aria-pressed','true');
     let token=generation;await delay(1000);if(!story||run!==storyRun||token!==generation)return;
     // Advance historical time at a steady cadence; manual controls always cancel the story.
     for(let h=1;h<=48;h++){if(!story||run!==storyRun||token!==generation)return;hours=h;render();await delay(45);}

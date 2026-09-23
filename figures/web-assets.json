@@ -1,0 +1,109 @@
+{
+  "description": "Website derivatives rendered from current paper PDFs with pdftoppm. Frame crops preserve the original annotations; full source PDFs remain available. Crop coordinates are pixels after CropBox rendering at render_width.",
+  "assets": [
+    {
+      "asset": "overview_web.png",
+      "source": "overview.pdf",
+      "source_sha256": "3b99ebcb151a6172c9f11a55d53ca73c8357b8899159a5fedca22c5e577f150e",
+      "page": 1,
+      "render_width": 2400,
+      "use_pdf_cropbox": true,
+      "crop": null
+    },
+    {
+      "asset": "method_web.png",
+      "source": "method.pdf",
+      "source_sha256": "614a01eb8eb1bb545c69f9b75060966648acbd3fd6cb5ea940854d3cbd9ccec0",
+      "page": 1,
+      "render_width": 2600,
+      "use_pdf_cropbox": true,
+      "crop": null
+    },
+    {
+      "asset": "memory_web.png",
+      "source": "EvolvingWorldNav.pdf",
+      "source_sha256": "2404c1d5e84aad8af42220032ea5be04f63482c655e3d302c68e162aad51164f",
+      "page": 1,
+      "render_width": 2400,
+      "use_pdf_cropbox": true,
+      "crop": null
+    },
+    {
+      "asset": "case_web.png",
+      "source": "P4D_CaseStudy.pdf",
+      "source_sha256": "535b78f0891acebcedd1a308e04ac1eff377b55163e99daa02c4a6871d29844a",
+      "page": 1,
+      "render_width": 2400,
+      "use_pdf_cropbox": true,
+      "crop": null
+    },
+    {
+      "asset": "benchmark_web.png",
+      "source": "P4D_Benchmark.pdf",
+      "source_sha256": "6f56f189e3035915f9018ddba3188eb160903c5fbd3e0fabd224dffff7a379a6",
+      "page": 1,
+      "render_width": 2000,
+      "use_pdf_cropbox": true,
+      "crop": null
+    },
+    {
+      "asset": "predictive_web.png",
+      "source": "predictive-memory.pdf",
+      "source_sha256": "6a04270dadac5a236e461ff5766db57f96ad48a72c9e9087a7c606db133d0a66",
+      "page": 1,
+      "render_width": 2400,
+      "use_pdf_cropbox": true,
+      "crop": null
+    },
+    {
+      "asset": "real_indoor_web.png",
+      "source": "Real_World_Case_third_2.pdf",
+      "source_sha256": "99fcf7257b53b336e23a388b05883be9784fd6f75677780969dda9fa72ed3396",
+      "page": 1,
+      "render_width": 2400,
+      "use_pdf_cropbox": true,
+      "crop": null
+    },
+    {
+      "asset": "real_outdoor_web.png",
+      "source": "Real_World_Case_third_1.pdf",
+      "source_sha256": "c2b2f08388e1a21704b3320bd737b56e0272f535f763af72ce518875c23b8c3f",
+      "page": 1,
+      "render_width": 2400,
+      "use_pdf_cropbox": true,
+      "crop": null
+    },
+    {
+      "asset": "real_indoor_frame.jpg",
+      "source": "Real_World_Case_third_2.pdf",
+      "source_sha256": "99fcf7257b53b336e23a388b05883be9784fd6f75677780969dda9fa72ed3396",
+      "page": 1,
+      "render_width": 3760,
+      "use_pdf_cropbox": true,
+      "crop": {
+        "x": 2500,
+        "y": 1354,
+        "width": 1200,
+        "height": 900
+      },
+      "panel": "Ours, frame 6: Cup found at its current location",
+      "jpeg_quality": 92
+    },
+    {
+      "asset": "real_outdoor_frame.jpg",
+      "source": "Real_World_Case_third_1.pdf",
+      "source_sha256": "c2b2f08388e1a21704b3320bd737b56e0272f535f763af72ce518875c23b8c3f",
+      "page": 1,
+      "render_width": 6250,
+      "use_pdf_cropbox": true,
+      "crop": {
+        "x": 4975,
+        "y": 1990,
+        "width": 1200,
+        "height": 900
+      },
+      "panel": "Ours, frame 5: Correct car found",
+      "jpeg_quality": 92
+    }
+  ]
+}
