@@ -217,7 +217,7 @@ static/dynamic policy router.
 \subsection{Full Baseline Specification}
 \label{app:baselines}
 
-Last Seen assigns all mass to the latest positive state. Frequency Prior estimates $P(s\mid o)$ from training data. Markov Transition estimates $P(s_{k+1}\mid s_k,o)$; Time-Conditioned Prior additionally conditions on public hour and weekday bins. Instance Hotspot uses only the target instance's training trajectory. GRU Direct and Transformer Direct receive the same event tokens and candidate encoder as \pfdnav{} but directly normalize candidate logits without the persistence factorization. P4D-Belief Prior uses \cref{eq:prior} once at episode start. Full \pfdnav{} applies \cref{eq:bayes,eq:arrival-belief,eq:planner} at event-driven decision epochs.
+Last Seen assigns all mass to the latest positive state. Frequency Prior estimates $P(s\mid o)$ from training data. Markov Transition estimates $P(s_{k+1}\mid s_k,o)$; Time-Conditioned Prior additionally conditions on public hour and weekday bins. Instance Hotspot uses only the target instance's training trajectory. GRU Direct and Transformer Direct receive the same event tokens and candidate encoder as \pfdnav{} but directly normalize candidate logits without the persistence factorization. P4D-Belief Prior uses \cref{eq:prior} once at episode start. Full \evolvingworldnav{} applies \cref{eq:bayes,eq:arrival-belief,eq:planner} at event-driven decision epochs.
 
 The Oracle Activity diagnostic may use the hidden activity and source location but is excluded from fair rankings. Oracle Current State receives the private target state and measures remaining perception and navigation error. External predictive methods are adapted only through their public inputs; any use of privileged simulator state must be identified and excluded from the main comparison.
 
@@ -352,6 +352,15 @@ generalization split. Paired routine/static/random episodes retain scene,
 query, and marginal placement factors while changing only the hidden
 transition mechanism.
 
+The \evolvingworldbench{} entries in
+\cref{tab:crossbench,tab:domains,tab:foundation_models,fig:module_ablation,tab:temporal-memory-ablation}
+use the same N1--N5 test episodes, protocol, action budget, and metric
+definitions. Full-agent results come from separate stochastic runs on these
+episodes; their small numerical differences should not be interpreted as a
+change of test set. Controlled gains are computed within each matched
+comparison. Routine-world and N4-transition diagnostics condition on specified
+subsets and are identified separately.
+
 \section{Benchmark Construction and Evaluation Protocol}
 \label{app:benchmark-protocol}
 
@@ -402,27 +411,40 @@ All thresholds are selected on training data before navigation evaluation. When 
 \subsection{Metric Definitions}
 \label{app:metrics}
 
-Let $S_i$ be episode success, $L_i$ the executed path, and $L_i^*$ the oracle shortest path to the query-time goal under the same start. Standard SPL is
+Let $S_i$ be episode success and $L_i$ the executed path. For episodes whose
+target remains fixed after the query, $L_{i,\mathrm{fix}}^*$ is the shortest
+feasible path to a valid target viewpoint from the same start. For an online
+dynamic episode, $L_{i,\mathrm{dyn}}^*$ is the shortest path in distance along
+a time-feasible trajectory reaching a viewpoint that verifies the target at its
+scheduled state, under the same start, NavMesh, and action/time budget. The
+dynamic oracle knows the private transition schedule for evaluation only; the
+agent does not. Writing $L_i^{\mathrm{ref}}$ for the applicable fixed or dynamic
+oracle path, we use
 \begin{equation}
-\mathrm{SPL}=\frac{1}{N}\sum_{i=1}^{N}S_i\frac{L_i^*}{\max(L_i,L_i^*)}.
+\mathrm{SPL}=\frac{1}{N}\sum_{i=1}^{N}S_i
+\frac{L_i^{\mathrm{ref}}}{\max(L_i,L_i^{\mathrm{ref}})}.
 \end{equation}
+The N1--N5 aggregate includes N4 and applies this reference episode by episode;
+the fixed-target and online-dynamic slices use their respective reference
+paths when computing SPL. The static oracle is never applied to a moving target.
 First-Inspection SR records whether the first candidate to receive sufficient
 cumulative coverage contains the target; opportunistic evidence and replanning
 before that inspection are part of the policy. A sufficiently covered en-route
 view counts as the first inspection itself. Recovery SR conditions on an
 unsuccessful first inspection and measures whether the target is subsequently
-found. Excess path is $L_i-L_i^*$ for fixed-during-navigation episodes. For
-online-dynamic episodes, the oracle is trajectory aware and may intercept the
-target; we therefore report both success within the common budget and
-$L_i-L_{i,\mathrm{dyn}}^*$.
-Dynamic SR is computed only on N4 episodes with at least one target transition
-between query and termination. Online Recovery SR conditions further on a
-transition that invalidates the currently selected destination and records
-eventual success after online evidence and replanning. Revisit Success is the
-percentage of dynamically reopened candidate visits that recover the target.
-N4 episodes in which evolution is enabled but no target transition is realized
-form a separate no-transition slice and are not mixed into these dynamic
-metrics.
+found. Excess path uses $L_i-L_i^{\mathrm{ref}}$, with the dynamic oracle for
+moving-target episodes. Before any N4 rollout, each episode receives a common
+post-query evaluation window $[t_q,t_q+T_i]$ and a fixed schedule of hidden
+target transitions. The dynamic subset contains exactly the episode identifiers
+with a scheduled change of target state inside this window, independent of any
+method's destination, trajectory, or termination time. All methods are scored
+on this same set. The complementary no-transition slice is kept separate.
+Dynamic SR is success on the preselected dynamic set. Online Recovery SR uses
+the shared subset whose predeclared transition invalidates the target's
+pre-transition state; only successful verification after that transition counts
+as recovery, and an early stop does not change the denominator. Revisit Success
+is the percentage of dynamically reopened candidate visits that recover the
+target.
 
 Calibration metrics operate on the full candidate belief before navigation and after each update. ECE bins maximum confidence, Brier score evaluates all candidates, and true-state rank avoids hiding useful changes below Top-1. Search-cost curves plot success against allowed inspections and travelled distance rather than reporting one arbitrary budget.
 
@@ -673,7 +695,7 @@ selection.
 Last Seen & \textbf{84.38} & 38.49 & 23.19 & --\\
 Markov Transition & 80.22 & 32.57 & 20.64 & $-5.92$\\
 Direct Transformer & 69.79 & 48.82 & \textbf{31.39} & $+10.33$\\
-\rowcolor{tblours}\textbf{\pfdnav{}} & 82.19 & \textbf{60.85} & 30.12 & \textbf{$+22.36$}\\
+\rowcolor{tblours}\textbf{\evolvingworldnav{}} & 82.19 & \textbf{60.85} & 30.12 & \textbf{$+22.36$}\\
 \bottomrule
 \end{tabular}
 }
@@ -683,9 +705,9 @@ Direct Transformer & 69.79 & 48.82 & \textbf{31.39} & $+10.33$\\
 \Cref{tab:worlds} holds scenes and queries fixed while changing only the world
 transition mechanism. Last Seen reaches 84.38 SR in static worlds but falls to
 38.49 under routine evolution, exposing the failure of stale memory. In contrast,
-\pfdnav{} reaches 60.85 routine-world SR, improving by 22.36 points over Last
+\evolvingworldnav{} reaches 60.85 routine-world SR, improving by 22.36 points over Last
 Seen and by 12.03 points over Transformer Direct. Under matched random motion,
-the gain over Last Seen contracts to 6.93 points and \pfdnav{} trails
+the gain over Last Seen contracts to 6.93 points and \evolvingworldnav{} trails
 Transformer Direct by 1.27 points. This contrast localizes its main advantage
 to learnable temporal regularity rather than a scene-frequency or generic
 search shortcut.
