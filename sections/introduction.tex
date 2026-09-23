@@ -1,8 +1,12 @@
 \section{Introduction}
 \label{sec:introduction}
 
-Robots deployed for extended periods do not act on fresh snapshots of the
-world. Human activity continually changes task-relevant state, often outside
+For an embodied agent operating over long periods, navigation involves repeated
+requests in familiar environments rather than isolated single-goal episodes.
+Spatial maps and object memories make observations from earlier visits useful
+for later tasks \citep{gu2024conceptgraphs,liu2024dynamem}. Yet these agents do
+not act on fresh snapshots of the world. Human activity continually changes
+task-relevant state, often outside
 the robot's field of view. A medication box remembered on a bedside table may
 have been returned to a cabinet before a request arrives; even a prediction
 that is correct when the task begins may become stale while the robot is
@@ -24,10 +28,9 @@ time-indexed \textbf{predictive belief} over the current latent world state---a
 distribution that treats past observations as evidence, expresses uncertainty
 about unobserved change, and remains revisable through interaction.
 
-Persistent memories and open-vocabulary maps provide an important foundation
-by retaining object-centric observations and spatial relations
-\citep{gu2024conceptgraphs,liu2024dynamem}. Predictive representations further
-use temporal histories and recurring activities to estimate unobserved states
+Memory systems retain object-centric observations and spatial relations, while
+predictive representations use temporal histories and recurring activities to
+estimate unobserved states
 \citep{patel2023routine,saavedraruiz2026predictivegraphs}. PredictiveGraphs, in
 particular, exposes Top-$k$ navigation candidates and incorporates observations
 collected during active navigation \citep{saavedraruiz2026predictivegraphs}.
