@@ -79,7 +79,9 @@
 \begin{abstract}
 Recent embodied navigation systems increasingly use persistent spatial memories
 and vision--language models to act across repeated visits to familiar
-environments. Yet remembered observations need not describe the current world:
+environments. Persistent maps make prior observations available for subsequent
+decisions and reduce the need to reconstruct familiar scenes for every task.
+However, remembered observations need not describe the current world:
 objects may move outside the agent's view, even while it travels toward a
 predicted destination. We study navigation under hidden world evolution, where
 an agent must infer the latent current state from irregular histories and revise
@@ -92,10 +94,11 @@ at candidate arrival times, incorporates newly informative, visibility-aware
 RGB-D evidence, and replans as the world evolves. We also introduce
 \textbf{\evofourbench{}}, a human-trace-grounded benchmark that evaluates state
 prediction and embodied decisions under controlled changes before and during
-navigation. Across simulation benchmarks and physical robot trials, the method
-improves navigation success and search efficiency. Paired controls locate its
-clearest predictive gains in learnable temporal dynamics, while ablations show
-the value of preserving uncertainty and revising beliefs from visual evidence.
+navigation. Across simulation benchmarks and physical robot trials,
+\textbf{\evolvingworldnav{}} improves navigation success and search efficiency
+relative to evaluated baselines. Paired controls show that temporal prediction
+is most useful when changes exhibit learnable regularity; ablations demonstrate
+the value of preserving uncertainty and updating beliefs from visual evidence.
 \end{abstract}
 
 \raggedbottom
