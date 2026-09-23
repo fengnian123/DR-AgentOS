@@ -801,6 +801,15 @@ Retrieval + Reasoning & 31.3 & 40.6 & 25.1 & 21.9 & 34.4 & 75.5 \\
 \end{tabular}
 \end{table}
 
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=0.92\textwidth]{figures/Real_World_Case_third_2.pdf}
+    \vspace{2pt}
+    \includegraphics[width=0.92\textwidth]{figures/Real_World_Case_third_3.pdf}
+    \caption{Indoor cup search with predictive belief (top) and stale Last Seen memory (bottom).}
+    \label{fig:real-world-cup-comparison}
+\end{figure*}
+
 \subsection{Temporal Condition Analysis}
 \label{app:temporal-analysis}
 
@@ -874,14 +883,6 @@ reaches its current location. The two-row indoor comparison in
 first inspects the now-empty pantry rack. These traces visualize representative
 outcomes and do not add observations to the aggregate success-rate measurements.
 
-\begin{figure*}[!t]
-    \centering
-    \includegraphics[width=0.92\textwidth]{figures/Real_World_Case_third_2.pdf}
-    \vspace{2pt}
-    \includegraphics[width=0.92\textwidth]{figures/Real_World_Case_third_3.pdf}
-    \caption{Indoor cup search with predictive belief (top) and stale Last Seen memory (bottom).}
-    \label{fig:real-world-cup-comparison}
-\end{figure*}
 \FloatBarrier
 
 \paragraph{Additional system execution cases.}
@@ -903,7 +904,7 @@ evidence for the predictive-belief module.
     \label{fig:real-world-indoor-long-horizon}
 \end{figure}
 
-\begin{figure}[!t]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{figures/Real_World_Case_2.pdf}
     \caption{Long-horizon outdoor shared-bike search.}
@@ -915,10 +916,5 @@ evidence for the predictive-belief module.
 \section{Reproducibility and Responsible AI}
 \label{app:reproducibility}
 
-\paragraph{Ethics.}
-
-Persistent visual memory may capture people or private spaces, while an incorrect belief may induce unnecessary motion or unsafe behavior. Deployments should obtain consent, enforce retention and access controls, preserve provenance, and retain platform-specific collision avoidance and emergency stops outside the learned model. Our benchmark compiles existing records into simulated HSSD episodes and introduces no new human-subject study.
-
-\paragraph{AI use.}
-
-Generative AI tools assisted manuscript editing, LaTeX checks, and local engineering. They did not generate benchmark observations, ground-truth labels, or reported scores. The authors reviewed all assisted material and remain responsible for the content and artifacts.
+\paragraph{Ethics and AI use.}
+Persistent visual memory can capture people or private spaces, and incorrect beliefs may induce unsafe motion. Deployments should obtain consent, control data retention and access, preserve provenance, and retain platform-specific collision avoidance and emergency stops. The benchmark compiles existing records into simulated HSSD episodes without a new human-subject study. Generative AI assisted manuscript editing, LaTeX checks, and local engineering; it did not produce benchmark observations, ground-truth labels, or reported scores. The authors reviewed this material and remain responsible for the paper and artifacts.
