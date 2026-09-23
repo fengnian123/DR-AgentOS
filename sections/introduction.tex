@@ -13,11 +13,11 @@ hours, or days earlier and estimate what will be true when it inspects a target.
 
 Partial observability makes the distinction between historical observations
 and current state consequential. Observations record past states, whereas the
-latent world state may evolve between them. This produces \textbf{temporally
-stale memory}: even accurate retrieval from a geometrically correct map can
-direct the agent to an outdated location. Searching from scratch discards useful
+latent world state may evolve between them. This produces temporally stale
+memory: even accurate retrieval from a geometrically correct map can direct the
+agent to an outdated location. Searching from scratch discards useful
 history. A persistent agent instead needs a time-indexed
-\textbf{predictive belief} over the latent state. It uses past observations as
+predictive belief over the latent state. It uses past observations as
 evidence, represents uncertainty about unobserved changes, and supports
 revision during interaction. The belief must
 remain valid at the time of action, which may differ from the query time.
@@ -60,7 +60,7 @@ search, and evidence-based recovery, and continuing-evolution episodes that
 test arrival-time prediction and replanning. Both expose only observations
 acquired along the executed trajectory.
 
-We propose \evolvingworldnav{} (\cref{fig:evolvingworldnav_overview}), a
+We propose \textbf{\evolvingworldnav{}} (\cref{fig:evolvingworldnav_overview}), a
 predictive 4D belief agent. A frozen, zero-shot vision--language
 controller invokes memory, prediction, inspection, exploration, and navigation
 tools. Within the agent, \pfdnav{} encodes irregular timestamped histories and
@@ -84,7 +84,7 @@ reopen a previously inspected state. Prediction therefore supplies a prior for
 action, and embodied interaction continually checks and corrects it.
 
 To evaluate stale histories, hidden transitions, and the physical cost of
-testing uncertain states jointly, we introduce \evofourbench{}, a
+testing uncertain states jointly, we introduce \textbf{\evolvingworldbench{}}, a
 human-trace-grounded simulation benchmark with 54 evolving scenes and 803.68k
 tasks spanning state prediction, object navigation, vision-and-language
 navigation, and embodied question answering. It links the quality of a
@@ -95,7 +95,7 @@ structure, testing whether gains arise from learnable historical regularity
 rather than location frequency, geometry, or additional exploration.
 
 Experiments support this interpretation. Across the full navigation suite,
-\evolvingworldnav{} reaches 61.32\% First-Inspection SR and 86.18\% Search SR,
+\textbf{\evolvingworldnav{}} reaches 61.32\% First-Inspection SR and 86.18\% Search SR,
 exceeding DynaMem by 15.99 and 14.24 points (\cref{tab:crossbench}). On episodes
 with execution-time target motion, it improves Dynamic SR by 18.4 points over
 PredictiveGraphs (\cref{tab:n4-online}). Component ablations show that the gain
@@ -114,9 +114,9 @@ Our contributions are fourfold:
     We formulate navigation under hidden world evolution, where states may change outside the agent's view and during execution.
 
     \item \textbf{Predictive 4D Belief Agent:}
-    We introduce \evolvingworldnav{}, coupling structured state prediction with an event-driven predict--observe--replan filter.
+    We introduce \textbf{\evolvingworldnav{}}, coupling structured state prediction with an event-driven predict--observe--replan filter.
 
-    \item \textbf{Evo4D-Bench:}
+    \item \textbf{EvolvingWorld-Bench:}
     We establish a large-scale benchmark with 54 evolving scenes and 803.68k tasks for controlled evaluation of predictive navigation.
 
     \item \textbf{Comprehensive Validation:}

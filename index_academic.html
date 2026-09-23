@@ -22,14 +22,14 @@
     </section>
 
     <figure class="main-figure">
-      <img src="figures/overview_web.png" alt="Overview of EvolvingWorldNav across evolving worlds, 4D memory, P4D-Bench, and embodied tasks" />
+      <img src="figures/overview_web.png" alt="Overview of EvolvingWorldNav across evolving worlds, 4D memory, EvolvingWorld-Bench, and embodied tasks" />
       <figcaption><b>Overview.</b> EvolvingWorldNav turns observed history into a current-state belief, then closes the loop through belief-guided action, physical evidence, and memory update. The system spans standard, photorealistic, evolving, and real-world environments.</figcaption>
     </figure>
 
     <section id="abstract" class="paper-section abstract-section">
       <h2>Abstract</h2>
       <p>Embodied navigation is typically formulated assuming that maps and memories describe a stationary world. This assumption breaks for long-lived agents, where environments evolve during periods of absence and historical observations can become correct yet decisionally stale. We formulate <i>persistent navigation in evolving worlds</i>, where an agent must infer the current task-relevant state from incomplete temporal experience, act under uncertainty, and update its beliefs through physical evidence.</p>
-      <p>We introduce <b>EvolvingWorldNav</b>, a predictive embodied-agent framework centered on <b>P4D-Nav</b>, which transforms evidence-grounded 4D memory into an actionable belief over the present world. A continuous-time temporal model captures irregular histories, while a persistence–relocation formulation predicts whether previous states remain valid or where objects are likely to transition. We further introduce <b>P4D-Bench</b>, a 54-scene benchmark with 803.68K tasks spanning state prediction, object navigation, vision-and-language navigation, and embodied question answering.</p>
+      <p>We introduce <b>EvolvingWorldNav</b>, a predictive embodied-agent framework centered on <b>P4D-Nav</b>, which transforms evidence-grounded 4D memory into an actionable belief over the present world. A continuous-time temporal model captures irregular histories, while a persistence–relocation formulation predicts whether previous states remain valid or where objects are likely to transition. We further introduce <b>EvolvingWorld-Bench</b>, a 54-scene benchmark with 803.68K tasks spanning state prediction, object navigation, vision-and-language navigation, and embodied question answering.</p>
     </section>
 
     <section id="method" class="paper-section">
@@ -37,29 +37,29 @@
       <p>Our central interface is an action-facing belief over the present. Timestamped RGB-D experience is consolidated into persistent entity histories, encoded with elapsed and calendar time, and factorized into persistence and relocation hypotheses. The navigator uses the belief and map costs to select inspections; visibility-aware Bayesian updates then revise the posterior only when an inspected state should have been observable.</p>
       <div class="figure-grid">
         <figure class="paper-figure large"><img src="figures/memory_web.png" alt="Temporally versioned 4D memory construction" /><figcaption><b>Evidence-grounded 4D memory.</b> Observations are registered, associated with persistent entities, and stored as time-valid versions with provenance.</figcaption></figure>
-        <figure class="paper-figure large"><img src="figures/case_web.png" alt="P4D-Bench qualitative case study" /><figcaption><b>Closed-loop navigation.</b> A predictive belief ranks a current candidate, gathers evidence, and replans when memory is stale.</figcaption></figure>
+        <figure class="paper-figure large"><img src="figures/case_web.png" alt="EvolvingWorld-Bench qualitative case study" /><figcaption><b>Closed-loop navigation.</b> A predictive belief ranks a current candidate, gathers evidence, and replans when memory is stale.</figcaption></figure>
       </div>
       <p class="equation-note"><span>history</span> → <span>current-state belief</span> → <span>plan / act</span> → <span>evidence</span> → <span>memory update</span></p>
     </section>
 
     <section id="benchmark" class="paper-section">
-      <h2>P4D-Bench</h2>
-      <p>P4D-Bench evaluates navigation through changes that happen between observations. Its persistent scene histories preserve temporal continuity, causal observability, physical executability, and controlled dynamics. The latest benchmark release contains 54 HSSD scenes, 90 days per scene, and 803.68K task episodes.</p>
-      <figure class="paper-figure full"><img src="figures/benchmark_web.png" alt="P4D-Bench task distribution and temporal split" /><figcaption><b>Benchmark composition.</b> The task pool covers current-state prediction (16%), object navigation (27%), vision-and-language navigation (29%), and embodied question answering (28%), with static, routine, personal-habit, and irregular mobility regimes.</figcaption></figure>
+      <h2>EvolvingWorld-Bench</h2>
+      <p>EvolvingWorld-Bench evaluates navigation through changes that happen between observations. Its persistent scene histories preserve temporal continuity, causal observability, physical executability, and controlled dynamics. The latest benchmark release contains 54 HSSD scenes, 90 days per scene, and 803.68K task episodes.</p>
+      <figure class="paper-figure full"><img src="figures/benchmark_web.png" alt="EvolvingWorld-Bench task distribution and temporal split" /><figcaption><b>Benchmark composition.</b> The task pool covers current-state prediction (16%), object navigation (27%), vision-and-language navigation (29%), and embodied question answering (28%), with static, routine, personal-habit, and irregular mobility regimes.</figcaption></figure>
       <div class="protocol-table"><div><b>P</b><span>Current-state prediction</span><small>R@k / NLL</small></div><div><b>N1</b><span>Predictive navigation</span><small>First-Go SR</small></div><div><b>N2</b><span>Belief-guided search</span><small>Search SR / cost</small></div><div><b>N3</b><span>Evidence-aware replanning</span><small>Recovery SR</small></div><div><b>N4–N5</b><span>Online dynamics &amp; generalization</span><small>Held-out SR</small></div></div>
     </section>
 
     <section id="results" class="paper-section">
       <h2>Results</h2>
-      <p>The predictive memory interface improves both first-destination selection and budgeted search. It transfers across FindingDory, GOAT-Bench, P4D-Bench, and real-world LYNX M20 trials.</p>
-      <div class="result-row"><div class="result"><strong>63.22%</strong><span>FindingDory HL-SR</span></div><div class="result"><strong>48.83%</strong><span>FindingDory HL-SPL</span></div><div class="result"><strong>35.43%</strong><span>GOAT-Bench SR</span></div><div class="result"><strong>86.18%</strong><span>P4D-Bench Search SR</span></div><div class="result"><strong>70.15%</strong><span>P4D-Bench SPL</span></div></div>
-      <table class="results-table"><thead><tr><th>Method</th><th>FindingDory<br />HL-SR ↑</th><th>GOAT-Bench<br />SR ↑</th><th>P4D-Bench<br />Search SR ↑</th><th>P4D-Bench<br />SPL ↑</th></tr></thead><tbody><tr><td>Best reported baseline</td><td>52.44</td><td>29.64</td><td>81.00</td><td>66.83</td></tr><tr class="ours"><td><b>EvolvingWorldNav (ours)</b></td><td><b>63.22 ± 3.87</b></td><td><b>35.43 ± 2.16</b></td><td><b>86.18 ± 2.07</b></td><td><b>70.15 ± 1.74</b></td></tr></tbody></table>
+      <p>The predictive memory interface improves both first-destination selection and budgeted search. It transfers across FindingDory, GOAT-Bench, EvolvingWorld-Bench, and real-world LYNX M20 trials.</p>
+      <div class="result-row"><div class="result"><strong>63.22%</strong><span>FindingDory HL-SR</span></div><div class="result"><strong>48.83%</strong><span>FindingDory HL-SPL</span></div><div class="result"><strong>35.43%</strong><span>GOAT-Bench SR</span></div><div class="result"><strong>86.18%</strong><span>EvolvingWorld-Bench Search SR</span></div><div class="result"><strong>70.15%</strong><span>EvolvingWorld-Bench SPL</span></div></div>
+      <table class="results-table"><thead><tr><th>Method</th><th>FindingDory<br />HL-SR ↑</th><th>GOAT-Bench<br />SR ↑</th><th>EvolvingWorld-Bench<br />Search SR ↑</th><th>EvolvingWorld-Bench<br />SPL ↑</th></tr></thead><tbody><tr><td>Best reported baseline</td><td>52.44</td><td>29.64</td><td>81.00</td><td>66.83</td></tr><tr class="ours"><td><b>EvolvingWorldNav (ours)</b></td><td><b>63.22 ± 3.87</b></td><td><b>35.43 ± 2.16</b></td><td><b>86.18 ± 2.07</b></td><td><b>70.15 ± 1.74</b></td></tr></tbody></table>
       <h3>Real-world evaluation</h3>
       <p>On 64 matched LYNX M20 search episodes, EvolvingWorldNav reaches 34.4% First-Go SR, 48.4% Search SR, and 24.3% Recovery SR, while reducing mean travel to 43.8 m.</p>
       <div class="figure-grid real-world"><figure class="paper-figure"><img src="figures/real_indoor_web.png" alt="Indoor real-world execution case" /><figcaption>Indoor execution case.</figcaption></figure><figure class="paper-figure"><img src="figures/real_outdoor_web.png" alt="Outdoor real-world execution case" /><figcaption>Outdoor execution case.</figcaption></figure></div>
     </section>
 
-    <section class="paper-section resources"><h2>Resources</h2><div class="resource-links"><a href="main.pdf" target="_blank" rel="noreferrer">Paper PDF <span>↗</span></a><a href="https://github.com/fengnian123/DR-AgentOS" target="_blank" rel="noreferrer">GitHub repository <span>↗</span></a><a href="figures/P4D_Benchmark.pdf" target="_blank" rel="noreferrer">P4D-Bench figure <span>↗</span></a><a href="figures/predictive-memory.pdf" target="_blank" rel="noreferrer">Predictive diagnostics <span>↗</span></a></div></section>
+    <section class="paper-section resources"><h2>Resources</h2><div class="resource-links"><a href="main.pdf" target="_blank" rel="noreferrer">Paper PDF <span>↗</span></a><a href="https://github.com/fengnian123/DR-AgentOS" target="_blank" rel="noreferrer">GitHub repository <span>↗</span></a><a href="figures/P4D_Benchmark.pdf" target="_blank" rel="noreferrer">EvolvingWorld-Bench figure <span>↗</span></a><a href="figures/predictive-memory.pdf" target="_blank" rel="noreferrer">Predictive diagnostics <span>↗</span></a></div></section>
 
     <section id="bibtex" class="paper-section bibtex"><h2>BibTeX</h2><pre>@inproceedings{evolvingworldnav2027,
   title     = {EvolvingWorldNav: Predictive 4D Belief for Persistent Navigation in Evolving Worlds},

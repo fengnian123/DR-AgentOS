@@ -265,12 +265,12 @@ for final evaluation.
 \label{app:experimental-setup}
 
 \paragraph{Benchmark protocols.}
-The complete agent is evaluated on \evofourbench{}, FindingDory, and GOAT-Bench
+The complete agent is evaluated on \evolvingworldbench{}, FindingDory, and GOAT-Bench
 under their native task definitions. FindingDory reports high-level goal
 selection and conditional low-level execution; GOAT-Bench reports official SR
 and SPL, with Repeat-SR used only as a marked memory-reuse diagnostic. The
 cross-domain matrix uses R2R-CE on MP3D, HM3D-OVON on HM3D, native PointNav on
-Habitat-GS, SAGE-Bench on InteriorGS, and \evofourbench{} on HSSD. Scores are never
+Habitat-GS, SAGE-Bench on InteriorGS, and \evolvingworldbench{} on HSSD. Scores are never
 pooled across these heterogeneous tasks, and published values are transferred
 only when split, sensors, actions, and success rules match.
 
@@ -290,7 +290,7 @@ control and component ablations.
 
 \paragraph{Test-time information boundary.}
 All reproduced methods receive only information public in the target
-benchmark. On \evofourbench{}, observations are truncated at the current decision
+benchmark. On \evolvingworldbench{}, observations are truncated at the current decision
 time. Count and Markov baselines use only the target category, public time, and
 latest supported state; structured memories such as HOV-SG and DynaMem replay
 the same causal RGB-D and poses; predictive models receive public state or edge
@@ -308,7 +308,7 @@ Non-parametric baselines are estimated from the public training split, with
 smoothing or time bins fixed on validation. Internal neural baselines use the
 same event tokens, candidate encoder, training scenes, and validation rule as
 \pfdnav{}. External predictive architectures that require target-domain fitting
-are trained only on \evofourbench{} days 0--79 and selected on days 80--84; days
+are trained only on \evolvingworldbench{} days 0--79 and selected on days 80--84; days
 85--89 remain test-only. When an official checkpoint exists for a native
 benchmark, we retain that checkpoint and its prescribed observation window.
 Task-adapted systems are labeled separately from zero-shot systems in
@@ -346,7 +346,7 @@ perception, mapping, and policy, with adapters limited to sensor conventions,
 task-goal formatting, action vocabulary, and \texttt{STOP} semantics. We do not
 add our VLM planner or predictive belief to those agents. Their cross-domain
 scores therefore measure full-system compatibility, while the controlled
-\evofourbench{} and real-robot comparisons support module-level claims. Results are
+\evolvingworldbench{} and real-robot comparisons support module-level claims. Results are
 stratified by world variant, staleness, transition class, mobility regime, and
 generalization split. Paired routine/static/random episodes retain scene,
 query, and marginal placement factors while changing only the hidden
@@ -434,7 +434,7 @@ for space constraints.
 
 \input{sections/appendix_results}
 
-\subsection{Evo4D-Bench Detailed Results}
+\subsection{EvolvingWorld-Bench Detailed Results}
 \label{app:moved-tables}
 
 Table~\ref{tab:mainnav} complements the main benchmark table with search cost
@@ -445,7 +445,7 @@ action budgets. In the VLM study, SR is reported in percent and SPL is
 unscaled.
 
 \begin{table}[H]
-\caption{Evo4D-Bench routine-world search cost and recovery.}
+\caption{EvolvingWorld-Bench routine-world search cost and recovery.}
 \label{tab:mainnav}
 \centering
 \scriptsize
@@ -483,7 +483,7 @@ retained uncertainty and evidence updating reduce redundant inspections and
 support recovery when the initial prediction is wrong.
 
 \begin{table}[H]
-\caption{VLM robustness on Evo4D-Bench.}
+\caption{VLM robustness on EvolvingWorld-Bench.}
 \label{tab:foundation_models}
 \centering
 \scriptsize
