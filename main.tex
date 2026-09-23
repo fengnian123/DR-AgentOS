@@ -83,7 +83,10 @@ environments. Persistent maps make prior observations available for subsequent
 decisions and reduce the need to reconstruct familiar scenes for every task.
 However, remembered observations need not describe the current world:
 objects may move outside the agent's view, even while it travels toward a
-predicted destination. We study navigation under hidden world evolution, where
+predicted destination. Despite advances in memory retrieval and state
+prediction, existing methods do not jointly account for continued hidden world
+evolution during navigation and visibility-conditioned belief revision.
+We study navigation under hidden world evolution, where
 an agent must infer the latent current state from irregular histories and revise
 its decisions as time and evidence accumulate. We introduce
 \textbf{\evolvingworldnav{}}, an embodied agent that turns timestamped 3D entity
