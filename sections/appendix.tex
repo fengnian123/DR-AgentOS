@@ -463,6 +463,9 @@ cost columns. Table~\ref{tab:foundation_models} tests whether paired navigation
 gains persist across different VLMs under matched tools, prompts, episodes, and
 action budgets. In the VLM study, SR is reported in percent and SPL is
 unscaled.
+Across five frozen VLMs, the paired Search SR gains over the last-seen agent
+range from 14.91 to 25.93 points, averaging 20.90 points
+(\cref{tab:foundation_models}).
 
 \begin{table}[H]
 \caption{EvoWorld-Bench routine-world search cost and recovery.}
@@ -598,7 +601,10 @@ $(0.10,0.59,0.31)$ and the planner selects the kitchen island next. The inspecte
 state retains nonzero mass, reflecting residual perceptual uncertainty rather
 than an irreversible deletion.
 
-Top-1 is reported as a percentage in \cref{tab:evidence-update-ablation}.
+\Cref{tab:evidence-update-ablation} in the main paper compares the four update
+rules. No Update retains the prior; Hard Removal assigns zero probability after
+each unsuccessful inspection; Bayesian Update applies a soft likelihood; and
+our calibrated variant conditions that likelihood on online view features.
 
 \begin{figure}[!htbp]
 \centering
@@ -606,37 +612,6 @@ Top-1 is reported as a percentage in \cref{tab:evidence-update-ablation}.
 \caption{Evidence-aware belief updating and replanning after a negative inspection.}
 \label{fig:agent-evidence-update}
 \end{figure}
-
-\begin{table}[!htbp]
-\caption{Belief quality after negative-evidence updates.}
-\label{tab:evidence-update-ablation}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Update rule} & \textbf{Rank $\downarrow$} & \textbf{Top-1 $\uparrow$} &
-\textbf{NLL $\downarrow$} & \textbf{ECE $\downarrow$}\\
-\midrule
-No Update & 5.82 & 62.98 & 2.838 & 0.172\\
-Hard Removal & 10.09 & 42.69 & 11.514 & 0.204\\
-Bayesian Update & 5.25 & 64.71 & \textbf{1.497} & 0.151\\
-\rowcolor{tblours}\textbf{Bayesian + Calibration (Ours)} &
-\textbf{4.96} & \textbf{66.93} & 1.530 & \textbf{0.130}\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-No Update leaves the prior unchanged, while Hard Removal assigns zero mass after
-every unsuccessful inspection. This irreversible rule performs worst across all
-four metrics, showing that an apparent miss is insufficient evidence when the
-view is partially occluded or perception is uncertain. Bayesian updating lowers
-NLL from 2.838 to 1.497 without discarding hypotheses outright. Adding
-calibrated view-conditioned likelihoods produces the best mean rank (4.96),
-Top-1 accuracy (66.93\%), and ECE
-(0.130), while NLL is 0.033 higher than with the uncalibrated Bayesian update.
-These results support calibrating viewpoint-conditioned negative evidence
-within the observe--update--replan loop.
 
 \subsubsection{Predictor Architecture}
 

@@ -146,6 +146,12 @@ execution-time motion, and robot trials translate the same belief interface
 into shorter paths and fewer inspections. Together, these results suggest that the gains extend beyond
 benchmark-specific exploration or controller choice.
 
+\paragraph{Temporal structure.}
+Under paired controls, the SR gain over Last Seen is 22.36 points in routine
+worlds but 6.93 points under random transitions (\cref{tab:worlds}).
+The agent trails Last Seen in static worlds and Direct Transformer under random
+transitions, locating its strongest advantage in learnable temporal regularity.
+
 \subsection{Ablation Studies}
 \label{sec:ablations}
 
@@ -172,6 +178,34 @@ where inspection begins, the full distribution preserves fallback hypotheses,
 and evidence updating converts new views into route changes. Because No
 Evidence Update uses the same predictor, its gap isolates the action-time
 filter rather than improved offline state classification.
+
+\begin{wraptable}{r}{0.60\linewidth}
+\vspace{-0.7\baselineskip}
+\caption{Negative-evidence update ablation.}
+\label{tab:evidence-update-ablation}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2.3pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Update rule} & \textbf{Rank $\downarrow$} & \textbf{Top-1 $\uparrow$} &
+\textbf{NLL $\downarrow$} & \textbf{ECE $\downarrow$}\\
+\midrule
+No Update & 5.82 & 62.98 & 2.838 & 0.172\\
+Hard Removal & 10.09 & 42.69 & 11.514 & 0.204\\
+Bayesian Update & 5.25 & 64.71 & \textbf{1.497} & 0.151\\
+\rowcolor{tblours}\textbf{Bayesian + Calibration} &
+\textbf{4.96} & \textbf{66.93} & 1.530 & \textbf{0.130}\\
+\bottomrule
+\end{tabular}
+\end{wraptable}
+
+\paragraph{Evidence update and calibration.}
+Hard Removal degrades all four metrics (\cref{tab:evidence-update-ablation};
+Top-1 in percent). Our calibrated update achieves the best rank, Top-1, and
+ECE, although uncalibrated Bayesian updating has slightly lower NLL. These
+results support soft, visibility-conditioned evidence over irreversible
+removal after a missed detection (\appref{app:prediction-evidence}).
 
 
 \begin{wraptable}{r}{0.64\linewidth}
@@ -203,7 +237,7 @@ Shared semantic prior & 36.02 & 0.5957 & 1.5766 & 59.47 & 0.7462 & 1.0448\\
 }
 \end{wraptable}
 
-\paragraph{Prediction and controller robustness.}
+\paragraph{Prediction quality and transfer.}
 Relative to the Direct Transformer, our predictor improves Top-1 by 4.08/9.47 points and reduces
 NLL by 0.2367/0.3379 on temporal/LOSO splits. It also exceeds the semantic
 prior, supporting temporal structure beyond location frequency. The larger LOSO
