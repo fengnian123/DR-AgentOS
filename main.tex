@@ -77,30 +77,27 @@
 \maketitle
 
 \begin{abstract}
-Recent embodied navigation systems increasingly use persistent spatial memories
-and vision--language models to act across repeated visits to familiar
-environments. 
-Persistent maps make prior observations available for subsequent
-decisions and reduce the need to reconstruct familiar scenes for every task.
-However, remembered observations need not describe the current world:
-objects may move outside the field of view, even as the agent approaches a
-predicted destination. 
-Despite advances in memory retrieval and state prediction, jointly accounting for continued hidden world evolution during navigation and visibility-conditioned belief revision remains challenging.
-We study navigation under hidden world evolution, where an agent must infer the latent current state from irregular histories and revise its decisions as time passes and new evidence becomes available. 
-We present \textbf{\evolvingworldnav{}}, an embodied agent that turns timestamped 3D entity
-histories into a structured belief over whether the last observed state
-persists or the target has relocated. A frozen, zero-shot vision--language
-controller acts on this belief, while an event-driven filter forecasts states
-at candidate arrival times, incorporates newly informative, visibility-aware
-RGB-D evidence, and replans as the world evolves. We further introduce
-\textbf{\evolvingworldbench{}}, a human-trace-grounded benchmark with
-\textbf{54} scenes and \textbf{803.68k} tasks for evaluating state prediction
-and embodied decisions under controlled changes before and during navigation.
-Across simulation benchmarks and physical robot trials,
-\textbf{\evolvingworldnav{}} improves navigation success and search efficiency
-relative to evaluated baselines. Paired controls show that temporal prediction
-is most useful when changes exhibit learnable regularity; ablations demonstrate
-the value of preserving uncertainty and updating beliefs from visual evidence.
+% In long-lived embodied navigation, persistent spatial memory helps embodied agents navigate familiar environments. 
+% Yet targets may be relocated while unobserved, making their remembered locations unreliable by the time an agent arrives.
+Persistent spatial memory enables embodied agents to navigate familiar environments across repeated visits. However, targets may move while unobserved, including during navigation, making remembered locations unreliable by the time an agent arrives. Despite advances in memory retrieval and state prediction, accounting for continued hidden world evolution and revising beliefs under limited visibility remain challenging.
+We study Evolving-World Navigation, where agents infer target locations from intermittent observations, predict their states at inspection time, and revise beliefs using visual evidence.
+We propose \textbf{\evolvingworldnav{}}, which constructs a time-indexed belief from timestamped 3D object histories through a structured persistence--relocation model. The belief distinguishes persistence at the last observed location from relocation to alternative locations and retains probability mass outside the known candidate set.
+An event-driven filter propagates the current belief as time elapses, forecasts target occupancy at candidate inspection times, and incorporates new RGB-D evidence.
+Negative observations downweight location hypotheses according to calibrated, visibility-conditioned detection probabilities, while evidence tracking prevents repeated use of the same observations.
+A frozen, zero-shot vision--language controller uses the updated belief to choose actions and replan.
+We further introduce \textbf{\evolvingworldbench{}}, a benchmark grounded in human activity traces, comprising 54 scenes and 803,680 tasks with controlled changes before and during navigation.
+In simulation and real-robot experiments, \textbf{\evolvingworldnav{}} improves navigation success and search efficiency over the evaluated baselines.
+Paired experiments show the clearest gains under learnable temporal patterns, while ablations demonstrate the value of preserving uncertainty and incorporating visibility-aware evidence.
+% In long-lived embodied navigation, persistent spatial memory allows agents to reuse observations across tasks in the same environment. 
+% Yet targets may be relocated while unobserved, making their remembered locations unreliable by the time an agent arrives. 
+% Failure to detect a target is informative only when its last known location is visible. 
+% We study navigation under such hidden world evolution, where agents must infer target states from irregularly spaced observations, predict those states at candidate arrival times, and revise their beliefs as new evidence becomes available. 
+% We propose \textbf{\evolvingworldnav{}}, which converts timestamped 3D entity histories into structured beliefs that preserve uncertainty over whether last-observed states persist or targets have relocated. 
+% An event-driven filter projects these beliefs to candidate arrival times and updates them using RGB-D observations while accounting for visibility. 
+% A frozen, zero-shot vision--language controller acts on the updated beliefs, and the agent replans as they change. 
+% We further introduce \textbf{\evolvingworldbench{}}, a benchmark grounded in human trajectories with \textbf{54} scenes and \textbf{803.68k} tasks, to evaluate state prediction and embodied decision-making under controlled environmental changes before and during navigation. 
+% In simulation and physical robot trials, \textbf{\evolvingworldnav{}} improves navigation success and search efficiency over the evaluated baselines. 
+% Paired controlled experiments show that temporal prediction is most beneficial when changes exhibit learnable regularities; ablations demonstrate the value of preserving uncertainty and updating beliefs with visibility-aware visual evidence.
 \end{abstract}
 
 \raggedbottom
