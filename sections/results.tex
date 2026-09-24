@@ -151,6 +151,9 @@ Under paired controls, the SR gain over Last Seen is 22.36 points in routine
 worlds but 6.93 points under random transitions (\cref{tab:worlds}).
 The agent trails Last Seen in static worlds and Direct Transformer under random
 transitions, locating its strongest advantage in learnable temporal regularity.
+Across five frozen VLMs, paired Search SR gains over Last Seen range from 14.91
+to 25.93 points (20.90 on average; \cref{tab:foundation_models}). Matched
+tools, prompts, episodes, and budgets support transfer across controllers.
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
@@ -179,13 +182,14 @@ and evidence updating converts new views into route changes. Because No
 Evidence Update uses the same predictor, its gap isolates the action-time
 filter rather than improved offline state classification.
 
-\begin{wraptable}{r}{0.60\linewidth}
+\begin{wraptable}{r}{0.63\linewidth}
 \vspace{-0.7\baselineskip}
 \caption{Negative-evidence update ablation.}
 \label{tab:evidence-update-ablation}
 \centering
 \footnotesize
 \setlength{\tabcolsep}{2.3pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 \textbf{Update rule} & \textbf{Rank $\downarrow$} & \textbf{Top-1 $\uparrow$} &
@@ -197,7 +201,8 @@ Bayesian Update & 5.25 & 64.71 & \textbf{1.497} & 0.151\\
 \rowcolor{tblours}\textbf{Bayesian + Calibration} &
 \textbf{4.96} & \textbf{66.93} & 1.530 & \textbf{0.130}\\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{wraptable}
 
 \paragraph{Evidence update and calibration.}
@@ -208,7 +213,7 @@ results support soft, visibility-conditioned evidence over irreversible
 removal after a missed detection (\appref{app:prediction-evidence}).
 
 
-\begin{wraptable}{r}{0.64\linewidth}
+\begin{wraptable}{r}{0.63\linewidth}
 \vspace{-0.7\baselineskip}
 \caption{Current-state prediction on temporal and LOSO splits.}
 \label{tab:predictors}
