@@ -95,18 +95,16 @@ structure, testing whether gains arise from learnable historical regularity
 rather than location frequency, geometry, or additional exploration.
 
 Experiments support this interpretation. Across the full navigation suite,
-\textbf{\evolvingworldnav{}} reaches 61.32\% First-Inspection SR and 86.18\% Search SR,
-exceeding DynaMem by 15.99 and 14.24 points (\cref{tab:crossbench}). On episodes
-with execution-time target motion, it improves Dynamic SR by 18.4 points over
-PredictiveGraphs (\cref{tab:n4-online}). Component ablations show that the gain
-depends on preserving alternative hypotheses and revising them from online
-evidence, rather than only selecting a stronger first destination. Paired
-controls show the clearest advantage under learnable routines rather than
-matched random motion, while cross-benchmark, held-out-scene, frozen-VLM, and
-physical-robot evaluations test transfer beyond one simulator and controller.
-These results suggest that persistent embodied memory should support calibrated
-inference about the present and evidence-seeking action in addition to faithful
-historical storage.
+\textbf{\evolvingworldnav{}} improves both initial inspection and eventual
+search (\cref{tab:crossbench}). When targets move during execution, it recovers
+more reliably while reducing unnecessary travel (\cref{tab:n4-online}).
+Component ablations attribute these gains to maintaining alternative
+hypotheses and revising them with online evidence. Paired controls show the
+clearest advantage under learnable routines, while cross-benchmark,
+held-out-scene, frozen-VLM, and physical-robot evaluations support transfer
+beyond a single simulator or controller. Together, these findings suggest
+that persistent embodied memory should support inference about the current
+world and evidence-seeking action alongside faithful historical storage.
 
 Our contributions are fourfold:
 \begin{itemize}[leftmargin=*,itemsep=0.6mm,topsep=1mm]
