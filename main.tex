@@ -79,17 +79,15 @@
 \begin{abstract}
 Recent embodied navigation systems increasingly use persistent spatial memories
 and vision--language models to act across repeated visits to familiar
-environments. Persistent maps make prior observations available for subsequent
+environments. 
+Persistent maps make prior observations available for subsequent
 decisions and reduce the need to reconstruct familiar scenes for every task.
 However, remembered observations need not describe the current world:
 objects may move outside the field of view, even as the agent approaches a
-predicted destination. Despite advances in memory retrieval and state
-prediction, jointly accounting for continued hidden world evolution during
-navigation and visibility-conditioned belief revision remains challenging.
-We study navigation under hidden world evolution, where
-an agent must infer the latent current state from irregular histories and revise
-its decisions as time passes and new evidence becomes available. We present
-\textbf{\evolvingworldnav{}}, an embodied agent that turns timestamped 3D entity
+predicted destination. 
+Despite advances in memory retrieval and state prediction, jointly accounting for continued hidden world evolution during navigation and visibility-conditioned belief revision remains challenging.
+We study navigation under hidden world evolution, where an agent must infer the latent current state from irregular histories and revise its decisions as time passes and new evidence becomes available. 
+We present \textbf{\evolvingworldnav{}}, an embodied agent that turns timestamped 3D entity
 histories into a structured belief over whether the last observed state
 persists or the target has relocated. A frozen, zero-shot vision--language
 controller acts on this belief, while an event-driven filter forecasts states
