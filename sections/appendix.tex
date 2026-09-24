@@ -1,9 +1,8 @@
 \section{Additional Method Details}
 \label{app:method-details}
 
-This section gives the formal episode interface, memory representation, baseline
-specification, and implementation details that support the method described in
-the main paper.
+This section presents the episode interface, memory representation, baseline
+specifications, and implementation details supporting the main method.
 
 \subsection{Formal Episode Interface}
 \label{app:episode}
@@ -42,7 +41,7 @@ uses only evidence available at its decision time.
 
 For image coordinate
 $\widetilde{\mathbf u}=[u,v,1]^\top$ with depth $D_t(u,v)$, the corresponding
-world point is
+point in world coordinates is
 \begin{equation}
 \mathbf x^w=\operatorname{proj}_3\!\left(
 \mathbf T_{w\leftarrow c,t}
@@ -76,7 +75,7 @@ query time, and last positive state. The persistence probability in
 including departures followed by returns.
 The shared pointer head in \cref{eq:pointer} scores every alternative,
 including $\mathrm{unknown}$, from the query and candidate representations.
-Its candidate encoder combines context, functional role, geometry, and instance
+The candidate encoder combines context, functional role, geometry, and instance
 identity. The persistence and pointer heads jointly define the normalized
 belief in \cref{eq:prior}, trained with current-state negative log-likelihood
 without a separate change label or oracle mobility type.
@@ -88,7 +87,7 @@ without a separate change label or oracle mobility type.
 The transition operator in \cref{eq:transition-kernel} is not inferred from a
 single marginal belief. It is an additional row-conditional prediction head
 that shares the continuous-time history encoder and candidate embeddings with
-the query-time predictor. Its training set contains chronological tuples
+the query-time predictor. The training set contains chronological tuples
 $(H_{\leq t_a},s_{t_a},\Delta t,s_{t_a+\Delta t})$ extracted only from training
 world histories. For each tuple, the known source state selects one row and the
 future state supervises
@@ -98,8 +97,8 @@ future state supervises
 \mathcal L=\mathcal L_{\mathrm{state}}+\lambda_K\mathcal L_{\mathrm{trans}}.
 \label{eq:transition-loss}
 \end{equation}
-Horizons are sampled from the empirical action-chunk and candidate-arrival
-range. The softmax over destination states makes every row sum to one. No
+Prediction horizons are sampled from the empirical range of action-chunk durations
+and candidate arrival times. The softmax over destination states makes every row sum to one. No
 transition label, future state, or mobility tag is available at test time. In
 N1--N3, where the target is fixed after the query, $K$ is the identity; learned
 propagation is activated only for N4.
@@ -119,9 +118,9 @@ the new current time. For candidate $i$, the navigation backend then estimates
 \label{eq:eta}
 \end{equation}
 All ETAs are recomputed after obstruction or replanning. Candidate-specific
-arrival beliefs are forecasts from the current posterior, not filtering states
-at the current time, and never replace $b_j^+$ unless their horizon is actually
-executed.
+arrival beliefs forecast future states from the current posterior. They do not
+replace the current-time filtering state $b_j^+$ unless the corresponding
+prediction horizon has elapsed.
 
 \paragraph{Complete event-driven filter.}
 The implementation follows the same ordering at every decision epoch:
@@ -136,7 +135,7 @@ The implementation follows the same ordering at every decision epoch:
     displacement, pose, and RGB-D evidence.
     \item Propagate to the new current time:
     $b_{j+1}^-=b_j^+K_\theta^{(j)}(t_{j+1}-t_j)$.
-    \item Create measurements only for candidates whose evidence ledger admits
+    \item Create measurements only for candidates whose evidence ledger identifies
     new information; apply \cref{eq:bayes} once per evidence identifier to
     obtain $b_{j+1}^+$. Stop on a verified positive detection.
     \item Update speed and ETAs, forecast all candidate-specific arrival
@@ -172,13 +171,13 @@ simulator visibility flags are retained only by the private evaluator; an
 oracle-visibility diagnostic is reported separately from fair comparisons.
 Incremental masking and evidence identifiers do not assert that video frames
 are statistically independent; they prevent direct reuse of the same surface
-evidence. The remaining dependence is the filter's conditional-measurement
-approximation and is absorbed by the validation-fitted calibrator. We never
+evidence. The conditional-measurement model approximates the remaining dependence,
+with detection probabilities calibrated on validation observations. We never
 multiply repeated whole-view detection probabilities from overlapping frames.
 
 \paragraph{Reopening candidates and executing unknown.}
 There is no permanent exclusion set. Each candidate stores cumulative coverage,
-the time of its latest clear negative, and cumulative detection probability.
+the time of the latest clear negative observation, and cumulative detection probability.
 After propagation, a previously inspected candidate becomes eligible when its
 belief exceeds $\tau_b=0.10$, predicted return probability
 \begin{equation}
@@ -188,13 +187,12 @@ K_\theta^{(j)}(r,i;\Delta t)
 \end{equation}
 exceeds $\tau_{\mathrm{return}}=0.05$, or a new viewpoint offers
 $\Delta C(i)>\delta_C=0.05$. Thus a weak or occluded view supports multi-view
-reinspection, and a location verified empty can regain mass after sufficient
+reinspection, and a location verified to be empty can regain probability mass after sufficient
 world evolution.
 
-Reopening by a new viewpoint alone retains the current round, so only genuinely
-new geometry is admitted. Reopening caused by propagated belief or predicted
-return after elapsed time starts round $m(i)+1$ and resets only that round's
-coverage gate; the earlier coverage map and negative observations remain in
+Reopening by a new viewpoint alone retains the current round, so only newly
+observed geometry contributes evidence. Reopening caused by propagated belief or predicted
+return after elapsed time starts round $m(i)+1$ and resets only the coverage gate for that round; the earlier coverage map and negative observations remain in
 the provenance ledger. Consequently, the same viewpoint can provide a new
 measurement after the world may have changed, while adjacent frames within one
 state-validity interval cannot repeatedly suppress the same hypothesis.
@@ -217,7 +215,7 @@ static/dynamic policy router.
 \subsection{Full Baseline Specification}
 \label{app:baselines}
 
-Last Seen assigns all mass to the latest positive state. Frequency Prior estimates $P(s\mid o)$ from training data. Markov Transition estimates $P(s_{k+1}\mid s_k,o)$; Time-Conditioned Prior additionally conditions on public hour and weekday bins. Instance Hotspot uses only the target instance's training trajectory. GRU Direct and Transformer Direct receive the same event tokens and candidate encoder as \pfdnav{} but directly normalize candidate logits without the persistence factorization. P4D-Belief Prior uses \cref{eq:prior} once at episode start. Full \evolvingworldnav{} applies \cref{eq:bayes,eq:arrival-belief,eq:planner} at event-driven decision epochs.
+Last Seen assigns all mass to the latest positive state. Frequency Prior estimates $P(s\mid o)$ from training data. Markov Transition estimates $P(s_{k+1}\mid s_k,o)$; Time-Conditioned Prior additionally conditions on public hour and weekday bins. Instance Hotspot uses only the training trajectory of the target instance. GRU Direct and Transformer Direct receive the same event tokens and candidate encoder as \pfdnav{} but directly normalize candidate logits without the persistence factorization. P4D-Belief Prior uses \cref{eq:prior} once at the start of each episode. Full \evolvingworldnav{} applies \cref{eq:bayes,eq:arrival-belief,eq:planner} at event-driven decision epochs.
 
 The Oracle Activity diagnostic may use the hidden activity and source location but is excluded from fair rankings. Oracle Current State receives the private target state and measures remaining perception and navigation error. External predictive methods are adapted only through their public inputs; any use of privileged simulator state must be identified and excluded from the main comparison.
 
@@ -228,18 +226,18 @@ The Oracle Activity diagnostic may use the hidden activity and source location b
 The history encoder uses three Transformer layers, hidden width 128, four
 attention heads, maximum history length $K=64$, and dropout 0.1. Candidate
 encoders are shared across scenes. The transition scorer $f_\theta$ is a
-two-layer width-128 MLP with GELU activation; it shares the history and
-candidate encoders but not the persistence, relocation, or transition output
-heads. We set $\lambda_K=1$ in \cref{eq:transition-loss}. We optimize with AdamW at learning rate
-$3\times10^{-4}$, weight decay $10^{-2}$, and batch size 64 for at most 100
+two-layer MLP of width 128 with GELU activation. The history and candidate
+encoders are shared; the persistence, relocation, and transition heads have
+separate parameters. We set $\lambda_K=1$ in \cref{eq:transition-loss}. We optimize the model with AdamW using a learning rate of
+$3\times10^{-4}$, a weight decay of $10^{-2}$, and a batch size of 64 for at most 100
 epochs. Gradients are clipped to an $\ell_2$ norm of 1.0. Early stopping uses
-patience 10 on validation NLL, and the checkpoint with the lowest validation
-NLL is retained. We report seeds $\{0,1,2,3,4\}$. Experiments use Habitat-Sim
+a patience of 10 epochs based on validation NLL, and the checkpoint with the lowest validation
+NLL is retained. We use random seeds $\{0,1,2,3,4\}$. Experiments use Habitat-Sim
 0.3.3 and Habitat-Lab 0.3.3 on $3\times$ NVIDIA GeForce RTX 5080 GPUs.
 
 \paragraph{Perception and controller.}
 The frozen perception stack uses Grounding DINO
-\citep{liu2024grounding} with box threshold 0.35 and text threshold 0.25,
+\citep{liu2024grounding} with a box threshold of 0.35 and a text threshold of 0.25,
 followed by SAM 2 \citep{ravi2025sam} only for mask refinement. The main
 high-level agent uses GPT-5.6-Luna as a frozen zero-shot VLM controller, without
 navigation-task fine-tuning. Candidate viewpoints and low-level planning are
@@ -248,7 +246,7 @@ complete embodied stack.
 
 \paragraph{Detection calibration and information boundaries.}
 The function $g_\phi$ in \cref{eq:negative} is a lightweight logistic
-calibrator whose inputs are online-estimated candidate coverage, range, viewing
+calibrator that takes as inputs online-estimated candidate coverage, range, viewing
 angle, projected size, image quality, category, and validation-set detector
 recall. It is fitted only on validation observations and remains frozen
 throughout test evaluation. The agent never accesses ground-truth target masks,
@@ -265,7 +263,7 @@ for final evaluation.
 \label{app:experimental-setup}
 
 \paragraph{Benchmark protocols.}
-The complete agent is evaluated on \evolvingworldbench{}, FindingDory, and GOAT-Bench
+We evaluate the complete agent on \evolvingworldbench{}, FindingDory, and GOAT-Bench
 under their native task definitions. FindingDory reports high-level goal
 selection and conditional low-level execution; GOAT-Bench reports official SR
 and SPL, with Repeat-SR used only as a marked memory-reuse diagnostic. The
@@ -281,8 +279,8 @@ cited paper only when the benchmark version, evaluation split, metric, and
 success rule match; the marker applies to that cell rather than to an entire
 method row. Every unmarked baseline entry is reproduced by us. Missing values
 are left unreported rather than inferred from another task or checkpoint.
-Accordingly, \cref{tab:crossbench} evaluates memory and prediction under each
-benchmark's task definition, whereas \cref{tab:domains} measures
+Accordingly, \cref{tab:crossbench} evaluates memory and prediction under the task definition of each
+benchmark, whereas \cref{tab:domains} measures
 cross-environment system performance under native navigation tasks. Neither
 table is interpreted as a single architecture-controlled ablation; causal
 attribution to our predictive belief is instead provided by the paired-world
@@ -296,8 +294,8 @@ latest supported state; structured memories such as HOV-SG and DynaMem replay
 the same causal RGB-D and poses; predictive models receive public state or edge
 histories and the legal candidate graph. Released navigation agents consume
 only their native RGB-D/video window, goal specification, and proprioception.
-The paper-reported FindingDory cell specifically uses the cited release's
-Qwen2.5-VL-3B checkpoint and native 96-frame history; it is not recomputed with
+The paper-reported FindingDory cell specifically uses the
+Qwen2.5-VL-3B checkpoint from the cited release and native 96-frame history; it is not recomputed with
 our planner. No reproduced method receives the private current state, future
 observations, query-time activity, target pose, oracle viewpoint, or simulator
 visibility flags. Oracle rows, where present, are diagnostics and are excluded
@@ -305,7 +303,7 @@ from fair rankings.
 
 \paragraph{Training and model selection.}
 Non-parametric baselines are estimated from the public training split, with
-smoothing or time bins fixed on validation. Internal neural baselines use the
+smoothing and time-bin settings selected on the validation split. Internal neural baselines use the
 same event tokens, candidate encoder, training scenes, and validation rule as
 \pfdnav{}. External predictive architectures that require target-domain fitting
 are trained only on \evolvingworldbench{} days 0--79 and selected on days 80--84; days
@@ -328,8 +326,8 @@ private transition label is available at inference time.
 \paragraph{Real-world protocol.}
 LYNX M20 is the primary quantitative platform, with X30 and Lite3 used for
 transfer. The primary M20 comparison uses 64 matched trials, whereas X30 and
-Lite3 use matched 32-block transfer subsets. Each method receives identical
-pre-query history, candidate locations, start condition, perception interface,
+Lite3 use matched 32-block transfer subsets. All methods receive the same
+pre-query histories, candidate locations, start conditions, perception interface,
 and robot-specific low-level stack. Success requires autonomous online
 confirmation within three inspections during a 360-second episode. Missed
 detections, navigation failures, timeouts, and human interventions count as
@@ -344,7 +342,7 @@ inspection viewpoints, and action budget; this isolates temporal reasoning
 from low-level control. End-to-end navigation agents retain their released
 perception, mapping, and policy, with adapters limited to sensor conventions,
 task-goal formatting, action vocabulary, and \texttt{STOP} semantics. We do not
-add our VLM planner or predictive belief to those agents. Their cross-domain
+add our VLM planner or predictive belief to those agents. The cross-domain
 scores therefore measure full-system compatibility, while the controlled
 \evolvingworldbench{} and real-robot comparisons support module-level claims. Results are
 stratified by world variant, staleness, transition class, mobility regime, and
@@ -355,9 +353,9 @@ transition mechanism.
 The \evolvingworldbench{} entries in
 \cref{tab:crossbench,tab:domains,tab:foundation_models,fig:module_ablation,tab:temporal-memory-ablation}
 use the same N1--N5 test episodes, protocol, action budget, and metric
-definitions. Full-agent results come from separate stochastic runs on these
-episodes; their small numerical differences should not be interpreted as a
-change of test set. Controlled gains are computed within each matched
+definitions. Full-agent results are obtained from separate stochastic runs on these
+episodes; small numerical differences therefore do not indicate a
+change in the test set. Controlled gains are computed within each matched
 comparison. Routine-world and N4-transition diagnostics condition on specified
 subsets and are identified separately.
 
@@ -391,7 +389,7 @@ $v_{\mathrm{target}}^{\mathrm{GT}}\geq0.20$ defines evaluation success only.
 The first two are estimated online from candidate geometry and depth; the third
 is private evaluator state.
 
-We audit serialized examples for future timestamps, hidden event fields, filenames or indices correlated with answers, duplicate event groups across splits, and inconsistent paired variants. Static, routine, and random members of a pair must have identical public query fields. Invalid simulator episodes are reported separately and are not counted as ordinary failures.
+We audit serialized examples for future timestamps, hidden event fields, filenames or indices correlated with answers, duplicate event groups across splits, and inconsistent paired variants. Matched static, routine, and random variants must have identical public query fields. Invalid simulator episodes are reported separately and are not counted as ordinary failures.
 
 \subsection{Mobility-Type Assignment}
 \label{app:mobility}
@@ -414,9 +412,9 @@ All thresholds are selected on training data before navigation evaluation. When 
 Let $S_i$ be episode success and $L_i$ the executed path. For episodes whose
 target remains fixed after the query, $L_{i,\mathrm{fix}}^*$ is the shortest
 feasible path to a valid target viewpoint from the same start. For an online
-dynamic episode, $L_{i,\mathrm{dyn}}^*$ is the shortest path in distance along
-a time-feasible trajectory reaching a viewpoint that verifies the target at its
-scheduled state, under the same start, NavMesh, and action/time budget. The
+dynamic episode, $L_{i,\mathrm{dyn}}^*$ is the minimum travel distance along
+a time-feasible trajectory to a viewpoint at which the target can be verified
+in its scheduled state, under the same start, NavMesh, and action/time budget. The
 dynamic oracle knows the private transition schedule for evaluation only; the
 agent does not. Writing $L_i^{\mathrm{ref}}$ for the applicable fixed or dynamic
 oracle path, we use
@@ -436,23 +434,23 @@ found. Excess path uses $L_i-L_i^{\mathrm{ref}}$, with the dynamic oracle for
 moving-target episodes. Before any N4 rollout, each episode receives a common
 post-query evaluation window $[t_q,t_q+T_i]$ and a fixed schedule of hidden
 target transitions. The dynamic subset contains exactly the episode identifiers
-with a scheduled change of target state inside this window, independent of any
-method's destination, trajectory, or termination time. All methods are scored
+with a scheduled change of target state inside this window, independent of the
+destinations, trajectories, or termination times of individual methods. All methods are scored
 on this same set. The complementary no-transition slice is kept separate.
-Dynamic SR is success on the preselected dynamic set. Online Recovery SR uses
-the shared subset whose predeclared transition invalidates the target's
-pre-transition state; only successful verification after that transition counts
+Dynamic SR is the success rate on the preselected dynamic set. Online Recovery SR uses
+the shared subset whose predeclared transition invalidates the
+pre-transition target state; only successful verification after that transition counts
 as recovery, and an early stop does not change the denominator. Revisit Success
 is the percentage of dynamically reopened candidate visits that recover the
 target.
 
-Calibration metrics operate on the full candidate belief before navigation and after each update. ECE bins maximum confidence, Brier score evaluates all candidates, and true-state rank avoids hiding useful changes below Top-1. Search-cost curves plot success against allowed inspections and travelled distance rather than reporting one arbitrary budget.
+We compute calibration metrics on the full candidate belief before navigation and after each update. ECE groups predictions by maximum confidence, the Brier score evaluates all candidates, and true-state rank captures changes beyond Top-1 accuracy. Search-cost curves plot success against the inspection budget and distance traveled, providing comparisons across budgets.
 
 \section{Additional Experimental Results}
 \label{app:experimental-results}
 
 This section provides extended quantitative results omitted from the main paper
-for space constraints.
+because of space constraints.
 
 \input{sections/appendix_results}
 
@@ -500,9 +498,9 @@ highest Recovery SR (68.42\%), improving over DynaMem by 4.49 points after an
 unsuccessful first inspection. SGM+NEP travels the shortest average distance
 (7.42\,m), while \evolvingworldnav{} remains close at 8.36\,m. Together with
 the First-Inspection, Search SR, and SPL results in \cref{tab:crossbench}, these
-complementary metrics show that the gain is not only higher eventual success:
-retained uncertainty and evidence updating reduce redundant inspections and
-support recovery when the initial prediction is wrong.
+complementary metrics indicate that retaining uncertainty and updating evidence
+reduce redundant inspections and support recovery from an incorrect initial
+prediction.
 
 \begin{table}[H]
 \caption{VLM robustness on EvoWorld-Bench.}
@@ -538,7 +536,7 @@ Qwen2.5-VL-32B & 18.84 & 31.30 & 0.1591 & \textbf{42.44} & \textbf{46.21} & \tex
 \label{app:prediction-evidence}
 
 The main-paper ablation isolates the five decisions that define the complete
-agent. Here we decompose implementation choices within temporal memory,
+agent. Here we examine implementation choices within temporal memory,
 evidence updating, and the predictor while preserving the same perception,
 candidate set, inspection viewpoints, and low-level navigator.
 
@@ -581,8 +579,8 @@ SR and SPL are reported in percent throughout this analysis.
 Elapsed-time and calendar ablations distinguish irregular observation gaps from
 daily and weekly periodic context. Removing both cues reduces First-Inspection SR by
 19.39 points relative to the full model. Instance-specific trajectories provide
-smaller but consistent gains, whereas removing negative history costs 14.37
-First-Inspection points and 6.51 SPL points. Increasing capacity from $K=8$ to $K=64$
+smaller but consistent gains, whereas removing negative history reduces
+First-Inspection SR by 14.37 points and SPL by 6.51 points. Increasing capacity from $K=8$ to $K=64$
 raises First-Inspection SR by 20.68 points, Search SR by 20.86 points, and SPL by 14.34
 points while reducing the average inspection count from 4.57 to 3.98. These
 trends show that performance benefits from temporally structured evidence over a
@@ -634,11 +632,11 @@ every unsuccessful inspection. This irreversible rule performs worst across all
 four metrics, showing that an apparent miss is insufficient evidence when the
 view is partially occluded or perception is uncertain. Bayesian updating lowers
 NLL from 2.838 to 1.497 without discarding hypotheses outright. Adding
-calibrated view-conditioned likelihoods produce the best mean rank (4.96),
+calibrated view-conditioned likelihoods produces the best mean rank (4.96),
 Top-1 accuracy (66.93\%), and ECE
-(0.130), while its NLL remains within 0.033 of the uncalibrated Bayesian update.
-The result supports viewpoint-conditioned negative evidence as the most reliable
-input to the observe--update--replan loop.
+(0.130), while NLL is 0.033 higher than with the uncalibrated Bayesian update.
+These results support calibrating viewpoint-conditioned negative evidence
+within the observe--update--replan loop.
 
 \subsubsection{Predictor Architecture}
 
@@ -664,7 +662,7 @@ $\mathbf{1.4925\pm0.0867}$\\
 
 All three predictors use the same observation tokens and candidate encoder.
 The Direct Transformer normalizes candidate logits directly, whereas the
-structured model separates persistence from relocation. This controlled view
+structured model separates persistence from relocation. This controlled comparison
 therefore isolates architectural factorization from memory content and action
 selection.
 
@@ -702,12 +700,12 @@ Direct Transformer & 69.79 & 48.82 & \textbf{31.39} & $+10.33$\\
 \end{wraptable}
 
 \paragraph{Paired-world control.}
-\Cref{tab:worlds} holds scenes and queries fixed while changing only the world
-transition mechanism. Last Seen reaches 84.38 SR in static worlds but falls to
+The paired-world comparison in \cref{tab:worlds} holds scenes and queries fixed
+while changing only the world transition mechanism. Last Seen reaches 84.38 SR in static worlds but falls to
 38.49 under routine evolution, exposing the failure of stale memory. In contrast,
 \evolvingworldnav{} reaches 60.85 routine-world SR, improving by 22.36 points over Last
 Seen and by 12.03 points over Transformer Direct. Under matched random motion,
-the gain over Last Seen contracts to 6.93 points and \evolvingworldnav{} trails
+the gain over Last Seen decreases to 6.93 points and \evolvingworldnav{} trails
 Transformer Direct by 1.27 points. This contrast localizes its main advantage
 to learnable temporal regularity rather than a scene-frequency or generic
 search shortcut.
@@ -727,9 +725,9 @@ success rates.
 
 \paragraph{Behavior-shift and trace-grounding diagnostic.}
 \Cref{fig:behavior-shift-grounding} tests whether the learned regularities are
-limited to the benchmark generator's nominal timing. Online Recovery SR falls
+limited to the nominal timing of the benchmark generator. Online Recovery SR falls
 for all methods under phase offsets, return delays, destination shifts, and
-their combination, but \evolvingworldnav{} remains above Last Seen and
+their combination, but \evolvingworldnav{} achieves higher recovery than Last Seen and
 PredictiveGraphs in every condition. The duration CDF further shows that the
 generated transition durations track the broad temporal scale of held-out real
 traces without exactly reproducing them. This diagnostic supports robustness to
@@ -740,15 +738,14 @@ generalization.
 \section{Real-World Evaluation}
 \label{app:real-world-eval}
 
-This section reports the physical evaluation, first describing the robot
-platforms and then disaggregating the measured M20 results by environment,
-temporal condition, and qualitative case.
+This section describes the robot platforms, presents M20 results by environment
+and temporal condition, and provides qualitative cases.
 
 \subsection{Robot Platforms}
 \label{app:robot-platforms}
 
 We use three commercial DEEP Robotics platforms: LYNX M20, X30, and Lite3.
-Platform-specific perception and low-level control are abstracted behind a
+Platform-specific perception and low-level control use a
 common interface, while the memory, prediction, belief update, and high-level
 search components remain unchanged.
 
@@ -777,8 +774,8 @@ methods executed on the same platform.
 \label{app:real-world}
 
 Table~\ref{tab:real-domain} separates indoor and outdoor trials. The outdoor
-setting has longer routes and lower success for all methods, while the direction
-of the \evolvingworldnav{} gain is consistent across both environments.
+setting has longer routes and lower success for all methods, while
+\evolvingworldnav{} improves performance in both environments.
 
 \begin{table}[H]
 \caption{LYNX M20 results by environment.}
@@ -837,9 +834,9 @@ Retrieval + Reasoning & 62.5 & 43.8 & 25.0 & 18.8 \\
 \paragraph{Temporal conditions.}
 \Cref{tab:real-condition} shows that predictive memory is most useful when
 recurring changes provide a usable historical signal. Last Seen remains strong
-when nothing changes, whereas all methods degrade as regularity weakens. The
-condition-wise view separates benefits from routine modeling from improvements
-that could be explained by generic search alone.
+when nothing changes, whereas all methods degrade as regularity weakens. This
+breakdown distinguishes the benefits of routine modeling from improvements
+attributable to generic search.
 
 \par\medskip
 \Needspace{14\baselineskip}
@@ -867,7 +864,7 @@ Platform & Method & First-Inspection SR & Search SR & Dist. (m) \\
 \end{wraptable}
 
 \paragraph{Recovery and cross-platform transfer.}
-After failed first inspections, \evolvingworldnav{} recovered 9/37 M20
+Following unsuccessful first inspections, \evolvingworldnav{} recovered 9/37 M20
 episodes (24.3\%). \Cref{tab:real-transfer} reports the matched 32-block
 transfer comparison for X30 and Lite3 alongside the corresponding M20 subset;
 the primary M20 result still uses all 64 trials. This evaluates transfer, not
@@ -891,11 +888,11 @@ outcomes and do not add observations to the aggregate success-rate measurements.
 Beyond predictive target search,
 \cref{fig:real-world-indoor-long-horizon,fig:real-world-outdoor-long-horizon}
 document two longer-horizon executions. The indoor case combines navigation,
-person verification, document collection, and delivery. Because the LYNX M20
-has no manipulator, after the person is verified, a human places the documents
-on the robot; the robot then autonomously transports them to the meeting room.
+person verification, document collection, and delivery. The LYNX M20
+has no manipulator, so a human places the documents on the robot after person
+verification; the robot then autonomously transports them to the meeting room.
 The outdoor case shows obstacle detection and route replanning during
-shared-bike search. They
+shared-bike search. These cases
 demonstrate broader system orchestration but are not used as quantitative
 evidence for the predictive-belief module.
 

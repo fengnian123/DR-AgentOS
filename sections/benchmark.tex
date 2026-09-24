@@ -1,7 +1,7 @@
 \section{EvoWorld-Bench: Evaluating Navigation in Evolving Worlds}
 \label{sec:benchmark}
 
-\evolvingworldbench{} evaluates decisions from time-ordered observation histories while the
+\evolvingworldbench{} evaluates decisions based on time-ordered histories while the
 world changes outside observation. Its 54 scenes and 803.68k task instances
 combine persistent histories, executable placements, and controlled dynamics.
 
@@ -20,10 +20,10 @@ At the task-modality level shown in \cref{fig:evolvingworldnav_overview}, the
 pool comprises object search (17\%), object navigation (27\%),
 vision-and-language navigation (VLN; 26\%), and embodied question answering
 (EQA; 30\%) \citep{majumdar2024openeqa,sakamoto2024map}. The complementary
-protocol-export accounting in \cref{fig:p4dbench} is N1 (13.51\%), N2
+breakdown by evaluation protocol in \cref{fig:p4dbench} comprises N1 (13.51\%), N2
 (13.37\%), N3 (13.27\%), N4 (26.52\%), N5 (3.34\%), and EQA (29.99\%). In this
 second view, VLN-conditioned episodes are assigned to their corresponding
-navigation protocol rather than shown as a separate wedge. Prediction evaluates a calibrated
+navigation protocol rather than a separate category. Prediction evaluates the
 region/receptacle belief independently of control; navigation uses the same
 target--time queries (\cref{fig:p4dbench,tab:tasks}). N1 inspects the Top-1
 destination; N2 uses the full belief for cost-aware search; N3 adds
@@ -65,17 +65,17 @@ environment-derived, simulated, and benchmark-authored quantities
 Across 54 HSSD scenes \citep{khanna2024hssd}, household habits and stochastic
 exceptions generate chronological histories. Stable, routine,
 personal, and irregular regimes test persistence, activity regularity,
-owner-specific habits, and uncertainty (\cref{tab:mobility-regimes}); labels
-are hidden. Habitat replay ensures semantically valid, collision-free placements
+owner-specific habits, and uncertainty (\cref{tab:mobility-regimes}); regime labels
+remain hidden from the agent. Habitat replay ensures semantically valid, collision-free placements
 and reachable inspection viewpoints.
 
-Patrols collect visibility-qualified RGB-D using only maps, time, travel cost,
+Patrols collect visibility-qualified RGB-D observations using only maps, time, travel cost,
 and observed history. Queries expose only observations available by the query
 time, the last supported
 state, elapsed/calendar time, candidates, and spatial context; current states,
 transitions, activities, mobility labels, and oracle viewpoints remain private.
 Splits group complete temporal sequences, paired worlds, and near-duplicate
-query/transition groups. Audits cover temporal/metadata leakage, split overlap,
+query/transition groups. Audits cover temporal and metadata leakage, split overlap,
 paired-world consistency, physical validity, and patrol access to hidden state.
 Stratification covers mobility, transition, staleness, spatial difficulty, and
 generalization.

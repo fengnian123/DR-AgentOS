@@ -25,7 +25,7 @@ $\pm$ denotes standard deviation over five seeds.}
 \rowcolor{tblnav}\multicolumn{9}{c}{\emph{Open-vocabulary and lifelong navigation}}\\
 VLFM \citep{yokoyama2024vlfm} & 13.42 & 10.86 & 15.79 & 5.45 & 11.82 & 20.65 & 28.36 & 24.67\\
 ZSON \citep{majumdar2022zson} & 27.89 & 21.81 & 29.64 & 2.45 & 16.37 & 26.84 & 32.13 & 28.55\\
-FindingDory Agent \citep{yadav2025findingdory} & \textbf{\paperreported{52.44}} & \na & \na & \na & \na & \na & \na & \na\\
+FindingDory Agent \citep{yadav2025findingdory} & \textbf{\paperreported{52.44}} & 35.92 & \na & \na & \na & \na & \na & \na\\
 LagMemo GLUE \citep{zhou2025lagmemo} & 32.79 & 23.25 & 20.61 & 1.74 & 11.27 & 30.18 & 42.27 & 33.82\\
 \midrule
 \rowcolor{tblmemory}\multicolumn{9}{c}{\emph{Structured spatio-temporal memory}}\\
@@ -57,15 +57,15 @@ baseline scores are our reproductions under the method-preserving protocol in
 \evolvingworldnav{} consistently improves the evaluated metrics across FindingDory,
 GOAT-Bench, and \evolvingworldbench{}. Across \evolvingworldbench{} N1--N5, it improves First-Inspection SR from
 45.33\% (DynaMem) to 61.32\% and Search SR from 71.94\% to 86.18\%,
-showing that arrival-time prediction and en-route evidence improve the first
-fully covered inspection while retained hypotheses support recovery. The gains on FindingDory
+supporting arrival-time prediction and en-route evidence for initial
+inspection, with retained hypotheses supporting recovery. The gains on FindingDory
 and GOAT-Bench further show that predictive memory remains effective beyond
 the proposed evolving-world setting.
 
 \paragraph{Online navigation under execution-time dynamics.}
 \Cref{fig:p4d_case_study} shows how a routine-conditioned belief avoids an
-obsolete last-seen location. To isolate the dynamic closed loop rather than
-dilute it with episodes in which motion is merely permitted, \cref{tab:n4-online}
+obsolete last-seen location. To isolate the dynamic closed loop from episodes
+in which motion is permitted but no transition is scheduled, \cref{tab:n4-online}
 reports the same preselected N4 episodes for every method, with a target
 transition scheduled inside a common, fixed post-query window.
 
@@ -101,8 +101,8 @@ PredictiveGraphs \citep{saavedraruiz2026predictivegraphs} & 46.8 & 36.7 & 13.2 &
 
 Relative to PredictiveGraphs, \evolvingworldnav{} improves Dynamic SR by 18.4
 points and Online Recovery SR by 22.0 points, while reducing excess distance by
-4.8\,m and increasing successful revisits by 13.7 points. These gains directly
-test the execution-time contribution: current-time propagation and time-valid
+4.8\,m and increasing successful revisits by 13.7 points. These results
+support the execution-time contribution: current-time propagation and time-valid
 evidence rounds let the agent recover after a target moves, while candidate
 reopening turns revisits into useful actions rather than permanent exclusions.
 
@@ -136,15 +136,15 @@ Retrieval + Reasoning & 26.6 & 37.5 & 17.1 & 50.3 & 281 & 2.03 \\
 \end{wraptable}
 
 \paragraph{Generalization and physical deployment.}
-Across five benchmark tasks, ours leads seven of ten metrics (\cref{tab:domains}).
-On 64 matched M20 trials, \cref{tab:real-main} improves both success and
-efficiency; details are in \appref{app:real-world-eval}.
+Across five benchmark tasks, \evolvingworldnav{} leads on seven of ten metrics (\cref{tab:domains}).
+Across 64 matched M20 trials, the agent improves both success and
+efficiency (\cref{tab:real-main}); details are in \appref{app:real-world-eval}.
 
 Across these evaluations, the gains appear at three levels: cross-benchmark
 results improve initial destination selection, N4 isolates recovery under
 execution-time motion, and robot trials translate the same belief interface
-into shorter paths and fewer inspections. Their agreement argues against the
-gain coming from benchmark-specific exploration or a stronger controller alone.
+into shorter paths and fewer inspections. Together, these results suggest that the gains extend beyond
+benchmark-specific exploration or controller choice.
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
@@ -157,16 +157,16 @@ gain coming from benchmark-specific exploration or a stronger controller alone.
     \label{fig:module_ablation}
 \end{figure}
 
-The full agent reaches 62.17 First-Inspection SR, 85.33 Search SR, and 70.87
-SPL with 3.95 inspections (\cref{fig:module_ablation}). Without predictive
-belief, First-Inspection SR falls to 12.51; Latest Observation Only loses 20.91
-Search SR points, showing that temporally persistent history guides both the
-initial destination and recovery. Direct candidate prediction loses 13.84/15.75
-First-Inspection/Search points, supporting the persistence--relocation
-factorization. Top-1-only search loses 22.41 Search SR points, while removing
-evidence updates loses 42.02 points and raises inspections to 6.48. Thus the
-gain comes from retaining alternatives and revising them online, not from a
-single stronger guess or a larger search budget.
+The full agent achieves First-Inspection SR of 62.17\%, Search SR of 85.33\%, and
+SPL of 70.87\%, with 3.95 inspections (\cref{fig:module_ablation}). Without predictive
+belief, First-Inspection SR falls to 12.51\%; Latest Observation Only reduces
+Search SR by 20.91 points, indicating that persistent history informs both
+initial destination selection and recovery. Direct candidate prediction reduces
+First-Inspection/Search SR by 13.84/15.75 points, supporting the persistence--relocation
+factorization. Top-1-only search reduces Search SR by 22.41 points, while removing
+evidence updates reduces it by 42.02 points and increases inspections to 6.48.
+These results support retaining alternative hypotheses and revising them online
+to improve search within a fixed action budget.
 The pattern separates the roles of the components: predictive belief chooses
 where inspection begins, the full distribution preserves fallback hypotheses,
 and evidence updating converts new views into route changes. Because No
@@ -204,9 +204,9 @@ Shared semantic prior & 36.02 & 0.5957 & 1.5766 & 59.47 & 0.7462 & 1.0448\\
 \end{wraptable}
 
 \paragraph{Prediction and controller robustness.}
-Against the Direct Transformer, ours gains 4.08/9.47 Top-1 points and reduces
+Relative to the Direct Transformer, our predictor improves Top-1 by 4.08/9.47 points and reduces
 NLL by 0.2367/0.3379 on temporal/LOSO splits. It also exceeds the semantic
 prior, supporting temporal structure beyond location frequency. The larger LOSO
-gain indicates transfer beyond scene-specific destination statistics, while the
-lower NLL provides more useful alternatives for recovery. Additional ablations
+gain supports transfer beyond scene-specific destination statistics, while the
+lower NLL indicates improved probabilistic prediction. Additional ablations
 are in \appref{app:experimental-results}.

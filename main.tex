@@ -25,7 +25,7 @@
 \setlength{\intextsep}{2pt}
 \setlength{\abovecaptionskip}{4pt}
 \setlength{\belowcaptionskip}{2pt}
-% Keep ICLR's readable hierarchy while avoiding a full blank line between
+% Preserve the ICLR heading hierarchy while avoiding a full blank line between
 % compact experimental paragraphs and run-in paragraph headings.
 \setlength{\parskip}{0.2pc}
 \makeatletter
@@ -82,13 +82,13 @@ and vision--language models to act across repeated visits to familiar
 environments. Persistent maps make prior observations available for subsequent
 decisions and reduce the need to reconstruct familiar scenes for every task.
 However, remembered observations need not describe the current world:
-objects may move outside the agent's view, even while it travels toward a
+objects may move outside the field of view, even as the agent approaches a
 predicted destination. Despite advances in memory retrieval and state
-prediction, existing methods do not jointly account for continued hidden world
-evolution during navigation and visibility-conditioned belief revision.
+prediction, jointly accounting for continued hidden world evolution during
+navigation and visibility-conditioned belief revision remains challenging.
 We study navigation under hidden world evolution, where
 an agent must infer the latent current state from irregular histories and revise
-its decisions as time and evidence accumulate. We present 
+its decisions as time passes and new evidence becomes available. We present
 \textbf{\evolvingworldnav{}}, an embodied agent that turns timestamped 3D entity
 histories into a structured belief over whether the last observed state
 persists or the target has relocated. A frozen, zero-shot vision--language

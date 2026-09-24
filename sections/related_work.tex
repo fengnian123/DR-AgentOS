@@ -3,27 +3,28 @@
 
 \paragraph{Navigation, memory, and changing worlds.}
 Embodied navigation combines perception, spatial reasoning, and action;
-open-vocabulary maps and scene graphs ground language in structured space
+open-vocabulary maps and scene graphs ground language in spatial representations
 \citep{anderson2018evaluation,savva2019habitat,chaplot2020objectnav,
 xin2026agentvln,huang2023vlmaps,gu2024conceptgraphs,werby2024hovsg,
 Li_2026_CVPR,huang2026msgnav}. Foundation-model agents combine maps, tools, and
 navigation skills
 \citep{yokoyama2024vlfm,long2024instructnav,ziliotto2025tango,
-li2026agenticnav,zheng2021cos,ginting2024seek,zhang2025apexnav}, while lifelong
-benchmarks evaluate navigation and question answering across tasks
-\citep{khanna2024goatbench,yadav2025findingdory} and episodic question answering
+li2026agenticnav,zheng2021cos,ginting2024seek,zhang2025apexnav}. Lifelong
+benchmarks evaluate navigation and memory across tasks
+\citep{khanna2024goatbench,yadav2025findingdory}, while embodied QA benchmarks
+assess question answering from episodic observations
 \citep{majumdar2024openeqa}. Dynamic maps and 4D memories support updates and
 spatiotemporal retrieval
 \citep{sohn2025r4,gorlo2026describe,bescos2018dynaslam,
 narayana2020lifelong,liu2024dynamem}.
 
 \paragraph{Predictive memory and human routines.}
-Predictive navigation infers locations from partial histories or continuous
-placements
+Predictive navigation models infer object locations from partial histories
+using discrete states or continuous spatial representations
 \citep{kurenkov2023dynamic,saavedraruiz2026predictivegraphs,
-argenziano2026flowmaps}. PredictiveGraphs already combines future-state
+argenziano2026flowmaps}. PredictiveGraphs combines future-state
 prediction, Top-$k$ navigation, online observations, and agent tools; our
-complementary focus is an arrival-time filtering loop for continued hidden
+focus is an arrival-time filtering loop for continued hidden
 evolution, with time-valid evidence and candidate reopening. HOMER/HOMER+,
 STREAK, and personalized navigation model household routines or context drift
 \citep{patel2023homer,patel2023routine,bartoli2025streak,zhang2026ucon}.

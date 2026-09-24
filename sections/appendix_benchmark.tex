@@ -15,7 +15,7 @@ and privileged simulator access.
 \paragraph{Source alignment and accounting.}
 Source records constrain the generator rather than serving as episode templates.
 We distinguish raw source rows or sequences ($N_{\rm raw}$), records after
-source-specific normalization ($N_{\rm std}$), distinct normalized records
+normalization specific to each source ($N_{\rm std}$), distinct normalized records
 referenced by at least one retained generation rule ($N_{\rm used}$), and total
 rule references with reuse allowed ($N_{\rm ref}$). Table~\ref{tab:source-accounting}
 reports counts from the audited consumption manifests; reuse therefore does not
@@ -43,9 +43,9 @@ HOMER+ (sim.) & 65 seq. & 1,991 & 356 & 420 \\
 \end{wraptable}
 
 
-The raw unit is a sensor row for CASAS, ARAS, and OPPORTUNITY, an annotation row
+The raw record unit is a sensor row for CASAS, ARAS, and OPPORTUNITY, an annotation row
 for HD-EPIC, and a sequence for ParaHome and HOMER+. CASAS events are mapped to
-the room ontology and split into sessions at inactivity gaps above 900 seconds;
+the room ontology and split into sessions at inactivity gaps exceeding 900 seconds;
 the resulting occupancy, time-of-day, and weekday statistics parameterize
 household schedules. ARAS and OPPORTUNITY sensor streams are segmented into
 activity intervals and normalized to the shared activity, room, and object
@@ -69,15 +69,15 @@ rates, paired static/routine/random interventions, the 90-day horizon, and query
 sampling are benchmark-authored and labeled as such. Thus no source trajectory
 is copied verbatim and no source count is expanded into a claimed number of
 independent human observations. The final manifest spans 54 scenes and 4,860
-scene-days, producing approximately 239.19k dynamic state changes and 803.68k
+scene-days and contains approximately 239.19k dynamic state changes and 803.68k
 task instances after physical-validity, observability, and leakage audits.
 
 \paragraph{Household generation and behavioral checks.}
 For each HSSD scene \citep{khanna2024hssd}, resident schedules, room preferences,
 orderliness, object ownership, and placement habits are fixed at the household
 level. Activities, resident region trajectories, and object transitions are
-generated jointly in chronological order over multi-day histories; stochastic
-events, delayed returns, and exceptions prevent deterministic histories.
+generated jointly in chronological order over multiple days; stochastic
+events, delayed returns, and exceptions prevent deterministic evolution.
 Household profiles, transition rules, and task templates instantiate executable
 N1--N5, VLN, and EQA episodes. Every relocation is attributed to an activity,
 resident transition, object lifecycle event, or tidying event. Personal objects
@@ -92,8 +92,8 @@ within-region relocations, and zero terminal collisions.
 The realized transition density in \cref{fig:routine-random-heatmaps} provides a
 direct check of the paired-world intervention. Routine worlds retain repeatable,
 activity-linked time bands, whereas random worlds spread changes across the day
-while matching the marginal movement process. Thus the control removes
-predictable temporal phase without changing the 90-day horizon or scene setup.
+while matching the marginal movement process. The control therefore removes
+predictable temporal structure without changing the 90-day horizon or scene setup.
 The ``Change rate'' color scale is the mean number of object relocations per
 scene-day in each one-hour time-of-day bin.
 
@@ -107,14 +107,14 @@ scene-day in each one-hour time-of-day bin.
 \subsection{Human Review Protocol}
 \label{app:human-review}
 
-Every retained benchmark episode passes a two-stage human quality-control
-process. Five trained researchers perform the primary annotation using a
+Every retained benchmark episode undergoes two stages of human quality control. Five trained researchers perform the primary annotation using a
 structured checklist, and one supervising researcher conducts the final audit.
 For each object transition, reviewers verify identity continuity, a physically
 valid and reachable destination, collision-free placement, consistency with the
-scene geometry and visibility model, and a transition time that lies between
-the relevant observations without exposing future information. They also record
-whether the relocation reason is compatible with the attributed activity,
+scene geometry and visibility model, and a transition time between the
+relevant observations. Reviewers also check that public records do not expose
+future information and record whether the reason for relocation is consistent
+with the attributed activity,
 actor context, object affordance, or household routine. A destination may be
 temporarily unobserved by the agent, as required by the benchmark, but it
 cannot be impossible, outside the navigable scene, or revealed through the
@@ -127,7 +127,7 @@ instantiated in the private world state (or explicitly belong to a valid
 not-found track), candidate states and viewpoints must be reachable, and the
 action budget must permit a meaningful search. Language goals must identify the
 intended object without answer-correlated names or future-state hints. Finally,
-each task is checked to ensure that it probes the paper's setting---stale
+each task is checked to ensure that it addresses the evaluation setting---stale
 observations, hidden evolution, predictive belief, or visibility-aware evidence
 updates---rather than reducing to a static or trivially solvable navigation
 case. Reviewers assign accept, revise, or reject decisions; disagreements are
@@ -140,8 +140,8 @@ Chronological Habitat replay records navigability, geodesic cost, camera frustum
 coverage, unoccluded target fraction, and success viewpoints for each candidate.
 These fields support the physical validity and visibility checks described in
 \appref{app:audit}; candidates without collision-free placements and reachable
-inspection viewpoints are excluded. Query times sample both the natural temporal
-distribution and mechanism-relevant windows, including routine stages and
+inspection viewpoints are excluded. Query times are sampled from both the natural temporal
+distribution and windows relevant to the mechanisms under study, including routine stages and
 intervals after a personal object is dropped. Each navigation query is augmented
 with a start pose, candidate inspection viewpoints, a path budget, and frozen
 success conditions. The patrol policy cannot access current object states,
@@ -163,10 +163,10 @@ physical validity, candidate coverage, and leakage tests.
 
 \paragraph{Splits and leakage checks.}
 Each 90-day history uses days 0--79 for training, days 80--84 for validation,
-and days 85--89 for testing. Complete temporal sequences are split together so
-that no future portion of a household day enters an earlier decision. Held-out homes are reserved for
+and days 85--89 for testing. Complete temporal sequences remain within the same split so
+that no decision uses observations from a later time. Held-out homes are reserved for
 cross-scene evaluation; paired static/routine/random members remain in the same
-split. Near-duplicate queries and transition groups are assigned atomically.
+split. Near-duplicate queries and transition groups are assigned to splits as indivisible units.
 Serialized releases are checked for future timestamps, private event fields,
 answer-correlated filenames or indices, repeated event groups across splits,
 inconsistent paired variants, invalid physics, unreachable goals, and accidental

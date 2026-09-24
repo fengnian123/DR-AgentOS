@@ -5,14 +5,14 @@ Long-lived embodied agents navigate familiar environments across repeated
 tasks. Spatial maps and object memories preserve observations from earlier
 visits \citep{gu2024conceptgraphs,liu2024dynamem}. However, those observations
 may not describe the world when the agent acts. Human activity changes
-task-relevant states outside the robot's view: a medication box observed on a
+task-relevant states outside the field of view: a medication box observed on a
 bedside table may return to a cabinet before the next request. Further changes
 can occur while the robot travels, invalidating a prediction made at the start
 of navigation. The agent must therefore plan from observations acquired minutes,
 hours, or days earlier and estimate what will be true when it inspects a target.
 
-Partial observability makes the distinction between historical observations
-and current state consequential. Observations record past states, whereas the
+Under partial observability, historical observations must be distinguished
+from the current state. Observations record past states, whereas the
 latent world state may evolve between them. This produces temporally stale
 memory: even accurate retrieval from a geometrically correct map can direct the
 agent to an outdated location. Searching from scratch discards useful
@@ -20,7 +20,7 @@ history. A persistent agent instead needs a time-indexed
 predictive belief over the latent state. It uses past observations as
 evidence, represents uncertainty about unobserved changes, and supports
 revision during interaction. The belief must
-remain valid at the time of action, which may differ from the query time.
+describe the state expected at the time of action, which may differ from the query time.
 
 Memory systems retain object-centric observations and spatial relations, while
 predictive representations use temporal histories and recurring activities to
@@ -73,7 +73,7 @@ evidence provenance.
 
 An event-driven predict--observe--replan filter couples action and inference.
 Before selecting a destination, the agent
-propagates its current posterior to each candidate's estimated arrival time and
+propagates its current posterior to the estimated arrival time for each candidate and
 balances occupancy probability, expected new coverage, and travel cost. It then
 executes a short action chunk and uses opportunistic or deliberate RGB-D
 evidence to update the current-time belief. Clear negative evidence can redirect
@@ -98,7 +98,7 @@ Experiments support this interpretation. Across the full navigation suite,
 \textbf{\evolvingworldnav{}} improves both initial inspection and eventual
 search (\cref{tab:crossbench}). When targets move during execution, it recovers
 more reliably while reducing unnecessary travel (\cref{tab:n4-online}).
-Component ablations attribute these gains to maintaining alternative
+Component ablations link these gains to maintaining alternative
 hypotheses and revising them with online evidence. Paired controls show the
 clearest advantage under learnable routines, while cross-benchmark,
 held-out-scene, frozen-VLM, and physical-robot evaluations support transfer
@@ -109,7 +109,7 @@ world and evidence-seeking action alongside faithful historical storage.
 Our contributions are fourfold:
 \begin{itemize}[leftmargin=*,itemsep=0.6mm,topsep=1mm]
     \item \textbf{Evolving-World Navigation:}
-    We formulate navigation under hidden world evolution, where states may change outside the agent's view and during execution.
+    We formulate navigation under hidden world evolution, where states may change outside observation and during execution.
 
     \item \textbf{Predictive 4D Belief Agent:}
     We introduce \textbf{\evolvingworldnav{}}, coupling structured state prediction with an event-driven predict--observe--replan filter.

@@ -2,12 +2,12 @@
 \label{sec:experiments}
 
 We test whether predictive 4D memory improves current-state inference,
-embodied search, and recovery from contradicted beliefs. Controlled
-\evolvingworldbench{} and robot comparisons share public histories, legal candidates,
+embodied search, and recovery when observations contradict prior beliefs. Controlled
+\evolvingworldbench{} and robot comparisons use the same public histories, legal candidates,
 inspection viewpoints, low-level control, and action budgets. Cross-environment
-evaluations instead retain each released agent's native policy and are used as
-system-level generalization evidence, not as a component-level causal
-comparison. Further protocol, implementation, and analysis details are
+evaluations retain the native policies of released agents and provide
+system-level generalization evidence. Component ablations support causal
+comparisons. Further protocol, implementation, and analysis details are
 summarized in Appendices~A--D.
 
 \subsection{Setup}
@@ -23,13 +23,13 @@ native task in each of MP3D, HM3D, Habitat-GS, and InteriorGS, and run 64
 matched LYNX M20 trials per method.
 
 \paragraph{Real-world setup.}
-We evaluate on the DEEP Robotics LYNX M20 as the primary quantitative
-platform over 64 matched trials, with X30 and Lite3 evaluated on matched
+We use the DEEP Robotics LYNX M20 for the primary quantitative
+evaluation over 64 matched trials, with X30 and Lite3 evaluated on matched
 32-block transfer subsets. Platform-specific perception and low-level
-navigation are wrapped by a common interface, while all methods receive
+navigation use a common interface, and all methods receive
 identical pre-query histories, candidate locations, start conditions, and
 robot-specific control stacks. Each 360-second episode requires online
-confirmation within three inspections.
+target confirmation within three inspections.
 
 \paragraph{Controllers and baselines.}
 Our main method uses a frozen GPT-5.6-Luna controller in a zero-shot setting:
@@ -41,7 +41,7 @@ with GPT-4o, GPT-5.5, GPT-5.6-Luna, and Qwen2.5-VL-3B/32B test controller
 dependence.
 
 \paragraph{Metrics.}
-Prediction uses Top-1, MRR, NLL, ECE, and true-state rank. Navigation uses SR,
+We evaluate prediction using Top-1, MRR, NLL, ECE, and true-state rank, and navigation using SR,
 SPL, First-Inspection SR, Recovery SR, inspection count, distance, and time. Main
 comparisons report five-seed variation; paired static, routine, and random
 worlds isolate learnable temporal structure. 
