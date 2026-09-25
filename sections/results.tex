@@ -54,13 +54,13 @@ baseline scores are our reproductions under the method-preserving protocol in
 \appref{app:experimental-setup}.}
 \end{table*}
 
-\evolvingworldnav{} consistently improves the evaluated metrics across FindingDory,
-GOAT-Bench, and \evolvingworldbench{}. Across \evolvingworldbench{} N1--N5, it improves First-Inspection SR from
-45.33\% (DynaMem) to 61.32\% and Search SR from 71.94\% to 86.18\%,
-supporting arrival-time prediction and en-route evidence for initial
-inspection, with retained hypotheses supporting recovery. The gains on FindingDory
-and GOAT-Bench further show that predictive memory remains effective beyond
-the proposed evolving-world setting.
+\evolvingworldnav{} achieves the highest reported success rates across FindingDory,
+GOAT-Bench, and \evolvingworldbench{} (\cref{tab:crossbench}). On \evolvingworldbench{} N1--N5,
+First-Inspection SR increases from 45.33\% (DynaMem) to 61.32\%, and Search SR
+from 71.94\% to 86.18\%. On FindingDory, the agent achieves higher
+HL-SR but lower HL-SPL than the FindingDory Agent (38.83\% versus 40.92\%).
+The success-rate gains on FindingDory and GOAT-Bench support the applicability
+of the approach beyond the proposed evolving-world setting.
 
 \paragraph{Online navigation under execution-time dynamics.}
 \Cref{fig:p4d_case_study} shows how a routine-conditioned belief avoids an
