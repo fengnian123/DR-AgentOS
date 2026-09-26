@@ -104,36 +104,29 @@ scene-day in each one-hour time-of-day bin.
     \label{fig:routine-random-heatmaps}
 \end{figure}
 
-\subsection{Human Review Protocol}
+\subsection{Automated Audit and Human Spot Checks}
 \label{app:human-review}
 
-Every retained benchmark episode undergoes two stages of human quality control. Five trained researchers perform the primary annotation using a
-structured checklist, and one supervising researcher conducts the final audit.
-For each object transition, reviewers verify identity continuity, a physically
-valid and reachable destination, collision-free placement, consistency with the
-scene geometry and visibility model, and a transition time between the
-relevant observations. Reviewers also check that public records do not expose
-future information and record whether the reason for relocation is consistent
-with the attributed activity,
-actor context, object affordance, or household routine. A destination may be
-temporarily unobserved by the agent, as required by the benchmark, but it
-cannot be impossible, outside the navigable scene, or revealed through the
-public history. Reviewers additionally check that state changes, returns, and
-negative evidence are temporally ordered and semantically consistent.
+All generated episodes undergo automated quality checks before retention. The
+checks verify entity identity and event ordering, legal and collision-free
+placements, reachable candidate viewpoints, consistency between world states
+and rendered observations, and the query-time cutoff that prevents future
+information from entering public histories. They also verify target--episode
+correspondence, valid not-found tracks, and task budgets that permit executable
+search. Failed episodes are regenerated or excluded; the audit manifest records
+the check outcomes for every retained episode.
 
-Tasks are reviewed for target--episode correspondence, referent clarity,
-executability, and research relevance. The target category or instance must be
-instantiated in the private world state (or explicitly belong to a valid
-not-found track), candidate states and viewpoints must be reachable, and the
-action budget must permit a meaningful search. Language goals must identify the
-intended object without answer-correlated names or future-state hints. Finally,
-each task is checked to ensure that it addresses the evaluation setting---stale
-observations, hidden evolution, predictive belief, or visibility-aware evidence
-updates---rather than reducing to a static or trivially solvable navigation
-case. Reviewers assign accept, revise, or reject decisions; disagreements are
-resolved by majority vote, while unresolved or high-risk cases are adjudicated
-by the supervisor. Rejected cases are regenerated or removed, and the audit log
-records the decision and reason for every retained item.
+Human assessment uses stratified spot checks rather than reviewing every
+episode. Five trained researchers sample across data sources, scenes, mobility
+regimes, and task types. Using a structured checklist, they assess the
+plausibility of relocation reasons and household routines, the semantic
+consistency of negative evidence, and the clarity and relevance of language
+goals. A supervising researcher adjudicates disputed or high-risk sampled
+cases. Reviewers record accept, revise, or reject decisions for the sampled
+items; systematic issues prompt corrections to the generation rules and
+renewed automated checks of the affected episodes. The human review log
+identifies the sampled items and decisions, while the automated manifest
+accounts for the full retained set.
 
 \paragraph{Candidate metadata and query sampling.}
 Chronological Habitat replay records navigability, geodesic cost, camera frustum
