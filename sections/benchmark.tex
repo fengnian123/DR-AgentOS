@@ -7,6 +7,12 @@ combine persistent histories, executable placements, and controlled dynamics.
 
 \subsection{Tasks and Controlled Dynamics}
 
+At the task-modality level in \cref{fig:evolvingworldnav_overview}, the pool
+comprises object search (17\%), object navigation (27\%), vision-and-language
+navigation (VLN; 26\%), and embodied question answering (EQA; 30\%)
+\citep{majumdar2024openeqa,sakamoto2024map}. These labels describe task goals;
+the protocols below distinguish prediction, search, evidence, and online dynamics.
+
 \Needspace{0.20\textheight}
 \begin{wrapfigure}{r}{0.58\textwidth}
     \centering
@@ -16,11 +22,8 @@ combine persistent histories, executable placements, and controlled dynamics.
     \label{fig:p4dbench}
 \end{wrapfigure}
 
-At the task-modality level shown in \cref{fig:evolvingworldnav_overview}, the
-pool comprises object search (17\%), object navigation (27\%),
-vision-and-language navigation (VLN; 26\%), and embodied question answering
-(EQA; 30\%) \citep{majumdar2024openeqa,sakamoto2024map}. The complementary
-breakdown by evaluation protocol in \cref{fig:p4dbench} comprises N1 (13.51\%), N2
+The complementary breakdown by evaluation protocol in \cref{fig:p4dbench}
+comprises N1 (13.51\%), N2
 (13.37\%), N3 (13.27\%), N4 (26.52\%), N5 (3.34\%), and EQA (29.99\%). In this
 second view, VLN-conditioned episodes are assigned to their corresponding
 navigation protocol rather than a separate category. Prediction evaluates the
