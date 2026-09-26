@@ -515,9 +515,10 @@ prediction.
 \multicolumn{3}{c}{\textbf{\evolvingworldnav{}}} &
 \multirow{2}{*}{\makecell{\textbf{$\Delta$ Search}\\\textbf{SR $\uparrow$}}}\\
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
-& \makecell{First-Inspection\\SR $\uparrow$} & \makecell{Search\\SR $\uparrow$} &
-SPL $\uparrow$ & \makecell{First-Inspection\\SR $\uparrow$} &
-\makecell{Search\\SR $\uparrow$} & SPL $\uparrow$ & \\
+& \makecell{\textbf{First-Inspection}\\\textbf{SR $\uparrow$}} &
+\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} &
+\makecell{\textbf{First-Inspection}\\\textbf{SR $\uparrow$}} &
+\makecell{\textbf{Search}\\\textbf{SR $\uparrow$}} & \textbf{SPL $\uparrow$} & \\
 \midrule
 GPT-4o & 31.88 & 48.94 & 0.3215 & \textbf{59.72} & \textbf{71.86} & \textbf{0.6027} & \textbf{+22.92}\\
 GPT-5.5 & 42.36 & 51.31 & 0.3732 & \textbf{63.48} & \textbf{73.57} & \textbf{0.6531} & \textbf{+22.26}\\
@@ -729,7 +730,7 @@ search components remain unchanged.
 \setlength{\tabcolsep}{8pt}
 \begin{tabular}{lllll}
 \toprule
-Platform & Morphology & Standing size & Mass & Endurance / range \\
+\textbf{Platform} & \textbf{Morphology} & \textbf{Standing size} & \textbf{Mass} & \textbf{Endurance / range} \\
 \midrule
 LYNX M20 & Wheel-legged & $820\times430\times570$ mm & $\sim$35 kg & 3 h / 15 km unloaded \\
 X30 & Quadruped & $1000\times695\times470$ mm & 56 kg & 2.5--4 h / $\geq$10 km \\
@@ -757,9 +758,10 @@ setting has longer routes and lower success for all methods, while
 \setlength{\tabcolsep}{5pt}
 \begin{tabular}{lrrrrrr}
 \toprule
-& \multicolumn{3}{c}{Indoor} & \multicolumn{3}{c}{Outdoor} \\
+& \multicolumn{3}{c}{\textbf{Indoor}} & \multicolumn{3}{c}{\textbf{Outdoor}} \\
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
-Method & First-Inspection & Search SR & Dist. & First-Inspection & Search SR & Dist. \\
+\textbf{Method} & \textbf{First-Inspection} & \textbf{Search SR} & \textbf{Dist.} &
+\textbf{First-Inspection} & \textbf{Search SR} & \textbf{Dist.} \\
 \midrule
 Last Seen + Search & 18.8 & 31.3 & 28.6 & 15.6 & 21.9 & 83.8 \\
 Time Frequency & 25.0 & 34.4 & 27.2 & 18.8 & 28.1 & 78.6 \\
@@ -792,8 +794,10 @@ Retrieval + Reasoning & 31.3 & 40.6 & 25.1 & 21.9 & 34.4 & 75.5 \\
 \setlength{\tabcolsep}{2.5pt}
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
-Method & Unchanged & \makecell{Routine-\\consistent} &
-\makecell{Weak-\\routine} & \makecell{Broken-\\routine} \\
+\textbf{Method} & \textbf{Unchanged} &
+\makecell{\textbf{Routine-}\\\textbf{consistent}} &
+\makecell{\textbf{Weak-}\\\textbf{routine}} &
+\makecell{\textbf{Broken-}\\\textbf{routine}} \\
 \midrule
 Last Seen + Search & \textbf{68.8} & 18.8 & 12.5 & 6.3 \\
 Time Frequency & 50.0 & 50.0 & 18.8 & 6.3 \\
@@ -821,7 +825,8 @@ attributable to generic search.
 \setlength{\tabcolsep}{2.5pt}
 \begin{tabular}{@{}llrrr@{}}
 \toprule
-Platform & Method & First-Inspection SR & Search SR & Dist. (m) \\
+\textbf{Platform} & \textbf{Method} & \textbf{First-Inspection SR} &
+\textbf{Search SR} & \textbf{Dist. (m)} \\
 \midrule
 \multirow{2}{*}{LYNX M20} & Last Seen + Search & 18.8 & 25.0 & 55.4 \\
 & \textbf{\evolvingworldnav{}} & \textbf{37.5} & \textbf{50.0} & \textbf{44.6} \\
