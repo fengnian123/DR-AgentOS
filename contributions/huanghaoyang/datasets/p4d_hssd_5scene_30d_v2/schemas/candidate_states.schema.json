@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "is_unknown": {
+      "type": "boolean"
+    },
+    "scene_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "p4d_benchmark_v1.0"
+    },
+    "state_id": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "scene_id",
+    "state_id",
+    "is_unknown",
+    "compatible_object_roles"
+  ],
+  "title": "P4D Candidate State",
+  "type": "object"
+}

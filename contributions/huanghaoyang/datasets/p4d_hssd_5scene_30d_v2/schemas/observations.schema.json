@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "schema_version": {
+      "const": "p4d_benchmark_v1.0"
+    },
+    "time_s": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "schema_version",
+    "observation_id",
+    "scene_id",
+    "object_id",
+    "time_s",
+    "event_type",
+    "target_detected"
+  ],
+  "title": "P4D Observation",
+  "type": "object"
+}
