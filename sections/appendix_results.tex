@@ -56,23 +56,12 @@ baseline scores are our reproductions under the method-preserving protocol in
 \appref{app:experimental-setup}.}
 \end{table}
 
-\subsection{Full Prediction Results and Calibration}
+\subsection{Full Prediction Results}
 \label{app:full-prediction-results}
 
 The temporal split contains 319 changed-only queries and LOSO contains 644
 change-balanced queries. We report the mean $\pm$ standard deviation over five
 seeds for our method; Top-1 is a percentage, while MRR and NLL are unscaled.
-
-\Cref{fig:belief-calibration} compares reliability (left) with the distribution
-of predictions across confidence bins (right), showing how evidence updating
-changes both calibration and confidence concentration.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{figures/calibration_current_state_belief_2panel.pdf}
-    \caption{Calibration and confidence distributions of current-state beliefs before and after evidence updating.}
-    \label{fig:belief-calibration}
-\end{figure}
 
 \begin{table}[H]
 \centering
