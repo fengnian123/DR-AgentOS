@@ -189,7 +189,7 @@ filter rather than improved offline state classification.
 \label{tab:evidence-update-ablation}
 \centering
 \scriptsize
-\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
+\begin{tabularx}{\linewidth}{@{}l*{4}{>{\centering\arraybackslash}X}@{}}
 \toprule
 \textbf{Update rule} & \textbf{Rank $\downarrow$} & \textbf{Top-1 $\uparrow$} &
 \textbf{NLL $\downarrow$} & \textbf{ECE $\downarrow$}\\
@@ -200,7 +200,7 @@ Bayesian Update & 5.25 & 64.71 & \textbf{1.497} & 0.151\\
 \rowcolor{tblours}\textbf{Bayesian + Calibration} &
 \textbf{4.96} & \textbf{66.93} & 1.530 & \textbf{0.130}\\
 \bottomrule
-\end{tabular*}
+\end{tabularx}
 \end{wraptable}
 
 \paragraph{Evidence update and calibration.}
