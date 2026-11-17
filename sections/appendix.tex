@@ -323,6 +323,19 @@ predictors share query identities, time-ordered histories, and legal candidate
 sets. The main table reports five-seed variation; no future observation or
 private transition label is available at inference time.
 
+\paragraph{Strict unseen-household split.}
+As an additional identity-level generalization test, we partition the 43
+publicly supervised households into 31/6/6 disjoint training, validation, and
+test households, corresponding to 31/6/6 scenes. The partitions contain
+7,536/1,652/1,620 episodes; the test set includes 405 paired query groups.
+All dates, object trajectories, event histories, paired-world variants, and
+transition groups from one household stay in the same partition. Every learned
+predictor is trained from scratch on the training households, with model
+selection restricted to the validation households. Eleven N5-only households
+without public state labels are excluded from this analysis, which is distinct
+from the primary chronological split and the complete 54-scene benchmark.
+Results appear in \appref{app:unseen-households}.
+
 \paragraph{Real-world protocol.}
 LYNX M20 is the primary quantitative platform, with X30 and Lite3 used for
 transfer. The primary M20 comparison uses 64 matched trials, whereas X30 and
@@ -453,6 +466,51 @@ This section provides extended quantitative results omitted from the main paper
 because of space constraints.
 
 \input{sections/appendix_results}
+
+\subsection{Unseen-Household Predictive Generalization}
+\label{app:unseen-households}
+
+\Cref{tab:household-disjoint} evaluates the strict household-disjoint split
+defined in \appref{app:experimental-setup}. All methods receive the same legal
+candidate set and causal history. For each neural method, five models are
+trained independently on the same 7,536 training episodes, selected with the
+same 1,652 validation episodes, and evaluated on the same 1,620 test episodes.
+We average the five predicted probability vectors before computing the reported
+metrics; deterministic baselines are evaluated once. All methods use identical
+clipping and renormalization before NLL and ECE computation, so zero-probability
+events in one-hot baselines follow the same numerical convention.
+
+\begin{table}[!t]
+\caption{Current-state prediction on unseen households. Top-1, MRR, and ECE
+are fractions; NLL is unscaled. Neural results use five-model probability
+ensembles on the fixed test episodes.}
+\label{tab:household-disjoint}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Method} & \textbf{Top-1 $\uparrow$} & \textbf{MRR $\uparrow$} &
+\textbf{NLL $\downarrow$} & \textbf{ECE $\downarrow$}\\
+\midrule
+Last Seen & 0.3658 & \textbf{0.5592} & 2.9686 & 0.5716\\
+Time Frequency & 0.1642 & 0.4114 & 2.2802 & 0.1505\\
+Markov & 0.3531 & 0.5396 & 5.4903 & 0.5241\\
+PredictiveGraphs & 0.2543 & 0.4867 & 7.0665 & 0.2662\\
+Direct Transformer & 0.2167 & 0.4532 & 1.7452 & \textbf{0.0142}\\
+\rowcolor{tblours}\textbf{\evolvingworldnav{}} &
+\textbf{0.3784} & 0.5567 & \textbf{1.6473} & 0.0159\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\evolvingworldnav{} achieves the highest Top-1 accuracy and lowest NLL on
+unseen households. Its MRR (0.5567) is slightly below Last Seen (0.5592),
+and its ECE (0.0159) is close to the Direct Transformer (0.0142). This
+supports transfer of a calibrated full belief without implying superiority
+on every ranking metric. Cross-environment navigation results in
+\cref{tab:domains} instead measure system portability across task protocols;
+they do not directly test generalization of target transition rules.
 
 \subsection{EvoWorld-Bench Detailed Results}
 \label{app:moved-tables}
@@ -586,6 +644,107 @@ raises First-Inspection SR by 20.68 points, Search SR by 20.86 points, and SPL b
 points while reducing the average inspection count from 4.57 to 3.98. These
 trends show that performance benefits from temporally structured evidence over a
 sufficiently long history, rather than merely the most recent observations.
+
+\subsubsection{Arrival-Time Selection, Propagation, and Reopening}
+\label{app:mechanism-controls}
+
+The one-factor controls in \cref{tab:temporal-mechanisms} change only the
+specified operation. Current-State Selection ranks destinations by the
+current-time belief rather than the candidate-specific arrival-time belief;
+Markov Propagation replaces only the learned transition kernel with a
+first-order Markov kernel; No Reopening prevents a previously inspected
+candidate from becoming eligible again. Episodes, observations, candidates,
+controller, planner, and maximum inspection budget are held fixed. The full
+row is a separate five-seed controlled rerun on the same preselected N4
+episodes, so small differences from \cref{tab:n4-online} reflect stochastic
+variation rather than a different test set.
+
+\begin{table*}[!t]
+\caption{One-factor temporal ablation on the preselected N4 dynamic episodes.
+SR and Revisit Success are percentages; SPL is unscaled. Values are mean
+$\pm$ sample standard deviation over five independent seeds.}
+\label{tab:temporal-mechanisms}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrr}
+\toprule
+\textbf{Variant} & \textbf{First-Insp. SR $\uparrow$} &
+\textbf{Dynamic SR $\uparrow$} & \textbf{Online Recovery SR $\uparrow$} &
+\textbf{Excess Dist. (m) $\downarrow$} &
+\textbf{Revisit Success $\uparrow$} &
+\textbf{Inspections $\downarrow$} & \textbf{SPL $\uparrow$}\\
+\midrule
+Current-State Selection & $33.2\pm1.7$ & $52.3\pm3.7$ &
+$38.4\pm6.4$ & $14.42\pm0.48$ & $24.5\pm0.3$ &
+$\mathbf{5.22\pm0.12}$ & $0.258\pm0.018$\\
+Markov Propagation & $33.5\pm1.6$ & $59.8\pm1.3$ &
+$38.8\pm6.2$ & $17.98\pm0.11$ & $30.7\pm0.3$ &
+$8.08\pm0.05$ & $0.434\pm0.005$\\
+No Reopening & $32.6\pm2.8$ & $53.3\pm0.5$ &
+$43.4\pm5.2$ & $17.62\pm0.68$ & -- &
+$7.23\pm0.10$ & $0.396\pm0.014$\\
+\rowcolor{tblours}\textbf{Full \evolvingworldnav{}} &
+$\mathbf{41.8\pm2.0}$ & $\mathbf{65.8\pm3.5}$ &
+$\mathbf{58.8\pm6.2}$ & $\mathbf{8.52\pm0.74}$ &
+$\mathbf{32.3\pm0.3}$ & $6.41\pm0.16$ &
+$\mathbf{0.440\pm0.028}$\\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+Relative to Current-State Selection, the full method gains 8.6 points in
+First-Inspection SR, 13.5 points in Dynamic SR, and 20.4 points in Online
+Recovery SR, while reducing excess distance by 5.90\,m. Replacing learned
+propagation with the Markov kernel lowers Dynamic SR by 6.0 points and
+Online Recovery SR by 20.0 points and increases excess distance by 9.46\,m;
+disabling reopening lowers these metrics
+by 12.5 and 15.4 points. Relative to No Reopening, the full method reduces
+excess distance by 9.10\,m. Revisit Success is undefined when reopening is disabled.
+
+\Cref{tab:eta-mechanisms} uses one fixed episode-level ETA assignment for
+both Current-State Selection and the full method. No episode falls within
+the 0--10\,s bin. Dynamic SR improves by 11.6--14.2 points in the
+nonempty bins; the largest Online Recovery SR gain (22.2 points) occurs
+above 60\,s. Excess Distance falls by 4.71--6.04\,m across those bins.
+The episode-weighted Dynamic SR values are 52.25\% and
+65.95\%, respectively.
+
+\begin{table*}[!t]
+\caption{Arrival-time analysis on the shared N4 dynamic episodes. SR columns
+are percentages; Excess columns are meters relative to the shortest
+time-feasible dynamic-oracle route. The bin is fixed per episode for both
+variants.}
+\label{tab:eta-mechanisms}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrr}
+\toprule
+\textbf{ETA bin} & \textbf{Episodes} &
+\textbf{Current SR} & \textbf{Full SR} &
+\textbf{Current Recovery} & \textbf{Full Recovery} &
+\textbf{Current Excess} & \textbf{Full Excess}\\
+\midrule
+0--10\,s & 0 & -- & -- & -- & -- & -- & --\\
+10--30\,s & 420 & 52.9 & 64.5 & 26.7 & 38.5 & 13.01 & 8.30\\
+30--60\,s & 1,260 & 52.0 & 66.2 & 32.1 & 42.6 & 14.31 & 8.80\\
+$>60$\,s & 820 & 52.3 & 66.3 & 38.6 & 60.8 & 14.78 & 8.74\\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+Dynamic SR and Excess Distance use the same preselected N4 set, defined by a
+target transition inside the fixed post-query window. Online Recovery SR
+uses the common recovery-eligible subset whose predeclared transition
+invalidates the earlier target state; only verification after that transition
+counts as recovery. Excess Distance averages the executed distance minus
+the dynamic-oracle reference over all preselected dynamic episodes, including
+failures, under the same action and time limits.
 
 \subsubsection{Evidence Update Ablations}
 
