@@ -254,17 +254,14 @@ are in \appref{app:experimental-results}.
 \label{sec:additional-controls}
 
 \paragraph{Isolating the dynamic closed loop.}
-\Cref{tab:temporal-controls-main} compares one-factor variants on the same
-preselected N4 episodes. Current-State Selection uses the belief at decision
-time instead of each candidate's arrival-time belief; Markov Propagation
-replaces the learned transition kernel; and No Reopening blocks previously
-inspected candidates. Observations, candidates, controller, planner, and
-inspection budget are held fixed. Full \evolvingworldnav{} improves Dynamic SR
-and Online Recovery SR over each variant while reducing excess travel. Online
-Recovery SR increases by 20.4 percentage points over Current-State Selection
-and by 20.0 points over Markov Propagation. Disabling reopening reduces Dynamic
-SR by 12.5 points. \appref{app:mechanism-controls} reports the full seven-metric
-comparison and ETA-stratified analysis.
+On matched N4 episodes, the full method improves Online Recovery SR by
+20.4 percentage points over Current-State Selection and 20.0 points over
+Markov Propagation (\cref{tab:temporal-controls-main}). The first comparison
+supports ranking destinations by the target's predicted state at arrival.
+The second suggests that learned transitions help redirect search after
+the target moves. Disabling reopening lowers Dynamic SR by 12.5 points,
+supporting the value of rechecking a location after an earlier negative
+observation becomes stale.
 
 \begin{table}[H]
 \caption{Controlled N4 temporal ablation (five-seed means).}
@@ -286,24 +283,23 @@ No Reopening & 53.3 & 43.4 & 17.62\\
 \end{tabular}
 \end{table}
 
-The full row is a separate five-seed rerun on the same N4 episode set;
-its 65.8\% Dynamic SR and 58.8\% Online Recovery SR can differ slightly
-from the corresponding main comparison in \cref{tab:n4-online} because of
-stochastic variation. The ETA analysis uses a fixed episode assignment for
-both variants. Across the three nonempty ETA bins, arrival-time
-selection raises Dynamic SR by 11.6--14.2 points and Online Recovery SR by
-10.5--22.2 points while reducing excess distance by 4.71--6.04\,m
-(\cref{tab:eta-mechanisms}).
+Arrival-time selection improves Dynamic SR in every populated ETA bin and
+yields the largest recovery gain above 60\,s (\cref{tab:eta-mechanisms}).
+Longer trips give the target more time to move before inspection, making
+the current state a less reliable guide to where the agent should search.
+The ablation is a separate rerun on the same N4 episodes as
+\cref{tab:n4-online}. \appref{app:mechanism-controls} reports the full results.
 
 \paragraph{Transfer to unseen households.}
-The main chronological split tests later days in previously observed scenes.
-For the household-disjoint test, we split 43 households with public state
-labels into 31 training, six validation, and six test households. All methods
-use the same 1,620 test episodes. \Cref{tab:household-disjoint} shows the
-highest Top-1 accuracy and lowest NLL for \evolvingworldnav{}. Last Seen has
-slightly higher MRR, and the Direct Transformer has slightly lower ECE. The
-split, five-model ensemble, and test-time controls are specified
-in \appref{app:experimental-setup,app:unseen-households}.
+The household-disjoint split tests whether the predictor transfers to homes
+absent from training and validation. On the six held-out households,
+\evolvingworldnav{} improves Top-1 accuracy by 1.26 percentage points over
+Last Seen and achieves the lowest NLL (\cref{tab:household-disjoint}).
+The gains suggest that learned temporal patterns transfer to new homes,
+improving the first choice and the quality of the predicted probabilities.
+Last Seen's slightly higher MRR shows that recency remains a strong ranking
+signal. The split and evaluation protocol are in
+\appref{app:experimental-setup,app:unseen-households}.
 
 \begin{table}[H]
 \caption{Current-state prediction on unseen households.}
