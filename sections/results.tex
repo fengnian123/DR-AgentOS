@@ -106,7 +106,7 @@ points and Online Recovery SR by 22.0 points, while reducing excess distance by
 support the execution-time contribution: current-time propagation and time-valid
 evidence rounds let the agent recover after a target moves, while candidate
 reopening turns revisits into useful actions rather than permanent exclusions.
-Matched temporal controls appear in \appref{app:mechanism-controls}.
+\Cref{tab:temporal-controls-main} isolates these effects under matched controls.
 
 \begin{wraptable}[7]{r}{0.63\linewidth}
 \vspace{-0.7\baselineskip}
@@ -247,5 +247,86 @@ NLL by 0.2367/0.3379 on temporal/LOSO splits. It also exceeds the semantic
 prior, supporting temporal structure beyond location frequency. The larger LOSO
 gain supports transfer beyond scene-specific destination statistics, while the
 lower NLL indicates improved probabilistic prediction. Additional ablations
-are in \appref{app:experimental-results}; unseen-household transfer is reported
-in \appref{app:unseen-households}.
+are in \appref{app:experimental-results}.
+
+\Needspace{9\baselineskip}
+\subsection{Controlled Temporal Mechanisms and Transfer}
+\label{sec:additional-controls}
+
+\paragraph{Isolating the dynamic closed loop.}
+\Cref{tab:temporal-controls-main} compares one-factor variants on the same
+preselected N4 episodes. Current-State Selection uses the belief at decision
+time instead of each candidate's arrival-time belief; Markov Propagation
+replaces the learned transition kernel; and No Reopening blocks previously
+inspected candidates. Observations, candidates, controller, planner, and
+inspection budget are held fixed. Full \evolvingworldnav{} improves Dynamic SR
+and Online Recovery SR over each variant while reducing excess travel. Online
+Recovery SR increases by 20.4 percentage points over Current-State Selection
+and by 20.0 points over Markov Propagation. Disabling reopening reduces Dynamic
+SR by 12.5 points. \appref{app:mechanism-controls} reports the full seven-metric
+comparison and ETA-stratified analysis.
+
+\begin{table}[H]
+\caption{Controlled N4 temporal ablation. SR is reported as a percentage and
+excess distance in meters. Values are five-seed means. \Cref{tab:temporal-mechanisms}
+reports standard deviations and all seven metrics.}
+\label{tab:temporal-controls-main}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Variant} & \textbf{Dynamic SR $\uparrow$} &
+\textbf{Online Recovery SR $\uparrow$} & \textbf{Excess dist. (m) $\downarrow$}\\
+\midrule
+Current-State Selection & 52.3 & 38.4 & 14.42\\
+Markov Propagation & 59.8 & 38.8 & 17.98\\
+No Reopening & 53.3 & 43.4 & 17.62\\
+\rowcolor{tblours}\textbf{Full \evolvingworldnav{}} &
+\textbf{65.8} & \textbf{58.8} & \textbf{8.52}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The full row is a separate five-seed rerun on the same N4 episode set;
+its 65.8\% Dynamic SR and 58.8\% Online Recovery SR can differ slightly
+from the corresponding main comparison in \cref{tab:n4-online} because of
+stochastic variation. The ETA analysis uses a fixed episode assignment for
+both variants. Across the three nonempty ETA bins, arrival-time
+selection raises Dynamic SR by 11.6--14.2 points and Online Recovery SR by
+10.5--22.2 points while reducing excess distance by 4.71--6.04\,m
+(\cref{tab:eta-mechanisms}).
+
+\paragraph{Transfer to unseen households.}
+The main chronological split tests later days in previously observed scenes.
+For the household-disjoint test, we split 43 households with public state
+labels into 31 training, six validation, and six test households. All methods
+use the same 1,620 test episodes. \Cref{tab:household-disjoint} shows the
+highest Top-1 accuracy and lowest NLL for \evolvingworldnav{}. Last Seen has
+slightly higher MRR, and the Direct Transformer has slightly lower ECE. The
+split, five-model ensemble, and test-time controls are specified
+in \appref{app:experimental-setup,app:unseen-households}.
+
+\begin{table}[H]
+\caption{Current-state prediction on unseen households. Top-1, MRR, and ECE
+are fractions. NLL is unscaled. Neural results average probabilities from
+five independently trained models.}
+\label{tab:household-disjoint}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Method} & \textbf{Top-1 $\uparrow$} & \textbf{MRR $\uparrow$} &
+\textbf{NLL $\downarrow$} & \textbf{ECE $\downarrow$}\\
+\midrule
+Last Seen & 0.3658 & \textbf{0.5592} & 2.9686 & 0.5716\\
+Time Frequency & 0.1642 & 0.4114 & 2.2802 & 0.1505\\
+Markov & 0.3531 & 0.5396 & 5.4903 & 0.5241\\
+PredictiveGraphs & 0.2543 & 0.4867 & 7.0665 & 0.2662\\
+Direct Transformer & 0.2167 & 0.4532 & 1.7452 & \textbf{0.0142}\\
+\rowcolor{tblours}\textbf{\evolvingworldnav{}} &
+\textbf{0.3784} & 0.5567 & \textbf{1.6473} & 0.0159\\
+\bottomrule
+\end{tabular}
+\end{table}

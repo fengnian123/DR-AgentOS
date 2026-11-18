@@ -334,7 +334,8 @@ predictor is trained from scratch on the training households, with model
 selection restricted to the validation households. Eleven N5-only households
 without public state labels are excluded from this analysis, which is distinct
 from the primary chronological split and the complete 54-scene benchmark.
-Results appear in \appref{app:unseen-households}.
+Results appear in \cref{tab:household-disjoint}, with evaluation details in
+\appref{app:unseen-households}.
 
 \paragraph{Real-world protocol.}
 LYNX M20 is the primary quantitative platform, with X30 and Lite3 used for
@@ -470,7 +471,7 @@ because of space constraints.
 \subsection{Unseen-Household Predictive Generalization}
 \label{app:unseen-households}
 
-\Cref{tab:household-disjoint} evaluates the strict household-disjoint split
+\Cref{tab:household-disjoint} reports results for the household-disjoint split
 defined in \appref{app:experimental-setup}. All methods receive the same legal
 candidate set and causal history. For each neural method, five models are
 trained independently on the same 7,536 training episodes, selected with the
@@ -479,30 +480,6 @@ We average the five predicted probability vectors before computing the reported
 metrics; deterministic baselines are evaluated once. All methods use identical
 clipping and renormalization before NLL and ECE computation, so zero-probability
 events in one-hot baselines follow the same numerical convention.
-
-\begin{table}[!t]
-\caption{Current-state prediction on unseen households. Top-1, MRR, and ECE
-are fractions; NLL is unscaled. Neural results use five-model probability
-ensembles on the fixed test episodes.}
-\label{tab:household-disjoint}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lrrrr}
-\toprule
-\textbf{Method} & \textbf{Top-1 $\uparrow$} & \textbf{MRR $\uparrow$} &
-\textbf{NLL $\downarrow$} & \textbf{ECE $\downarrow$}\\
-\midrule
-Last Seen & 0.3658 & \textbf{0.5592} & 2.9686 & 0.5716\\
-Time Frequency & 0.1642 & 0.4114 & 2.2802 & 0.1505\\
-Markov & 0.3531 & 0.5396 & 5.4903 & 0.5241\\
-PredictiveGraphs & 0.2543 & 0.4867 & 7.0665 & 0.2662\\
-Direct Transformer & 0.2167 & 0.4532 & 1.7452 & \textbf{0.0142}\\
-\rowcolor{tblours}\textbf{\evolvingworldnav{}} &
-\textbf{0.3784} & 0.5567 & \textbf{1.6473} & 0.0159\\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \evolvingworldnav{} achieves the highest Top-1 accuracy and lowest NLL on
 unseen households. Its MRR (0.5567) is slightly below Last Seen (0.5592),
