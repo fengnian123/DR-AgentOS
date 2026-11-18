@@ -295,10 +295,9 @@ The household-disjoint split tests whether the predictor transfers to homes
 absent from training and validation. On the six held-out households,
 \evolvingworldnav{} improves Top-1 accuracy by 1.26 percentage points over
 Last Seen and achieves the lowest NLL (\cref{tab:household-disjoint}).
-The gains suggest that learned temporal patterns transfer to new homes,
-improving the first choice and the quality of the predicted probabilities.
-Last Seen's slightly higher MRR shows that recency remains a strong ranking
-signal. The split and evaluation protocol are in
+The results suggest that learned temporal patterns transfer across households
+and can inform where the agent inspects first. The split and evaluation
+protocol are in
 \appref{app:experimental-setup,app:unseen-households}.
 
 \begin{table}[H]
