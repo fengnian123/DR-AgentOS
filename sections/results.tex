@@ -106,7 +106,7 @@ points and Online Recovery SR by 22.0 points, while reducing excess distance by
 support the execution-time contribution: current-time propagation and time-valid
 evidence rounds let the agent recover after a target moves, while candidate
 reopening turns revisits into useful actions rather than permanent exclusions.
-\Cref{tab:temporal-controls-main} isolates these effects under matched controls.
+\revised{\Cref{tab:temporal-controls-main} isolates these effects under matched controls.}
 
 \begin{wraptable}[7]{r}{0.63\linewidth}
 \vspace{-0.7\baselineskip}
@@ -142,9 +142,9 @@ Across five benchmark tasks, \evolvingworldnav{} leads on seven of ten metrics (
 Across 64 matched M20 trials, the agent improves both success and
 efficiency (\cref{tab:real-main}); details are in \appref{app:real-world-eval}.
 
-The deployed VLM averages 2.447\,s per API call. At 5.70 calls per M20
+\revised{The deployed VLM averages 2.447\,s per API call. At 5.70 calls per M20
 episode, the estimated VLM time is 13.951\,s, or 5.6\% of the 248\,s mean
-end-to-end time (\appref{app:deployment-latency}).
+end-to-end time (\appref{app:deployment-latency}).}
 
 \paragraph{Temporal structure.}
 Under paired controls, the SR gain over Last Seen is 22.36 points in routine
@@ -248,23 +248,24 @@ lower NLL indicates improved probabilistic prediction. Additional ablations
 are in \appref{app:experimental-results}.
 
 \Needspace{9\baselineskip}
-\subsection{Controlled Temporal Mechanisms and Transfer}
+\subsection{\revised{Controlled Temporal Mechanisms and Transfer}}
 \label{sec:additional-controls}
 
-\paragraph{Isolating the dynamic closed loop.}
-On matched N4 episodes, the full method improves Online Recovery SR by
+\paragraph{\revised{Isolating the dynamic closed loop.}}
+\revised{On matched N4 episodes, the full method improves Online Recovery SR by
 20.4 percentage points over Current-State Selection and 20.0 points over
 Markov Propagation (\cref{tab:temporal-controls-main}). The first comparison
 supports ranking destinations by the target's predicted state at arrival.
 The second suggests that learned transitions help redirect search after
 the target moves. Disabling reopening lowers Dynamic SR by 12.5 points,
 supporting the value of rechecking a location after an earlier negative
-observation becomes stale.
+observation becomes stale.}
 
 \begin{table}[H]
-\caption{Controlled N4 temporal ablation (five-seed means, SR in \%).}
+\caption{\revised{Controlled N4 temporal ablation (five-seed means, SR in \%).}}
 \label{tab:temporal-controls-main}
 \centering
+\color{rebuttalblue}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lrrrr@{}}
@@ -282,29 +283,30 @@ No Reopening & 32.6 & 53.3 & 43.4 & 17.62\\
 \end{tabular}
 \end{table}
 
-Arrival-time selection improves Dynamic SR in every populated ETA bin and
+\revised{Arrival-time selection improves Dynamic SR in every populated ETA bin and
 yields the largest recovery gain above 60\,s (\cref{tab:eta-mechanisms}).
 Longer trips give the target more time to move before inspection, making
 the current state a less reliable guide to where the agent should search.
 The ablation is a separate rerun on the same N4 episodes as
 \cref{tab:n4-online}. \appref{app:mechanism-controls} reports the full results.
 Injected decision delays up to 8\,s mainly lengthen N4 episodes, with
-small changes in Dynamic and Online Recovery SR (\cref{fig:n4-delay-sensitivity}).
+small changes in Dynamic and Online Recovery SR (\cref{fig:n4-delay-sensitivity}).}
 
-\paragraph{Transfer to unseen households.}
-The household-disjoint split tests whether the predictor transfers to homes
+\paragraph{\revised{Transfer to unseen households.}}
+\revised{The household-disjoint split tests whether the predictor transfers to homes
 absent from training and validation. On the six held-out households,
 \evolvingworldnav{} improves Top-1 accuracy by 1.26 percentage points over
 Last Seen and achieves the lowest NLL (\cref{tab:household-disjoint}).
 The results suggest that learned temporal patterns transfer across households
 and can inform where the agent inspects first. The split and evaluation
 protocol are in
-\appref{app:experimental-setup,app:unseen-households}.
+\appref{app:experimental-setup,app:unseen-households}.}
 
 \begin{table}[H]
-\caption{Current-state prediction on unseen households.}
+\caption{\revised{Current-state prediction on unseen households.}}
 \label{tab:household-disjoint}
 \centering
+\color{rebuttalblue}
 \footnotesize
 \setlength{\tabcolsep}{8pt}
 \begin{tabular}{@{}lrrrr@{}}
