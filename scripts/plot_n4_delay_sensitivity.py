@@ -10,24 +10,21 @@ import matplotlib.pyplot as plt
 
 DELAYS = (0, 1, 2, 4, 8)
 METRICS = (
-    (
-        "Dynamic SR (%)",
+    (  # Dynamic SR (%)
         (65.2, 65.0, 64.7, 64.9, 64.1),
         (3.5, 1.8, 1.7, 1.7, 2.3),
         "#008D9A",
         (40, 50, 60, 70, 80),
         (40, 80),
     ),
-    (
-        "Online Recovery SR (%)",
+    (  # Online Recovery SR (%)
         (58.9, 58.4, 58.1, 57.3, 57.5),
         (6.2, 4.3, 4.1, 4.0, 3.3),
         "#607D8B",
         (40, 50, 60, 70, 80),
         (40, 80),
     ),
-    (
-        "Completion time (s)",
+    (  # Completion time (s)
         (66.2, 70.0, 77.5, 92.3, 121.6),
         (3.7, 3.7, 3.8, 3.9, 3.8),
         "#B78038",
@@ -43,17 +40,14 @@ def main():
             "font.family": "serif",
             "font.serif": ["Nimbus Roman", "Liberation Serif", "DejaVu Serif"],
             "font.size": 8,
-            "axes.labelcolor": "#253342",
-            "axes.titlecolor": "#253342",
             "xtick.color": "#253342",
             "ytick.color": "#253342",
             "pdf.fonttype": 42,
         }
     )
-    figure, axes = plt.subplots(1, 3, figsize=(5.5, 1.56))
-    figure.subplots_adjust(left=0.058, right=0.995, bottom=0.26, top=0.83, wspace=0.31)
-    for axis, (title, means, errors, color, ticks, limits) in zip(axes, METRICS):
-        axis.set_title(title, fontsize=8.5, fontweight="bold", pad=4)
+    figure, axes = plt.subplots(1, 3, figsize=(5.5, 1.23))
+    figure.subplots_adjust(left=0.058, right=0.995, bottom=0.18, top=0.90, wspace=0.31)
+    for axis, (means, errors, color, ticks, limits) in zip(axes, METRICS):
         axis.errorbar(
             DELAYS, means, yerr=errors, color=color, marker="o",
             markersize=2.8, linewidth=1.15, elinewidth=0.75, capsize=2,
@@ -70,7 +64,6 @@ def main():
         for spine in ("bottom", "left"):
             axis.spines[spine].set(color="#8D9BA5", linewidth=0.55)
 
-    figure.supxlabel("Injected delay per high-level decision (s)", y=0.04, fontsize=8.5)
     output = Path(__file__).resolve().parents[1] / "figures" / "n4_delay_sensitivity.pdf"
     figure.savefig(output, metadata={"CreationDate": None, "ModDate": None})
 
