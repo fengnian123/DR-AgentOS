@@ -825,7 +825,7 @@ success rates.
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=0.96\textwidth]{figures/behavior_shift_trace_grounding.pdf}
+\includegraphics[width=0.91\textwidth]{figures/behavior_shift_trace_grounding.pdf}
 \caption{Recovery under behavior shift and temporal grounding to held-out traces.}
 \label{fig:behavior-shift-grounding}
 \end{figure*}
@@ -906,15 +906,7 @@ Retrieval + Reasoning & 31.3 & 40.6 & 25.1 & 21.9 & 34.4 & 75.5 \\
 \end{tabular}
 \end{table}
 
-\begin{figure*}[!t]
-    \centering
-    \includegraphics[width=0.92\textwidth]{figures/Real_World_Case_third_2.pdf}
-    \vspace{2pt}
-    \includegraphics[width=0.92\textwidth]{figures/Real_World_Case_third_3.pdf}
-    \caption{Indoor cup search with predictive belief (top) and stale Last Seen memory (bottom).}
-    \label{fig:real-world-cup-comparison}
-\end{figure*}
-
+\Needspace{8\baselineskip}
 \subsection{Temporal Condition Analysis}
 \label{app:temporal-analysis}
 
@@ -947,8 +939,17 @@ when nothing changes, whereas all methods degrade as regularity weakens. This
 breakdown distinguishes the benefits of routine modeling from improvements
 attributable to generic search.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.66\linewidth]{figures/Real_World_Case_third_2.pdf}
+    \vspace{2pt}
+    \includegraphics[width=0.66\linewidth]{figures/Real_World_Case_third_3.pdf}
+    \caption{Indoor cup search with predictive belief (top) and stale Last Seen memory (bottom).}
+    \label{fig:real-world-cup-comparison}
+\end{figure}
+
 \par\medskip
-\Needspace{14\baselineskip}
+\Needspace{10\baselineskip}
 \begin{wraptable}[10]{r}{0.60\linewidth}
 \vspace{-0.7\baselineskip}
 \centering
@@ -992,8 +993,6 @@ reaches its current location. The two-row indoor comparison in
 first inspects the now-empty pantry rack. These traces visualize representative
 outcomes and do not add observations to the aggregate success-rate measurements.
 
-\FloatBarrier
-
 \paragraph{Additional system execution cases.}
 Beyond predictive target search,
 \cref{fig:real-world-indoor-long-horizon,fig:real-world-outdoor-long-horizon}
@@ -1006,21 +1005,19 @@ shared-bike search. These cases
 demonstrate broader system orchestration but are not used as quantitative
 evidence for the predictive-belief module.
 
-\begin{figure}[!t]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=\textwidth]{figures/Real_World_Case_1.pdf}
+    \includegraphics[width=0.87\linewidth]{figures/Real_World_Case_1.pdf}
     \caption{Long-horizon indoor document-delivery execution.}
     \label{fig:real-world-indoor-long-horizon}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=\textwidth]{figures/Real_World_Case_2.pdf}
+    \includegraphics[width=0.93\linewidth]{figures/Real_World_Case_2.pdf}
     \caption{Long-horizon outdoor shared-bike search.}
     \label{fig:real-world-outdoor-long-horizon}
 \end{figure}
-
-\FloatBarrier
 
 \subsection{Deployment Latency and Delay Sensitivity}
 \label{app:deployment-latency}
@@ -1031,19 +1028,14 @@ after one warm-up call. Mean, median, and 90th-percentile latency were
 giving an estimated 13.951\,s of VLM latency, or 5.6\% of the mean
 end-to-end episode time of 248\,s (\cref{tab:real-main}).
 
-\Cref{tab:decision-module-profile} profiles the high-level decision module.
-VLM timing covers wall-clock API request latency. Belief inference and planning
-cover the model forward pass and high-level planner. Memory retrieval,
-navigation dispatch, and inspection cover in-process retrieval and interface
-calls. The profile excludes robot motion, low-level control execution, sensor
-acquisition, and perception-pipeline execution.
-
-\begin{table}[!htbp]
-\caption{High-level decision-module timing per M20 episode.}
+\Needspace{9\baselineskip}
+\begin{wraptable}{r}{0.50\linewidth}
+\vspace{-0.7\baselineskip}
+\caption{Decision-module timing on M20.}
 \label{tab:decision-module-profile}
 \centering
-\footnotesize
-\setlength{\tabcolsep}{8pt}
+\scriptsize
+\setlength{\tabcolsep}{5pt}
 \begin{tabular}{@{}lr@{}}
 \toprule
 \textbf{Component} & \textbf{Time per episode (s)}\\
@@ -1056,40 +1048,31 @@ Navigation command dispatch & 0.000002\\
 Inspection interface & 0.000396\\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{wraptable}
+
+\Cref{tab:decision-module-profile} profiles the high-level decision module.
+VLM timing covers wall-clock API request latency. Belief inference and planning
+cover the model forward pass and high-level planner. Memory retrieval,
+navigation dispatch, and inspection cover in-process retrieval and interface
+calls. The profile excludes robot motion, low-level control execution, sensor
+acquisition, and perception-pipeline execution.
 
 In simulation, we injected a fixed delay after each high-level decision on
 the preselected N4 episodes from \cref{tab:n4-online}. Both the belief clock
 and the hidden target schedule advance during the wait. All settings share
 the planner, candidates, inspection rule, and navigation budget.
-\Cref{tab:n4-delay-sensitivity} reports means with across-seed variation.
+\Cref{fig:n4-delay-sensitivity} shows means with across-seed variation.
 The zero-delay result is consistent with \cref{tab:n4-online}.
 From 0 to 8\,s of delay per decision, mean completion time rises from 66.2
 to 121.6\,s, while Dynamic SR and Online Recovery SR decline by 1.1 and
 1.4 percentage points, respectively.
 
-\begin{table}[!htbp]
-\caption{N4 sensitivity to delay per high-level decision.}
-\label{tab:n4-delay-sensitivity}
+\begin{figure}[!htbp]
 \centering
-\footnotesize
-\setlength{\tabcolsep}{8pt}
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-\textbf{Delay (s)} & \textbf{Dynamic SR (\%) $\uparrow$} &
-\textbf{Online Recovery SR (\%) $\uparrow$} &
-\textbf{Completion time (s) $\downarrow$}\\
-\midrule
-0 & $65.2\pm3.5$ & $58.9\pm6.2$ & $66.2\pm3.7$\\
-1 & $65.0\pm1.8$ & $58.4\pm4.3$ & $70.0\pm3.7$\\
-2 & $64.7\pm1.7$ & $58.1\pm4.1$ & $77.5\pm3.8$\\
-4 & $64.9\pm1.7$ & $57.3\pm4.0$ & $92.3\pm3.9$\\
-8 & $64.1\pm2.3$ & $57.5\pm3.3$ & $121.6\pm3.8$\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\FloatBarrier
+\includegraphics[width=\linewidth]{figures/n4_delay_sensitivity.pdf}
+\caption{N4 sensitivity to high-level decision delays.}
+\label{fig:n4-delay-sensitivity}
+\end{figure}
 
 \section{Reproducibility and Responsible AI}
 \label{app:reproducibility}
