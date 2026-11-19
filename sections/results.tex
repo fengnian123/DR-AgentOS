@@ -142,11 +142,9 @@ Across five benchmark tasks, \evolvingworldnav{} leads on seven of ten metrics (
 Across 64 matched M20 trials, the agent improves both success and
 efficiency (\cref{tab:real-main}); details are in \appref{app:real-world-eval}.
 
-Across these evaluations, the gains appear at three levels: cross-benchmark
-results improve initial destination selection, N4 isolates recovery under
-execution-time motion, and robot trials translate the same belief interface
-into shorter paths and fewer inspections. Together, these results suggest that the gains extend beyond
-benchmark-specific exploration or controller choice.
+The deployed VLM averages 2.447\,s per API call. At 5.70 calls per M20
+episode, the estimated VLM time is 13.951\,s, or 5.6\% of the 248\,s mean
+end-to-end time (\appref{app:deployment-latency}).
 
 \paragraph{Temporal structure.}
 Under paired controls, the SR gain over Last Seen is 22.36 points in routine
@@ -249,7 +247,7 @@ gain supports transfer beyond scene-specific destination statistics, while the
 lower NLL indicates improved probabilistic prediction. Additional ablations
 are in \appref{app:experimental-results}.
 
-\Needspace{9\baselineskip}
+\Needspace{12\baselineskip}
 \subsection{Controlled Temporal Mechanisms and Transfer}
 \label{sec:additional-controls}
 
@@ -264,21 +262,22 @@ supporting the value of rechecking a location after an earlier negative
 observation becomes stale.
 
 \begin{table}[H]
-\caption{Controlled N4 temporal ablation (five-seed means).}
+\caption{Controlled N4 temporal ablation (five-seed means, SR in \%).}
 \label{tab:temporal-controls-main}
 \centering
 \footnotesize
-\setlength{\tabcolsep}{6pt}
-\begin{tabular}{@{}lrrr@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-\textbf{Variant} & \textbf{Dynamic SR $\uparrow$} &
-\textbf{Online Recovery SR $\uparrow$} & \textbf{Excess dist. (m) $\downarrow$}\\
+\textbf{Variant} & \textbf{First-Insp. SR $\uparrow$} &
+\textbf{Dynamic SR $\uparrow$} & \textbf{Online Recovery SR $\uparrow$} &
+\textbf{Excess dist. (m) $\downarrow$}\\
 \midrule
-Current-State Selection & 52.3 & 38.4 & 14.42\\
-Markov Propagation & 59.8 & 38.8 & 17.98\\
-No Reopening & 53.3 & 43.4 & 17.62\\
+Current-State Selection & 33.2 & 52.3 & 38.4 & 14.42\\
+Markov Propagation & 33.5 & 59.8 & 38.8 & 17.98\\
+No Reopening & 32.6 & 53.3 & 43.4 & 17.62\\
 \rowcolor{tblours}\textbf{Full \evolvingworldnav{}} &
-\textbf{65.8} & \textbf{58.8} & \textbf{8.52}\\
+\textbf{41.8} & \textbf{65.8} & \textbf{58.8} & \textbf{8.52}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -289,6 +288,8 @@ Longer trips give the target more time to move before inspection, making
 the current state a less reliable guide to where the agent should search.
 The ablation is a separate rerun on the same N4 episodes as
 \cref{tab:n4-online}. \appref{app:mechanism-controls} reports the full results.
+Injected decision delays up to 8\,s mainly lengthen N4 episodes, with
+small changes in Dynamic and Online Recovery SR (\cref{tab:n4-delay-sensitivity}).
 
 \paragraph{Transfer to unseen households.}
 The household-disjoint split tests whether the predictor transfers to homes

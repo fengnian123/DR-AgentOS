@@ -625,16 +625,14 @@ sufficiently long history, rather than merely the most recent observations.
 \subsubsection{Arrival-Time Selection, Propagation, and Reopening}
 \label{app:mechanism-controls}
 
-The one-factor controls in \cref{tab:temporal-mechanisms} change only the
-specified operation. Current-State Selection ranks destinations by the
-current-time belief rather than the candidate-specific arrival-time belief;
-Markov Propagation replaces only the learned transition kernel with a
-first-order Markov kernel; No Reopening prevents a previously inspected
-candidate from becoming eligible again. Episodes, observations, candidates,
-controller, planner, and maximum inspection budget are held fixed. The full
-row is a separate five-seed controlled rerun on the same preselected N4
-episodes, so small differences from \cref{tab:n4-online} reflect stochastic
-variation rather than a different test set.
+\Cref{tab:temporal-mechanisms} changes one operation at a time.
+Current-State Selection ranks destinations using the belief at decision
+time. Markov Propagation uses a first-order Markov transition kernel.
+No Reopening keeps inspected candidates ineligible after a time-valid
+change. All variants share online evidence updates, episodes, observations,
+candidates, controller, planner, and an inspection budget of $B=10$.
+The full row comes from a separate five-seed rerun on the preselected N4
+episodes used in \cref{tab:n4-online}.
 
 \begin{table*}[!t]
 \caption{One-factor temporal ablation on the preselected N4 dynamic episodes.
@@ -1019,6 +1017,75 @@ evidence for the predictive-belief module.
     \caption{Long-horizon outdoor shared-bike search.}
     \label{fig:real-world-outdoor-long-horizon}
 \end{figure}
+
+\FloatBarrier
+
+\subsection{Deployment Latency and Delay Sensitivity}
+\label{app:deployment-latency}
+
+We timed 100 requests to the deployed \texttt{gpt-5.6-luna} Responses API
+after one warm-up call. Mean, median, and 90th-percentile latency were
+2.447, 2.279, and 3.313\,s per call. The M20 averaged 5.70 calls per episode,
+giving an estimated 13.951\,s of VLM latency, or 5.6\% of the mean
+end-to-end episode time of 248\,s (\cref{tab:real-main}).
+
+\Cref{tab:decision-module-profile} profiles the high-level decision module.
+VLM timing covers wall-clock API request latency. Belief inference and planning
+cover the model forward pass and high-level planner. Memory retrieval,
+navigation dispatch, and inspection cover in-process retrieval and interface
+calls. The profile excludes robot motion, low-level control execution, sensor
+acquisition, and perception-pipeline execution.
+
+\begin{table}[!htbp]
+\caption{High-level decision-module timing per M20 episode.}
+\label{tab:decision-module-profile}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Component} & \textbf{Time per episode (s)}\\
+\midrule
+VLM API calls & 13.950650\\
+Memory retrieval & 0.0000003\\
+Predictive-belief inference & 0.001671\\
+High-level planning & 0.003463\\
+Navigation command dispatch & 0.000002\\
+Inspection interface & 0.000396\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In simulation, we injected a fixed delay after each high-level decision on
+the preselected N4 episodes from \cref{tab:n4-online}. Both the belief clock
+and the hidden target schedule advance during the wait. All settings share
+the planner, candidates, inspection rule, and navigation budget.
+\Cref{tab:n4-delay-sensitivity} reports means with across-seed variation.
+The zero-delay result is consistent with \cref{tab:n4-online}.
+From 0 to 8\,s of delay per decision, mean completion time rises from 66.2
+to 121.6\,s, while Dynamic SR and Online Recovery SR decline by 1.1 and
+1.4 percentage points, respectively.
+
+\begin{table}[!htbp]
+\caption{N4 sensitivity to delay per high-level decision.}
+\label{tab:n4-delay-sensitivity}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Delay (s)} & \textbf{Dynamic SR (\%) $\uparrow$} &
+\textbf{Online Recovery SR (\%) $\uparrow$} &
+\textbf{Completion time (s) $\downarrow$}\\
+\midrule
+0 & $65.2\pm3.5$ & $58.9\pm6.2$ & $66.2\pm3.7$\\
+1 & $65.0\pm1.8$ & $58.4\pm4.3$ & $70.0\pm3.7$\\
+2 & $64.7\pm1.7$ & $58.1\pm4.1$ & $77.5\pm3.8$\\
+4 & $64.9\pm1.7$ & $57.3\pm4.0$ & $92.3\pm3.9$\\
+8 & $64.1\pm2.3$ & $57.5\pm3.3$ & $121.6\pm3.8$\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \FloatBarrier
 
