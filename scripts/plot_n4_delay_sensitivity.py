@@ -51,8 +51,8 @@ def main():
     )
     figure, axes = plt.subplots(1, 3, figsize=(5.5, 1.23))
     figure.subplots_adjust(left=0.072, right=0.995, bottom=0.28, top=0.86, wspace=0.38)
-    figure.supxlabel("Decision delay (s)", y=0.025, fontsize=8)
     for axis, (label, means, errors, color, ticks, limits) in zip(axes, METRICS):
+        axis.set_xlabel("Decision delay (s)", labelpad=3)
         axis.set_ylabel(label, fontsize=7.2, labelpad=2)
         axis.errorbar(
             DELAYS, means, yerr=errors, color=color, marker="o",
