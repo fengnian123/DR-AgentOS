@@ -50,6 +50,13 @@
 \definecolor{rebuttalblue}{RGB}{0,71,171}
 \DeclareRobustCommand{\revised}[1]{\textcolor{rebuttalblue}{#1}}
 \pdfstringdefDisableCommands{\def\revised#1{#1}}
+\newcommand{\revisedtablecaption}[2]{%
+  \begingroup
+  \color{rebuttalblue}%
+  \caption{#1}%
+  \label{#2}%
+  \endgroup
+}
 \definecolor{tblheader}{RGB}{233,238,245}
 \definecolor{tblours}{RGB}{238,240,242}
 \definecolor{tblreported}{RGB}{244,246,250}
