@@ -1,0 +1,51 @@
+{
+  "environment": "findingdory (Habitat-Sim runtime only)",
+  "results": [
+    {
+      "articulated_loaded": 14,
+      "expected_rigid_loaded": 128,
+      "finite_after_physics_step": true,
+      "loaded": true,
+      "navmesh_loaded": true,
+      "rigid_loaded": 128,
+      "scene_id": "102344280"
+    },
+    {
+      "articulated_loaded": 20,
+      "expected_rigid_loaded": 94,
+      "finite_after_physics_step": true,
+      "loaded": true,
+      "navmesh_loaded": true,
+      "rigid_loaded": 94,
+      "scene_id": "102344094"
+    },
+    {
+      "articulated_loaded": 26,
+      "expected_rigid_loaded": 132,
+      "finite_after_physics_step": true,
+      "loaded": true,
+      "navmesh_loaded": true,
+      "rigid_loaded": 132,
+      "scene_id": "102816852"
+    },
+    {
+      "articulated_loaded": 21,
+      "expected_rigid_loaded": 100,
+      "finite_after_physics_step": true,
+      "loaded": true,
+      "navmesh_loaded": true,
+      "rigid_loaded": 100,
+      "scene_id": "103997403_171030405"
+    },
+    {
+      "articulated_loaded": 18,
+      "expected_rigid_loaded": 98,
+      "finite_after_physics_step": true,
+      "loaded": true,
+      "navmesh_loaded": true,
+      "rigid_loaded": 98,
+      "scene_id": "104348511_171513654"
+    }
+  ],
+  "valid": true
+}

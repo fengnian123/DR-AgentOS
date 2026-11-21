@@ -1,0 +1,87 @@
+[
+  {
+    "activity_count": 368,
+    "candidate_state_count": 28,
+    "household_profile": "hybrid_worker_original_home",
+    "observation_count": 1143,
+    "predictive_memory_class_counts": {
+      "activity_routine_mobile": 11,
+      "irregular_mobile": 7,
+      "personal_habit_mobile": 8,
+      "stable": 4
+    },
+    "query_count": 1460,
+    "region_count": 15,
+    "scene_id": "102344280",
+    "target_instance_count": 30,
+    "world_event_count": 1782
+  },
+  {
+    "activity_count": 369,
+    "candidate_state_count": 28,
+    "household_profile": "hybrid_worker",
+    "observation_count": 1150,
+    "predictive_memory_class_counts": {
+      "activity_routine_mobile": 11,
+      "irregular_mobile": 7,
+      "personal_habit_mobile": 8,
+      "stable": 4
+    },
+    "query_count": 1460,
+    "region_count": 11,
+    "scene_id": "102344094",
+    "target_instance_count": 30,
+    "world_event_count": 1761
+  },
+  {
+    "activity_count": 368,
+    "candidate_state_count": 28,
+    "household_profile": "mostly_home_worker",
+    "observation_count": 1141,
+    "predictive_memory_class_counts": {
+      "activity_routine_mobile": 11,
+      "irregular_mobile": 7,
+      "personal_habit_mobile": 8,
+      "stable": 4
+    },
+    "query_count": 1460,
+    "region_count": 11,
+    "scene_id": "102816852",
+    "target_instance_count": 30,
+    "world_event_count": 1714
+  },
+  {
+    "activity_count": 369,
+    "candidate_state_count": 28,
+    "household_profile": "home_based_adult",
+    "observation_count": 1145,
+    "predictive_memory_class_counts": {
+      "activity_routine_mobile": 11,
+      "irregular_mobile": 7,
+      "personal_habit_mobile": 8,
+      "stable": 4
+    },
+    "query_count": 1460,
+    "region_count": 8,
+    "scene_id": "103997403_171030405",
+    "target_instance_count": 30,
+    "world_event_count": 1731
+  },
+  {
+    "activity_count": 367,
+    "candidate_state_count": 28,
+    "household_profile": "office_worker",
+    "observation_count": 1138,
+    "predictive_memory_class_counts": {
+      "activity_routine_mobile": 11,
+      "irregular_mobile": 7,
+      "personal_habit_mobile": 8,
+      "stable": 4
+    },
+    "query_count": 1460,
+    "region_count": 18,
+    "scene_id": "104348511_171513654",
+    "target_instance_count": 30,
+    "world_event_count": 1754
+  }
+]

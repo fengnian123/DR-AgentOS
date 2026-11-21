@@ -1,0 +1,44 @@
+{
+  "candidate_policy": {
+    "event_generation_anchors_unchanged": true,
+    "search_candidates_include_semantically_valid_distractors": true,
+    "test_labels_used_to_select_candidates": false
+  },
+  "day_index_origin": 0,
+  "hidden_test_tables": [
+    "labels",
+    "world_events",
+    "activities",
+    "world_snapshots"
+  ],
+  "leakage_checks": {
+    "future_observation_in_input": 0,
+    "public_test_activity_files": 0,
+    "public_test_label_non_null": 0,
+    "public_test_world_event_files": 0
+  },
+  "model_input_tables": [
+    "queries.target",
+    "queries.query",
+    "queries.history_summary",
+    "queries.target_history",
+    "queries.context_history",
+    "queries.candidate_state_ids",
+    "candidate_states",
+    "scene_catalog"
+  ],
+  "split_strategy": "contiguous_days_within_world",
+  "test_days": [
+    35,
+    39
+  ],
+  "timeline_start": "2026-01-05T00:00:00+08:00",
+  "train_days": [
+    0,
+    29
+  ],
+  "validation_days": [
+    30,
+    34
+  ]
+}

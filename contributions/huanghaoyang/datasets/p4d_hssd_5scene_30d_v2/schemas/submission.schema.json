@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "predicted_state_id": {
+      "type": "integer"
+    },
+    "query_id": {
+      "type": "string"
+    },
+    "state_probabilities": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "query_id",
+    "predicted_state_id",
+    "state_probabilities"
+  ],
+  "title": "P4D Submission",
+  "type": "object"
+}
